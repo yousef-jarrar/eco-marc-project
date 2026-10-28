@@ -1,14 +1,12 @@
-/* Eco Marc — Design Tokens */
-@import url("fonts.css");
-
+/* Eco Marc: shared design variables. Load before page styles. */
+@import url('fonts.css');
 :root {
-  /* Brand */
+  /* Brand colors */
   --color-primary: #171717;
   --color-primary-hover: #333333;
   --color-accent: #b89569;
   --color-accent-hover: #9c7b50;
   --color-accent-light: #f2eadf;
-
   /* Backgrounds */
   --color-background: #ffffff;
   --color-surface: #f7f7f5;
@@ -16,25 +14,21 @@
   --color-surface-admin: #f6f6f4;
   --color-surface-image: #f1f1ef;
   --color-overlay: rgba(0, 0, 0, 0.4);
-
   /* Text */
   --color-text: #171717;
   --color-text-secondary: #666666;
   --color-text-muted: #929292;
   --color-text-inverse: #ffffff;
   --color-text-placeholder: #737373;
-
   /* Borders and focus */
   --color-border: #e5e5e5;
   --color-border-strong: #cccccc;
   --color-input-border: #d6d6d6;
   --color-focus: #416b98;
-
   --border-default: 1px solid var(--color-border);
   --focus-ring: 3px solid var(--color-focus);
   --focus-offset: 3px;
-
-  /* Feedback */
+  /* Feedback colors */
   --color-success: #237a56;
   --color-success-light: #e7f2ec;
   --color-warning: #c58a24;
@@ -43,13 +37,11 @@
   --color-danger-light: #f8e7e7;
   --color-info: #416b98;
   --color-info-light: #eaf0f6;
-
   /* Font families */
-  --font-body: "Inter", Arial, sans-serif;
-  --font-heading: "Manrope", Arial, sans-serif;
-  --font-display: "DM Serif Display", Georgia, serif;
-
-  /* Font sizes */
+  --font-body: 'Inter', Arial, sans-serif;
+  --font-heading: 'Manrope', Arial, sans-serif;
+  --font-display: 'DM Serif Display', Georgia, serif;
+  /* Font sizes and weights */
   --font-size-xs: 0.6875rem;
   --font-size-sm: 0.75rem;
   --font-size-base: 0.875rem;
@@ -61,21 +53,16 @@
   --font-size-4xl: 2.375rem;
   --font-size-title: clamp(2rem, 4vw, 3.625rem);
   --font-size-hero: clamp(3.375rem, 6.5vw, 6rem);
-
-  /* Font weights */
   --font-weight-regular: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
   --font-weight-extrabold: 800;
-
-  /* Typography */
   --line-height-tight: 1.1;
   --line-height-heading: 1.2;
   --line-height-body: 1.6;
   --letter-spacing-heading: -0.04em;
-
-  /* Spacing */
+  /* Spacing: 8px base with compact intermediate steps */
   --space: 8px;
   --space-0: 0;
   --space-1: 4px;
@@ -90,7 +77,6 @@
   --space-16: 64px;
   --space-20: 80px;
   --space-24: 96px;
-
   /* Layout */
   --container-max: 1440px;
   --container-admin-max: 1700px;
@@ -103,36 +89,30 @@
   --sidebar-collapsed-width: 80px;
   --chat-width: 380px;
   --product-image-ratio: 4 / 5;
-
-  /* Controls */
+  /* Controls and corners */
   --control-height: 46px;
   --control-height-sm: 36px;
   --touch-target: 44px;
   --button-padding: 12px 22px;
   --input-padding: 11px 12px;
-  --opacity-disabled: 0.45;
-
-  /* Corners */
   --radius-none: 0;
   --radius-sm: 3px;
   --radius-md: 8px;
   --radius-pill: 999px;
   --radius-circle: 50%;
-
+  --opacity-disabled: 0.45;
   /* Shadows */
   --shadow-none: none;
   --shadow-menu: 0 12px 20px rgba(0, 0, 0, 0.13);
   --shadow-launcher: 0 3px 20px rgba(0, 0, 0, 0.13);
   --shadow-panel: 0 8px 40px rgba(0, 0, 0, 0.13);
-
   /* Motion */
   --duration-fast: 150ms;
   --duration-normal: 250ms;
   --duration-slow: 450ms;
   --ease-default: ease;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-
-  /* Layers */
+  /* Layers; SweetAlert2 uses its own higher dialog layer */
   --z-header: 30;
   --z-sidebar: 35;
   --z-chat-launcher: 40;
@@ -144,6 +124,7 @@
   :root {
     --header-height: 72px;
   }
+
 }
 
 @media (max-width: 580px) {
@@ -154,6 +135,7 @@
     --admin-header-height: 64px;
     --chat-width: 100%;
   }
+
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -162,4 +144,5 @@
     --duration-normal: 0ms;
     --duration-slow: 0ms;
   }
+
 }
