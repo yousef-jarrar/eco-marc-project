@@ -3,21 +3,31 @@ header("Content-Type: application/json; charset=utf-8");
 
 require_once __DIR__ . "/../config/db.php";
 require_once __DIR__ . "/../classes/Review.php";
+// Auth
+require_once __DIR__ . "/../middleware/admin.php";
+requireAdmin() ;
+
+require_once __DIR__ . "/../middleware/csrf.php";
+
+
 
 try {
     $db = new Database();
     $review = new Review($db->connect());
 
     $method = $_SERVER["REQUEST_METHOD"];
+    if (in_array($method, ["PATCH", "DELETE"], true)) {
+        requireCsrf();
+    }
 
     switch ($method) {
         case "GET":
             if (isset($_GET["stats"])) {
                 $data = $review->getStatistics();
-                
+
             } elseif (isset($_GET["id"])) {
                 $id = filter_var($_GET["id"], FILTER_VALIDATE_INT);
-                
+
                 if (!$id || $id <= 0) {
                     http_response_code(400);
                     echo json_encode([
@@ -26,9 +36,9 @@ try {
                     ]);
                     break;
                 }
-                
+
                 $data = $review->getReviewById($id);
-                
+
                 if ($data === false) {
                     http_response_code(404);
                     echo json_encode([
@@ -37,11 +47,11 @@ try {
                     ]);
                     break;
                 }
-                
+
             } else {
                 $data = $review->getAllReviews();
             }
-                
+
             echo json_encode([
                 "success" => true,
                 "data" => $data
