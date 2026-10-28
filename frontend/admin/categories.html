@@ -1,33 +1,36 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Categories | Eco Marc Admin</title>
-
-    <link rel="stylesheet" href="../assets/css/index.css">
-    <link rel="stylesheet" href="../assets/css/global.css">
-    <link rel="stylesheet" href="../assets/css/admin-categories.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Categories | Eco Marc Admin</title>
+  <link rel="stylesheet" href="../assets/vendor/bootstrap.min.css">
+  <link rel="stylesheet" href="../assets/vendor/fontawesome.min.css">
+  <link rel="stylesheet" href="../assets/css/index.css">
+  <link rel="stylesheet" href="../assets/css/global.css">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+  <link rel="stylesheet" href="../assets/css/admin-categories.css">
 </head>
+<body data-page="categories" class="categories-page">
+  <a class="sr-only" href="#main">Skip to content</a>
+  <button class="sidebar-backdrop" id="sidebar-backdrop" aria-label="Close navigation" hidden></button>
+  <aside class="admin-sidebar" id="admin-sidebar">
+    <div id="sidebar-content"></div>
+  </aside>
 
-<body>
-
-    <div class="admin-container">
-
-        <aside class="sidebar"></aside>
-
-        <main class="main-content">
-
-            <div class="categories-header">
+  <div class="admin-shell">
+    <header class="admin-topbar">
+      <span class="topbar-path">Eco Marc / Categories</span>
+    </header>
+    <main class="admin-main" id="main">
+<div class="page-heading">
                 <div>
                     <h1>A place for every piece.</h1>
                     <p>Organize the collection without losing its point of view.</p>
                 </div>
 
                 <button type="button" id="addCategoryBtn">
-                    + Add category
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i> Add category
                 </button>
             </div>
 
@@ -54,54 +57,19 @@
                             </tr>
                         </thead>
 
-                        <tbody id="categoriesTableBody"></tbody>
+                        <tbody id="categoriesTableBody" aria-live="polite"><tr><td colspan="4">Loading categories…</td></tr></tbody>
 
                     </table>
                 </div>
 
             </div>
+    </main>
+  </div>
 
-             <dialog id="categoryDialog">
-             
-                 <form id="categoryForm">
-             
-                     <h2 id="formTitle">Add Category</h2>
-             
-                     <input type="hidden" id="categoryId">
-             
-                     <label for="categoryName">Category Name</label>
-                     <input
-                         type="text"
-                         id="categoryName"
-                         required
-                     >
-             
-                     <label for="categoryImage">Upload url Image</label>
-                     <input
-                         type="url"
-                         id="categoryImage"
-                        placeholder="https://example.com/image.jpg"
-                     >
-             
-                     <div class="category-actions">
-             
-                         <button type="submit">Save</button>
-             
-                         <button type="button" id="cancelCategoryBtn">
-                             Cancel
-                         </button>
-             
-                     </div>
-             
-                 </form>
-             
-             </dialog>
-             
-        </main>
-
-    </div>
-
-    <script type="module" src="../assets/js/categories.js"></script>
-
+  <script src="../assets/vendor/sweetalert2.all.min.js"></script>
+  <script src="../assets/js/admin-api.js"></script>
+  <script src="../assets/js/alerts.js"></script>
+  <script src="../assets/js/admin-layout.js"></script>
+  <script type="module" src="../assets/js/categories.js"></script>
 </body>
 </html>

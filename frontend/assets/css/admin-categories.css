@@ -1,14 +1,3 @@
-.admin-container {
-    min-height: 100vh;
-    background: var(--color-surface-admin);
-}
-
-.main-content {
-    max-width: var(--container-admin-max);
-    margin: 0 auto;
-    padding: var(--space-10);
-}
-
 .categories-header {
     display: flex;
     justify-content: space-between;
@@ -135,10 +124,6 @@
 }
 
 @media (max-width: 768px) {
-    .main-content {
-        padding: var(--space-5);
-    }
-
     .categories-header {
         flex-direction: column;
         align-items: flex-start;
@@ -203,3 +188,16 @@
     color: var(--color-text-inverse);
     border: none;
 }
+/* الجدول والنموذج داخل توزيع الإدارة المشترك */
+.categories-table { min-width: 550px; }
+#categoryDialog { width: min(450px, calc(100% - 32px)); max-height: calc(100dvh - 48px); overflow: auto; }
+.categories-page .page-heading > div { min-width: 0; }
+@media (max-width: 580px) {
+  .categories-page .page-heading { flex-wrap: wrap; }
+  #categoryDialog { padding: 24px; }
+}
+
+/* نموذج التصنيف داخل SweetAlert2 */
+.category-alert-form { text-align: left; }
+.category-alert-form label { margin-top: 16px; }
+.category-alert-form input { width: 100%; font-size: 14px; }

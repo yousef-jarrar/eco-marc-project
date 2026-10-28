@@ -30,5 +30,30 @@ const Alerts = {
       showConfirmButton: false,
       timerProgressBar: true
     });
+  },
+
+  // نموذج مشترك؛ التحقق والحفظ يحددهما كود الصفحة.
+  form: function (title, html, save) {
+    return Swal.fire({
+      title: title,
+      html: html,
+      showCancelButton: true,
+      confirmButtonText: "Save",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#171717",
+      focusConfirm: false,
+      showLoaderOnConfirm: true,
+      allowOutsideClick: function () { return !Swal.isLoading(); },
+      allowEscapeKey: function () { return !Swal.isLoading(); },
+      preConfirm: save,
+      didOpen: function () {
+        const input = document.querySelector(".swal2-html-container input");
+        if (input) input.focus();
+      }
+    });
+  },
+
+  validation: function (message) {
+    Swal.showValidationMessage(message);
   }
 };
