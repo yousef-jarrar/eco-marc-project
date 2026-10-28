@@ -1,0 +1,205 @@
+.admin-container {
+    min-height: 100vh;
+    background: var(--color-surface-admin);
+}
+
+.main-content {
+    max-width: var(--container-admin-max);
+    margin: 0 auto;
+    padding: var(--space-10);
+}
+
+.categories-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-6);
+    margin-bottom: var(--space-8);
+}
+
+.categories-header h1 {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+}
+
+.categories-header p {
+    margin: var(--space-2) 0 0;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-base);
+}
+
+#addCategoryBtn {
+    flex-shrink: 0;
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    padding: var(--button-padding);
+    border: 1px solid var(--color-primary);
+    cursor: pointer;
+}
+
+#addCategoryBtn:hover {
+    background: var(--color-primary-hover);
+}
+
+.categories-card {
+    background: var(--color-background);
+    border: var(--border-default);
+    padding: var(--space-6);
+}
+
+.categories-search {
+    margin-bottom: var(--space-6);
+}
+
+.categories-search input {
+    width: 100%;
+    max-width: 350px;
+    min-height: var(--control-height);
+    padding: var(--input-padding);
+    border: 1px solid var(--color-input-border);
+    background: var(--color-background);
+    color: var(--color-text);
+    font-size: var(--font-size-base);
+}
+
+.categories-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.categories-table th {
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    text-align: left;
+    padding: var(--space-4);
+}
+
+.categories-table td {
+    padding: var(--space-4);
+    border-bottom: var(--border-default);
+    vertical-align: middle;
+}
+
+.category-info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.category-info img {
+    width: 45px;
+    height: 50px;
+    object-fit: cover;
+}
+
+.categories-table .status {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+}
+
+.categories-table .status.Active {
+    background: var(--color-success-light);
+    color: var(--color-success);
+}
+
+.categories-table .status.Inactive {
+    background: var(--color-danger-light);
+    color: var(--color-danger);
+}
+
+.category-actions {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.category-actions button {
+    background: var(--color-background);
+    color: var(--color-text);
+    border: 1px solid var(--color-border-strong);
+    padding: 7px 12px;
+    min-height: var(--control-height-sm);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+}
+
+.category-actions button:hover {
+    background: var(--color-surface-alt);
+    color: var(--color-text);
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        padding: var(--space-5);
+    }
+
+    .categories-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .categories-search input {
+        max-width: 100%;
+    }
+
+    .categories-card {
+        padding: var(--space-4);
+    }
+}
+
+#categoryDialog {
+    width: 100%;
+    max-width: 450px;
+    padding: var(--space-8);
+    border: var(--border-default);
+    background: var(--color-background);
+    color: var(--color-text);
+}
+
+#categoryDialog::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+#categoryForm {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+#formTitle {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-2xl);
+    margin-bottom: var(--space-4);
+}
+
+#categoryForm label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+}
+
+#categoryForm input {
+    width: 100%;
+    padding: var(--input-padding);
+    border: 1px solid var(--color-input-border);
+    background: var(--color-background);
+    color: var(--color-text);
+}
+
+#categoryForm .category-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+}
+
+#categoryForm button[type="submit"] {
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
+    border: none;
+}
