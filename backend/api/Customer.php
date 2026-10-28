@@ -5,6 +5,8 @@ header("Content-Type: application/json; charset=UTF-8");
 
 require_once __DIR__ . "/../config/db.php";
 require_once __DIR__ . "/../classes/Customer.php";
+require_once __DIR__ . "/../middleware/admin.php";
+require_once __DIR__ . "/../middleware/csrf.php";
 
 function respond(int $status, array $data): void
 {
@@ -30,9 +32,27 @@ function readInput(): array
 
 function validateCustomer(array $data): array
 {
-    $firstName = trim($data["first_name"] ?? "");
-    $lastName  = trim($data["last_name"] ?? "");
-    $email     = trim($data["email"] ?? "");
+    foreach (["first_name", "last_name", "email"] as $field) {
+        if (!isset($data[$field]) || !is_string($data[$field])) {
+            respond(422, [
+                "success" => false,
+                "message" => "First name, last name and email must be strings"
+            ]);
+        }
+    }
+
+    foreach (["phone", "address"] as $field) {
+        if (isset($data[$field]) && !is_string($data[$field])) {
+            respond(422, [
+                "success" => false,
+                "message" => "Phone and address must be strings"
+            ]);
+        }
+    }
+
+    $firstName = trim($data["first_name"]);
+    $lastName  = trim($data["last_name"]);
+    $email     = trim($data["email"]);
     $phone     = trim($data["phone"] ?? "");
     $address   = trim($data["address"] ?? "");
 
@@ -48,7 +68,8 @@ function validateCustomer(array $data): array
         strlen($firstName) > 100 ||
         strlen($lastName) > 100 ||
         strlen($email) > 255 ||
-        strlen($phone) > 20
+        strlen($phone) > 20 ||
+        strlen($address) > 2000
     ) {
         respond(422, [
             "success" => false,
@@ -66,11 +87,17 @@ function validateCustomer(array $data): array
 }
 
 try {
+    requireAdmin();
+
+    $method = $_SERVER["REQUEST_METHOD"] ?? "";
+    if (in_array($method, ["POST", "PUT", "DELETE"], true)) {
+        requireCsrf();
+    }
+
     $database = new Database();
     $db = $database->connect();
     $customer = new Customer($db);
 
-    $method = $_SERVER["REQUEST_METHOD"];
     $id = null;
 
     if (isset($_GET["id"])) {
@@ -106,7 +133,14 @@ try {
                 ]);
             }
 
-            $search = trim($_GET["search"] ?? "");
+            $search = $_GET["search"] ?? "";
+            if (!is_string($search)) {
+                respond(400, [
+                    "success" => false,
+                    "message" => "Search must be a string"
+                ]);
+            }
+            $search = trim($search);
 
             respond(200, [
                 "success" => true,
