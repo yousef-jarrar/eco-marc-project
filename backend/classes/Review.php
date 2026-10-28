@@ -45,5 +45,34 @@ class Review {
         return $stmt->fetch(PDO::FETCH_ASSOC);
 
     }
+
+    public function updateStatus(int $id, string $status): bool {
+        $sql = "UPDATE reviews SET status = ? WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+
+        return $stmt->execute([$status, $id]);
+    }
+
+    public function deleteReview(int $id): bool {
+        $sql = "DELETE FROM reviews WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([$id]);
+
+        return $stmt->rowCount() > 0;
+    }
+
+    public function getStatistics(): array {
+        $sql = "SELECT
+                    COUNT(*) AS total_reviews,
+                    COALESCE(ROUND(AVG(rating), 1), 0) AS average_rating,
+                    SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) AS pending_reviews,
+                    SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) AS approved_reviews,
+                    SUM(CASE WHEN status = 'hidden' THEN 1 ELSE 0 END) AS hidden_reviews
+                FROM reviews";
+    
+        $stmt = $this->conn->query($sql);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
 }
 ?>

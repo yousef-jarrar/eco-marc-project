@@ -4,7 +4,7 @@ class Database {
 
     public function __construct() {
         $host = "localhost";
-        $dbname = "eco_marc";
+        $dbname = "ecomarc";
         $username = "root";
         $password = "";
 
