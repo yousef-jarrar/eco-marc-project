@@ -38,4 +38,10 @@ class Category {
         $stmt=$this->conn->prepare($sql);
         return $stmt->execute([$id]);
      }
+     public function allcategoriesProducts($id){
+      $sql="SELECT * FROM products WHERE category_id=?";
+      $stmt=$this->conn->prepare($sql);
+      $stmt->execute([$id]);
+      return $stmt->fetchAll(PDO::FETCH_ASSOC);
+     }
 }
