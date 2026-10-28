@@ -8,7 +8,13 @@ class Database
     public function __construct()
     {
         $host = "localhost";
+<<<<<<< HEAD
         $dbname = "ecomarc";
+=======
+
+        $dbname = "ecommerce";
+
+>>>>>>> 31bfc45ad30a82aadf5627361be8e1eb0ced1e9d
         $username = "root";
         $password = "";
 

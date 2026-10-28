@@ -21,29 +21,53 @@ try {
 
     switch ($method) {
 
-      
-        case "GET":
+      case "GET":
 
-            if ($id > 0) {
+    if (isset($_GET["category_id"])) {
 
-                $product = $products->getProduct($id);
+        $categoryId = $_GET["category_id"];
 
-                if (!$product) {
-                    http_response_code(404);
-                    echo json_encode([
-                        "message" => "Product not found"
-                    ]);
-                    break;
-                }
-
-                echo json_encode($product);
-
-            } else {
-
-                echo json_encode($products->getProducts());
-            }
-
+        if (!ctype_digit((string) $categoryId) || (int) $categoryId < 1) {
+            http_response_code(400);
+            echo json_encode([
+                "message" => "Invalid category_id"
+            ]);
             break;
+        }
+
+        if (!$products->categoryExists((int) $categoryId)) {
+            http_response_code(404);
+            echo json_encode([
+                "message" => "Category not found"
+            ]);
+            break;
+        }
+
+        echo json_encode(
+            $products->getProductsByCategory((int) $categoryId)
+        );
+
+    } elseif ($id > 0) {
+
+        $product = $products->getProduct($id);
+
+        if (!$product) {
+            http_response_code(404);
+            echo json_encode([
+                "message" => "Product not found"
+            ]);
+            break;
+        }
+
+        echo json_encode($product);
+
+    } else {
+
+        echo json_encode($products->getProducts());
+
+    }
+
+    break;
               case "POST":
 
             $name = trim($_POST["name"] ?? "");
@@ -232,7 +256,143 @@ try {
             ]);
 
             break;
+            case "PUT":
 
+            if ($id < 1 || !$products->productExists($id)) {
+
+                http_response_code(404);
+
+                echo json_encode([
+                    "message" => "Product not found"
+                ]);
+
+                break;
+            }
+
+            $data = json_decode(
+                file_get_contents("php://input"),
+                true
+            );
+
+            if (!is_array($data)) {
+
+                http_response_code(400);
+
+                echo json_encode([
+                    "message" => "Send valid JSON data"
+                ]);
+
+                break;
+            }
+
+            $name = trim($data["name"] ?? "");
+            $price = $data["price"] ?? "";
+            $categoryId = $data["category_id"] ?? "";
+
+            $discountId = $data["discount_id"] ?? null;
+            $isActive = $data["is_active"] ?? 1;
+
+            if (
+                $name === "" ||
+                $price === "" ||
+                !is_numeric($price) ||
+                (float) $price < 0 ||
+                !ctype_digit((string) $categoryId) ||
+                (int) $categoryId < 1
+            ) {
+                http_response_code(400);
+
+                echo json_encode([
+                    "message" => "Name, valid price and category_id are required"
+                ]);
+
+                break;
+            }
+
+            if (!$products->categoryExists((int) $categoryId)) {
+
+                http_response_code(400);
+
+                echo json_encode([
+                    "message" => "Category not found"
+                ]);
+
+                break;
+            }
+
+            if ($discountId !== null && $discountId !== "") {
+
+                if (
+                    !ctype_digit((string) $discountId) ||
+                    (int) $discountId < 1 ||
+                    !$products->discountExists((int) $discountId)
+                ) {
+                    http_response_code(400);
+
+                    echo json_encode([
+                        "message" => "Discount not found"
+                    ]);
+
+                    break;
+                }
+
+                $discountId = (int) $discountId;
+
+            } else {
+
+                $discountId = null;
+
+            }
+
+            if (!in_array($isActive, [0, 1, "0", "1"], true)) {
+
+                http_response_code(400);
+
+                echo json_encode([
+                    "message" => "is_active must be 0 or 1"
+                ]);
+
+                break;
+            }
+
+            $updateData = [
+                "name" => $name,
+                "description" => $data["description"] ?? null,
+                "price" => $price,
+                "category_id" => (int) $categoryId,
+                "discount_id" => $discountId,
+                "is_active" => (int) $isActive
+            ];
+
+            $products->updateProduct($id, $updateData);
+
+            echo json_encode([
+                "message" => "Product updated successfully",
+                "product" => $products->getProduct($id)
+            ]);
+
+            break;
+
+  case "DELETE":
+
+            if ($id < 1 || !$products->productExists($id)) {
+
+                http_response_code(404);
+
+                echo json_encode([
+                    "message" => "Product not found"
+                ]);
+
+                break;
+            }
+
+            $products->deleteProduct($id);
+
+            echo json_encode([
+                "message" => "Product deleted successfully"
+            ]);
+
+            break;
 
         default:
 
