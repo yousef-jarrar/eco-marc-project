@@ -1,64 +1,71 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" dir="ltr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customers - Eco-Marc Admin</title>
-    <link rel="stylesheet" href="../assets/css/index.css">
-    <link rel="stylesheet" href="../assets/css/global.css">
-    <link rel="stylesheet" href="../assets/css/admin.css?v=2">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="csrf-token" content="">
+  <title>Customers | Eco Marc Admin</title>
+  <link rel="stylesheet" href="../assets/vendor/bootstrap.min.css">
+  <link rel="stylesheet" href="../assets/vendor/fontawesome.min.css">
+  <link rel="stylesheet" href="../assets/css/index.css">
+  <link rel="stylesheet" href="../assets/css/global.css">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+  <link rel="stylesheet" href="../assets/css/customers.css">
 </head>
-<body class="admin-page customers-page">
-    <div class="admin-container">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="logo">ecomarc.</div>
-            <div class="menu-category">Store management</div>
-            <ul class="menu-list">
-                <li><a href="overview.html">Overview</a></li>
-                <li><a href="products.html">Products</a></li>
-                <li><a href="categories.html">Categories</a></li>
-                <li><a href="orders.html">Orders</a></li>
-                <li><a href="Customer.html" class="active" aria-current="page">Customers</a></li>
-                <li><a href="reviews.html">Reviews</a></li>
-                <li><a href="ai-assistant.html">AI business assistant</a></li>
-                <li><a href="settings.html">Settings</a></li>
-            </ul>
-        </aside>
+<body data-page="customers">
+  <a class="sr-only" href="#main">Skip to content</a>
+  <button class="sidebar-backdrop" id="sidebar-backdrop" aria-label="Close navigation" hidden></button>
+  <aside class="admin-sidebar" id="admin-sidebar">
+    <div id="sidebar-content"></div>
+  </aside>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <header class="page-header">
-                <h1>The people behind the pieces.</h1>
-                <p>Your customer directory, connected to order history.</p>
-            </header>
+  <div class="admin-shell">
+    <header class="admin-topbar">
+      <span class="topbar-path">Eco Marc / Customers</span>
+    </header>
 
-            <div class="search-bar-container">
-                <label class="sr-only" for="searchInput">Search customers by name or email</label>
-                <input type="search" id="searchInput" placeholder="Search name or email" class="search-input">
-            </div>
+    <main class="admin-main" id="main">
+      <div class="page-heading">
+        <div>
+          <h1>The people behind the pieces.</h1>
+          <p class="muted">Your customer directory, connected to order history.</p>
+        </div>
+      </div>
 
-            <div class="table-container">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Customer</th>
-                            <th>Joined</th>
-                            <th>Orders</th>
-                            <th>Total spent</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="customersTableBody">
-                        <tr><td colspan="6">Loading customers...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </main>
-    </div>
+      <div class="customer-search">
+        <label for="searchInput">Search customers</label>
+        <input type="search" id="searchInput" placeholder="Search name or email" autocomplete="off">
+      </div>
 
-    <script src="../assets/js/admin-api.js"></script>
-    <script src="../assets/js/Customer.js"></script>
+      <section class="panel customer-table-panel" aria-label="Customer directory">
+        <div class="panel-heading">
+          <h2>Customer directory</h2>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Joined</th>
+                <th>Orders</th>
+                <th>Total spent</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="customersTableBody" aria-live="polite">
+              <tr><td colspan="6">Loading customers…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../assets/vendor/sweetalert2.all.min.js"></script>
+  <script src="../assets/js/admin-api.js"></script>
+  <script src="../assets/js/alerts.js"></script>
+  <script src="../assets/js/admin-layout.js"></script>
+  <script src="../assets/js/Customer.js"></script>
 </body>
 </html>

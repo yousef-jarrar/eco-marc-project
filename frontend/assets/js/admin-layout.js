@@ -49,13 +49,13 @@ function displayDate(value) {
 // Categories قبل Products، ولا يوجد رابط Analytics.
 const adminPages = [
   { name: "Overview", page: "index", file: "index.html", icon: "chart-pie", available: false },
-  { name: "Categories", page: "categories", file: "categories.html", icon: "layer-group", available: false },
+  { name: "Categories", page: "categories", file: "categories.html", icon: "layer-group", available: true },
   { name: "Products", page: "products", file: "products.html", icon: "box", available: false },
   { name: "Orders", page: "orders", file: "orders.html", icon: "bag-shopping", available: false },
-  { name: "Customers", page: "customers", file: "customers.html", icon: "users", available: false },
+  { name: "Customers", page: "customers", file: "Customer.html", icon: "users", available: true },
   { name: "Reviews", page: "reviews", file: "reviews.html", icon: "star", available: true },
   { name: "AI business assistant", page: "ai", file: "ai-assistant.html", icon: "wand-magic-sparkles", available: true },
-  { name: "Settings", page: "settings", file: "settings.html", icon: "gear", available: false }
+  { name: "Settings", page: "settings", file: "settings.html", icon: "gear", available: true }
 ];
 
 function createMenuItem(item) {

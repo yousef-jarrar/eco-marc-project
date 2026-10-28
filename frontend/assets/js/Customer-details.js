@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!customerId || !/^[1-9]\d*$/.test(customerId)) {
         nameElement.textContent = "Invalid customer ID.";
+        Alerts.show("Customer not found", "Open a customer from the customer directory.", "warning");
         return;
     }
 
@@ -50,6 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
             nameElement.textContent = error instanceof Error
                 ? `Unable to load customer: ${error.message}`
                 : "Unable to load customer.";
+            Alerts.show("Customer could not load", error.message || "Please retry.", "error");
         }
     }
 
