@@ -21,6 +21,16 @@ class Product
                     ->query($sql)
                     ->fetchAll();
     }
+    public function getProduct($id)
+    {
+        $sql = "SELECT * FROM products WHERE id = ?";
+
+        $stmt = $this->connect->prepare($sql);
+        $stmt->execute([$id]);
+
+        return $stmt->fetch();
+    }
+
 
    
 }
