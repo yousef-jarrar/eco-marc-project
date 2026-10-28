@@ -36,13 +36,67 @@ try {
             } elseif ($action === "total") {
                 $data = $cart->getCartTotal($user_id);
             } elseif ($action === "latest") {
-                $limit = filter_var(
-                    $body["limit"] ?? 10,
-                    FILTER_VALIDATE_INT
-                );
+    $username = trim($body["username"] ?? "");
+    $start_date = $body["start_date"] ?? null;
+    $end_date = $body["end_date"] ?? null;
 
-                $data = $cart->getLatestOrders($limit);
-            } else {
+    $page = filter_var(
+        $body["page"] ?? 1,
+        FILTER_VALIDATE_INT
+    );
+
+    if ($page === false || $page < 1) {
+        http_response_code(400);
+        echo json_encode([
+            "success" => false,
+            "message" => "Invalid page number"
+        ]);
+        break;
+    }
+
+    foreach (["start_date" => $start_date, "end_date" => $end_date] as $field => $date) {
+        if (
+            $date !== null &&
+            $date !== "" &&
+            (
+                !is_string($date) ||
+                !preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) ||
+                !checkdate(
+                    (int) substr($date, 5, 2),
+                    (int) substr($date, 8, 2),
+                    (int) substr($date, 0, 4)
+                )
+            )
+        ) {
+            http_response_code(400);
+            echo json_encode([
+                "success" => false,
+                "message" => "Invalid " . $field . ". Use YYYY-MM-DD."
+            ]);
+            break 2;
+        }
+    }
+
+    if (
+        $start_date && $end_date &&
+        $start_date > $end_date
+    ) {
+        http_response_code(400);
+        echo json_encode([
+            "success" => false,
+            "message" => "Start date must be before or equal to end date"
+        ]);
+        break;
+    }
+
+    $data = $cart->getLatestOrders(
+        $username,
+        $start_date ?: null,
+        $end_date ?: null,
+        $page
+    );
+}
+ else {
                 http_response_code(400);
                 echo json_encode([
                     "success" => false,
