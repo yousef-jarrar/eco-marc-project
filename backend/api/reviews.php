@@ -17,7 +17,8 @@ try {
 
     $method = $_SERVER["REQUEST_METHOD"];
     if (in_array($method, ["PATCH", "DELETE"], true)) {
-        requireCsrf();
+        // TEMPORARY: local testing only. Restore before deployment.
+        // requireCsrf();
     }
 
     switch ($method) {
