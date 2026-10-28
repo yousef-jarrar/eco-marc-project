@@ -69,10 +69,12 @@ class Review {
                     SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) AS approved_reviews,
                     SUM(CASE WHEN status = 'hidden' THEN 1 ELSE 0 END) AS hidden_reviews
                 FROM reviews";
-    
+
         $stmt = $this->conn->query($sql);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    
 
 }
 ?>
