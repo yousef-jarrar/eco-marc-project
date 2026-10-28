@@ -1,8 +1,12 @@
+
 <?php
-class Database {
+
+class Database
+{
     private PDO $conn;
 
-    public function __construct() {
+    public function __construct()
+    {
         $host = "localhost";
         $dbname = "ecommerce";
         $username = "root";
@@ -31,11 +35,13 @@ class Database {
             );
 
         } catch (PDOException $e) {
+            error_log($e->getMessage());
             throw new RuntimeException("Database connection failed.");
         }
     }
 
-    public function connect(): PDO {
+    public function connect(): PDO
+    {
         return $this->conn;
     }
 }

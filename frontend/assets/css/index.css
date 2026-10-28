@@ -1,5 +1,4 @@
-/* Eco Marc: shared design variables. Load before page styles. */
-@import url('fonts.css');
+/* Eco Marc — Design Tokens */
 :root {
   /* Brand colors */
   --color-primary: #171717;
