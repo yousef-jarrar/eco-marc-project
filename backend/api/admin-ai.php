@@ -28,6 +28,7 @@ try {
                 "lowest_rated_products" => $ai->getProductRatings(),
                 "daily_revenue" => $ai->getDailyRevenue()
             ]
+            //ارسل استجابة و استدعا الداتا
         ]);
         break;
 
