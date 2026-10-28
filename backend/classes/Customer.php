@@ -83,17 +83,46 @@ class Customer
     // GET: Get one customer
     public function getById(int $id): array|false
     {
-        $sql = "SELECT
-                    id,
-                    first_name,
-                    last_name,
-                    email,
-                    phone,
-                    address,
-                    role,
-                    created_at
-                FROM users
-                WHERE id = :id AND role = 'customer'";
+        $sql = "
+            SELECT
+                u.id,
+                u.first_name,
+                u.last_name,
+                u.email,
+                u.phone,
+                u.address,
+                u.role,
+                u.created_at,
+                COUNT(DISTINCT CASE
+                    WHEN c.status IN (
+                        'pending',
+                        'confirmed',
+                        'processing',
+                        'shipped',
+                        'delivered'
+                    )
+                    THEN c.id
+                END) AS orders,
+                COALESCE(SUM(
+                    CASE
+                        WHEN c.status = 'delivered' THEN cd.total
+                        ELSE 0
+                    END
+                ), 0) AS total_spent
+            FROM users u
+            LEFT JOIN carts c ON c.user_id = u.id
+            LEFT JOIN cart_details cd ON cd.cart_id = c.id
+            WHERE u.id = :id AND u.role = 'customer'
+            GROUP BY
+                u.id,
+                u.first_name,
+                u.last_name,
+                u.email,
+                u.phone,
+                u.address,
+                u.role,
+                u.created_at
+        ";
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute(["id" => $id]);
