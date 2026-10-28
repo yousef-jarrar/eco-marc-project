@@ -2,9 +2,9 @@
 -- Compatible with MySQL 8+ and MariaDB 10.4+
 -- Creates database and 15 tables. Does not remove existing data.
 
-CREATE DATABASE IF NOT EXISTS eco_marc
+CREATE DATABASE IF NOT EXISTS Ecommerce
   CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE eco_marc;
+USE Ecommerce;
 
 -- 1. Users
 CREATE TABLE IF NOT EXISTS users (
