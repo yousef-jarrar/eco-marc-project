@@ -10,10 +10,28 @@ try{
     switch($_SERVER["REQUEST_METHOD"]){
 
     case "GET":
-        $category=$category->getAllCategories();
-        echo json_encode($category);
-        break;
-    
+
+    if (isset($_GET["id"]) && isset($_GET["action"]) && $_GET["action"] == "products") {
+
+        $id = $_GET["id"];
+
+        $result = $category->allcategoriesProducts($id);
+
+    } elseif (isset($_GET["id"])) {
+
+        $id = $_GET["id"];
+
+        $result = $category->getCategoriesById($id);
+
+    } else {
+
+        $result = $category->getAllCategories();
+
+    }
+
+    echo json_encode($result);
+
+    break;
     case "POST":
         $data=json_decode(file_get_contents("php://input"),true);
         $name=$data["name"];
