@@ -1,3 +1,67 @@
+-- Eco Marc | Fashion & Footwear E-commerce
+-- Compatible with MySQL 8+ and MariaDB 10.4+
+-- Creates database and 15 tables. Does not remove existing data.
+
+CREATE DATABASE IF NOT EXISTS eco_marc
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE eco_marc;
+
+-- 1. Users
+CREATE TABLE IF NOT EXISTS users (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  first_name VARCHAR(100) NOT NULL,
+  last_name VARCHAR(100) NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NULL, -- nullable for Google-only accounts
+  phone VARCHAR(20) NULL,
+  address TEXT NULL,
+  google_id VARCHAR(255) NULL UNIQUE,
+  role ENUM('admin','customer') NOT NULL DEFAULT 'customer',
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- 2. Categories
+CREATE TABLE IF NOT EXISTS categories (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL UNIQUE,
+  image_url VARCHAR(500) NULL
+) ENGINE=InnoDB;
+
+-- 3. Brands
+CREATE TABLE IF NOT EXISTS brands (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL UNIQUE
+) ENGINE=InnoDB;
+
+-- 4. Discounts
+CREATE TABLE IF NOT EXISTS discounts (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  percentage DECIMAL(5,2) NOT NULL,
+  CONSTRAINT chk_discount_percentage CHECK (percentage >= 0 AND percentage <= 100)
+) ENGINE=InnoDB;
+
+-- 5. Products
+CREATE TABLE IF NOT EXISTS products (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  description TEXT NULL,
+  price DECIMAL(10,2) NOT NULL,
+  category_id INT UNSIGNED NOT NULL,
+  brand_id INT UNSIGNED NULL,
+  discount_id INT UNSIGNED NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_products_category (category_id),
+  INDEX idx_products_brand (brand_id),
+  INDEX idx_products_discount (discount_id),
+  INDEX idx_products_name (name),
+  CONSTRAINT chk_products_price CHECK (price >= 0),
+  CONSTRAINT fk_products_category FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT fk_products_brand FOREIGN KEY (brand_id) REFERENCES brands(id) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT fk_products_discount FOREIGN KEY (discount_id) REFERENCES discounts(id) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- 6. Product variants: sizes/colors each with separate inventory
 CREATE TABLE IF NOT EXISTS product_variants (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   product_id INT UNSIGNED NOT NULL,
@@ -125,3 +189,12 @@ CREATE TABLE IF NOT EXISTS product_embeddings (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_embeddings_image FOREIGN KEY (product_image_id) REFERENCES product_images(id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
+
+-- Notes:
+-- 1) Customer/Admin AI chatbots use PHP services and existing tables; no chat tables needed for MVP.
+-- 2) For checkout use a PDO database transaction: validate stock, create order/items,
+--    decrement stock, convert cart, then COMMIT (otherwise ROLLBACK).
+-- 3) Guest carts may be stored in browser localStorage until login.
+-- 4) In the PHP layer allow only one ACTIVE cart per user; this is not enforced here.
+-- 5) Only one image per product should be marked is_primary=true; enforce in PHP.
+-- 6) MySQL/MariaDB JSON implementations differ; similarity search can run in an AI service.
