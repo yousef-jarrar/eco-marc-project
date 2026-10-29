@@ -1,34 +1,32 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LUMIÈRE | Product Details</title>
-    <link rel="stylesheet" href="../assets/vendor/bootstrap.min.css">
-    <link rel="stylesheet" href="../assets/vendor/fontawesome.min.css">
-    <link rel="stylesheet" href="../assets/css/index.css">
-    <link rel="stylesheet" href="../assets/css/global.css">
-    <link rel="stylesheet" href="../assets/css/admin.css">
-    <link rel="stylesheet" href="../assets/css/ProductDetails.css">
-    <style>
-
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Product details | Eco Marc Admin</title>
+  <link rel="stylesheet" href="../assets/vendor/bootstrap.min.css">
+  <link rel="stylesheet" href="../assets/vendor/fontawesome.min.css">
+  <link rel="stylesheet" href="../assets/css/index.css">
+  <link rel="stylesheet" href="../assets/css/global.css">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+  <link rel="stylesheet" href="../assets/css/ProductDetails.css">
 </head>
+<body data-page="products" class="product-details-page">
+  <a class="sr-only" href="#main">Skip to content</a>
+  <button class="sidebar-backdrop" id="sidebar-backdrop" aria-label="Close navigation" hidden></button>
+  <aside class="admin-sidebar" id="admin-sidebar"><div id="sidebar-content"></div></aside>
 
-<body>
-    <header class="admin-topbar">
-                <span class="topbar-path">LUMIÈRE /Products/ Product Details </span>
-            </header>
-<main class="admin-main product-page">
-    
-    <div class="page-heading">
+  <div class="admin-shell">
+    <header class="admin-topbar"><span class="topbar-path">Eco Marc / Products / Product details</span></header>
+    <main class="admin-main product-page" id="main">
+<div class="page-heading">
         <div>
             <h1>Product Details</h1>
             <p class="muted">View product information, images and available variants.</p>
         </div>
-        <button class="secondary" onclick="window.location.href='products.html'">
+        <a class="button secondary" href="Products.html">
             <i class="fa-solid fa-arrow-left"></i> Back to Products
-        </button>
+        </a>
     </div>
 
     <div id="message" class="loading">Loading product...</div>
@@ -95,117 +93,13 @@
             </div>
         </section>
     </div>
-</main>
+    </main>
+  </div>
 
-<script>
-const API_PRODUCTS = "../../backend/api/products.php";
-const IMAGE_BASE = "../../";
-
-function escapeHtml(value) {
-    return String(value ?? "").replace(/[&<>"']/g, function(char) {
-        return {
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            '"': "&quot;",
-            "'": "&#039;"
-        }[char];
-    });
-}
-
-function getImageUrl(path) {
-    if (!path) return "";
-    if (/^https?:\/\//i.test(path)) return path;
-    return IMAGE_BASE + path.replace(/^\/+/, "");
-}
-
-async function loadProductDetails() {
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get("id");
-    const message = document.getElementById("message");
-
-    if (!id || !/^\d+$/.test(id) || Number(id) <= 0) {
-        message.textContent = "Invalid product ID.";
-        message.className = "error-banner";
-        return;
-    }
-
-    try {
-        const response = await fetch(`${API_PRODUCTS}?id=${encodeURIComponent(id)}`);
-        const product = await response.json();
-
-        if (!response.ok) {
-            throw new Error(product.message || "Product could not be found.");
-        }
-
-        document.getElementById("detailsContent").style.display = "block";
-        message.style.display = "none";
-
-        document.getElementById("productId").textContent = "Product ID: " + product.id;
-        document.getElementById("productName").textContent = product.name || "";
-        document.getElementById("productPrice").textContent =
-            "JOD " + Number(product.price || 0).toFixed(2);
-        document.getElementById("categoryName").textContent = product.category_name || "—";
-        document.getElementById("productQuantity").textContent = Number(product.quantity || 0);
-        document.getElementById("discountName").textContent = product.discount_name || "No discount";
-
-        const percentage = product.discount_percentage;
-        document.getElementById("discountPercentage").textContent =
-            percentage === null || percentage === undefined || percentage === ""
-                ? "—"
-                : Number(percentage) + "%";
-
-        document.getElementById("productDescription").textContent =
-            product.description || "No description provided.";
-
-        const images = Array.isArray(product.images) ? product.images : [];
-        const mainImage = document.getElementById("mainImage");
-        const gallery = document.getElementById("gallery");
-
-        if (images.length > 0) {
-            mainImage.src = getImageUrl(images[0].image_url);
-
-            images.forEach((image, index) => {
-                const thumbnail = document.createElement("img");
-                thumbnail.src = getImageUrl(image.image_url);
-                thumbnail.alt = "Product image " + (index + 1);
-
-                if (index === 0) thumbnail.classList.add("selected");
-
-                thumbnail.addEventListener("click", () => {
-                    mainImage.src = thumbnail.src;
-                    gallery.querySelectorAll("img").forEach(img => img.classList.remove("selected"));
-                    thumbnail.classList.add("selected");
-                });
-
-                gallery.appendChild(thumbnail);
-            });
-        } else {
-            mainImage.style.display = "none";
-            gallery.textContent = "No product images.";
-        }
-
-        const variants = Array.isArray(product.variants) ? product.variants : [];
-        const variantsTable = document.getElementById("variantsTable");
-
-        if (variants.length === 0) {
-            variantsTable.innerHTML = '<tr><td colspan="3">No variants found.</td></tr>';
-        } else {
-            variantsTable.innerHTML = variants.map(variant => `
-                <tr>
-                    <td>${escapeHtml(variant.size)}</td>
-                    <td>${escapeHtml(variant.color)}</td>
-                    <td>${Number(variant.quantity || 0)}</td>
-                </tr>
-            `).join("");
-        }
-    } catch (error) {
-        message.textContent = error.message;
-        message.className = "error-banner";
-    }
-}
-
-loadProductDetails();
-</script>
+  <script src="../assets/vendor/sweetalert2.all.min.js"></script>
+  <script src="../assets/js/admin-api.js"></script>
+  <script src="../assets/js/alerts.js"></script>
+  <script src="../assets/js/admin-layout.js"></script>
+  <script type="module" src="../assets/js/ProductDetails.js"></script>
 </body>
 </html>
