@@ -4,7 +4,8 @@
         const PRODUCTS_API = AdminConfig.apiBase + "Products.php";
         const CATEGORIES_API = AdminConfig.apiBase + "categories.php";
         const DISCOUNTS_API = AdminConfig.apiBase + "Discount.php";
-
+       console.log("API Base:", AdminConfig.apiBase);
+console.log("Discount API:", DISCOUNTS_API);
         const IMAGE_BASE_PATH = "../../";
 
          

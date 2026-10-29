@@ -9,6 +9,7 @@
 <meta name="theme-color" content="#f7f7f5">
 <link rel="icon" type="image/svg+xml" href="../assets/lumiere-icon-light.svg">
 <link rel="stylesheet" href="assets/css/fonts.css">
+<link rel="stylesheet" href="assets/css/index.css">
 <link rel="stylesheet" href="assets/vendor/fontawesome.min.css">
 <style>
 :root{
@@ -302,6 +303,9 @@ header .wrap{transition:height .4s var(--ease)}
 @media(max-width:900px){.links{top:100%}}
 @media(prefers-reduced-motion:reduce){.hero .shot img{scale:1.12}.dust{display:none}}
 </style>
+<link rel="stylesheet" href="assets/css/site-footer.css?v=20261029-landing">
+<script src="assets/js/auth.js?v=20261029-teamfix"></script>
+<style>[hidden]{display:none!important}</style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -340,7 +344,7 @@ header .wrap{transition:height .4s var(--ease)}
   <div class="clist" id="clist"></div>
   <div class="dfoot" id="cfoot" hidden>
     <div class="tot"><span>Total</span><span id="ctotal"></span></div>
-    <a class="btn" id="checkout" href="#">Checkout</a>
+    <button class="btn" id="checkout" type="button">Checkout</button>
     <small>You’ll log in or register at checkout.</small>
   </div>
 </aside>
@@ -411,7 +415,7 @@ header .wrap{transition:height .4s var(--ease)}
   <div class="wrap">
     <div class="head">
       <div><h2>Latest Arrivals</h2><p class="lead">New pieces, in stock now and ready to ship.</p></div>
-      <a class="btn" href="#">Browse the shop</a>
+      <a class="btn" href="#shop">Browse the shop</a>
     </div>
     <div class="grid" id="grid"></div>
   </div>
@@ -435,22 +439,18 @@ header .wrap{transition:height .4s var(--ease)}
 </section>
 </main>
 
-<footer>
-  <div class="wrap">
-    <a class="brand" href="#top"><svg aria-hidden="true"><use href="#mono"/></svg>LUMIÈRE</a>
-    <nav><a href="#top">Home</a><a href="#collections">Collections</a><a href="#shop">Shop</a><a href="#contact">Contact</a><a href="#">Legal</a></nav>
-    <span class="soc"><a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a> &nbsp; <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook"></i></a> &nbsp; <a href="#" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a></span>
-    <a href="#top">Back to top <i class="fa-solid fa-arrow-up"></i></a>
-  </div>
-</footer>
+<footer class="site-footer" id="site-footer" aria-label="Site footer"></footer>
+<script src="assets/vendor/sweetalert2.all.min.js"></script>
+<script src="assets/js/alerts.js?v=20261029-landing"></script>
+<script src="assets/js/site-footer.js?v=20261029-landing"></script>
 
 <script>
  
-const API = "/xampp/php-project/backend/api/";    
+const API = new URL("../backend/api/", location.href).href;    
 const SHOP_URL = "#shop";            
-const LOGIN_URL = "login.html";      
-const REGISTER_URL = "register.html";
-const CHECKOUT_URL = "checkout.html";
+const LOGIN_URL = "account/login.html";      
+const REGISTER_URL = "account/register.html";
+
 const TEE = "../assets/products/440_YTE-WS-WHI-slideshow_3-original.jpg";
 const COAT = "../assets/products/product_6ae2d71814f5f1.00394901.jpg";
 const FALLBACK_CATS = [
@@ -488,7 +488,15 @@ const intro=$("#intro");
  
 document.querySelectorAll("[data-login]").forEach(a=>a.href=LOGIN_URL);
 document.querySelectorAll("[data-reg]").forEach(a=>a.href=REGISTER_URL);
-$("#checkout").href=CHECKOUT_URL;
+$("#checkout").addEventListener("click",()=>Alerts.show("Checkout unavailable", "Checkout is not connected yet. Your bag stays saved on this device.", "info"));
+EcoAuth.ready.then(session=>{
+  if(!session.user)return;
+  document.querySelectorAll("[data-login]").forEach(link=>{link.href=EcoAuth.accountUrl;link.textContent="My account"});
+  document.querySelectorAll("[data-reg]").forEach(link=>{
+    if(session.user.role==="admin"){link.href="admin/overveiw.html";link.textContent="Dashboard"}
+    else link.hidden=true;
+  });
+}).catch(()=>{});
 const burger=$("#burger"),links=$("#links");
 const closeMenu=()=>{links.classList.remove("open");burger.setAttribute("aria-expanded","false")};
 burger.onclick=()=>{const o=links.classList.toggle("open");burger.setAttribute("aria-expanded",o)};
