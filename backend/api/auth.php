@@ -1,19 +1,43 @@
 <?php
+$authBufferLevel = ob_get_level();
+$authResponseSent = false;
+ob_start();
+ini_set('display_errors', '0');
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 header('X-Content-Type-Options: nosniff');
-require_once __DIR__ . '/../config/session.php';
-require_once __DIR__ . '/../config/db.php';
-require_once __DIR__ . '/../middleware/csrf.php';
-require_once __DIR__ . '/../classes/Auth.php';
+
 
 function authReply(int $status, array $data): void {
+    global $authBufferLevel, $authResponseSent;
+    $authResponseSent = true;
+    while (ob_get_level() > $authBufferLevel) ob_end_clean();
     http_response_code($status);
     echo json_encode($data, JSON_UNESCAPED_UNICODE);
     exit;
 }
 
+register_shutdown_function(function () use (&$authResponseSent, $authBufferLevel): void {
+    if ($authResponseSent) return;
+    $body = ob_get_level() > $authBufferLevel ? ob_get_contents() : '';
+    $result = json_decode($body ?: '', true);
+    if (is_array($result) && isset($result['success']) && is_bool($result['success'])) return;
+    while (ob_get_level() > $authBufferLevel) ob_end_clean();
+    if (!headers_sent()) {
+        http_response_code(503);
+        header('Content-Type: application/json; charset=utf-8');
+    }
+    echo json_encode(['success'=>false, 'code'=>'server_setup_required', 'message'=>'Sign-in could not start. Check PHP compatibility and backend dependencies.']);
+});
+
 try {
+    if (!is_file(__DIR__ . '/../vendor/autoload.php')) {
+        authReply(503, ['success'=>false, 'code'=>'server_setup_required', 'message'=>'Sign-in is not configured on this server. Install the backend dependencies.']);
+    }
+    require_once __DIR__ . '/../config/session.php';
+    require_once __DIR__ . '/../config/db.php';
+    require_once __DIR__ . '/../middleware/csrf.php';
+    require_once __DIR__ . '/../classes/Auth.php';
     $auth = new Auth((new Database())->connect());
     $config = require __DIR__ . '/../config/auth.php';
     $method = $_SERVER['REQUEST_METHOD'];
@@ -70,6 +94,9 @@ try {
 } catch (Throwable $error) {
     $status = $error instanceof PDOException ? 500 : (int)$error->getCode();
     if (!in_array($status, [400, 401, 403, 409, 413, 422, 429, 503], true)) $status = 500;
+    if (in_array($error->getMessage(), ['Required server configuration is missing.', 'Server configuration could not be loaded.'], true)) {
+        authReply(503, ['success'=>false, 'code'=>'server_setup_required', 'message'=>'Server configuration is incomplete. Check the local .env settings.']);
+    }
     if ($status === 429) header('Retry-After: 900');
     if ($status === 500) error_log('Lumeire authentication error: ' . $error->getMessage());
     authReply($status, ['success' => false, 'message' => $status === 500 ? 'Sign-in is temporarily unavailable. Please try again.' : $error->getMessage()]);
