@@ -714,6 +714,173 @@ body.products-page #productModal.modal.open {
   }
 }
 
-/* رسائل SweetAlert تظهر فوق نموذج المنتج */
+
 .products-page .swal2-container { z-index: 3000; }
 .products-page .content-card { border: var(--border-default); }
+
+.products-page .table-wrapper tbody tr:nth-child(odd) {
+    background:  #f4f6f1;
+}
+
+.products-page .table-wrapper tbody tr:nth-child(even) {
+    background: #ffffff;
+}
+
+
+
+
+.products-page .table-wrapper tbody tr:has(.empty-state) {
+    background: #ffffff;
+}
+
+
+
+body.products-page #productModal .close-btn {
+    background: #f1f2ef !important;
+    color: #263d2c !important;
+    border: 1px solid #dfe3df !important;
+    transition: background-color .2s, color .2s;
+}
+
+body.products-page #productModal .close-btn:hover {
+    background: #263d2c !important;
+    color: #ffffff !important;
+}
+
+
+body.products-page #productModal .secondary-btn {
+    color: #263d2c !important;
+    background: #ffffff !important;
+    border: 1px solid #cfd6cc !important;
+}
+
+body.products-page #productModal .secondary-btn:hover {
+    background: #f1f4ef !important;
+    color: #263d2c !important;
+}
+
+body.products-page #productModal .primary-btn {
+    background: #263d2c !important;
+    color: #ffffff !important;
+    border: 0 !important;
+}
+
+body.products-page #productModal .primary-btn:hover:not(:disabled) {
+    background: #355b3c !important;
+}
+
+
+body.products-page #productModal.modal {
+    padding: 40px 24px;
+}
+
+.products-page #productModal .modal-content {
+    max-width: 880px;
+    padding: 0; 
+    overflow: hidden;
+}
+
+.products-page #productModal .modal-header {
+    margin: 0;
+    padding: 20px 28px;
+    background: #f7f8f6;
+    border-bottom: 1px solid #e6e9e3;
+}
+
+.products-page #productModal .modal-header h2 {
+    color: #263d2c;
+    font-size: 20px;
+}
+
+.products-page #productModal #formMessage,
+.products-page #productModal #productForm {
+    margin-left: 28px;
+    margin-right: 28px;
+}
+
+.products-page #productModal #formMessage.show {
+    margin-top: 18px;
+}
+
+.products-page #productModal #productForm {
+    padding: 24px 0 28px;
+}
+
+/* الحقول */
+.products-page #productModal .form-group label {
+    color: #303630;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.products-page #productModal .field {
+    border: 1px solid #d9ded6;
+    border-radius: 8px;
+    background-color: #fff;
+    color: #263d2c;
+    transition: border-color .2s, box-shadow .2s;
+}
+
+.products-page #productModal .field:hover {
+    border-color: #b9c4b5;
+}
+
+.products-page #productModal .field:focus {
+    outline: none;
+    border-color: #6c8f70;
+    box-shadow: 0 0 0 3px rgba(108, 143, 112, 0.18);
+}
+
+/* منطقة رفع الصور */
+.products-page #productModal input[type="file"].field {
+    border: 1.5px dashed #b9c4b5;
+    background: #fafbf9;
+    cursor: pointer;
+}
+
+/* عنوان الـ Variants */
+.products-page #productModal .section-title {
+    margin: 32px 0 6px;
+    padding-top: 22px;
+    border-top: 1px solid #eceeea;
+    color: #263d2c;
+}
+
+/* ملخص الكمية */
+.products-page #productModal .stock-summary {
+    border-radius: 10px;
+    font-weight: 500;
+}
+
+.products-page #productModal .stock-summary strong {
+    color: #263d2c;
+    font-size: 15px;
+}
+
+/* صفوف الـ Variants */
+.products-page #variantsContainer .variant-row {
+    background: #f7f8f6;
+    border: 1px solid #e1e5df;
+    border-radius: 12px;
+    transition: border-color .2s;
+}
+
+.products-page #variantsContainer .variant-row:hover {
+    border-color: #b9c4b5;
+}
+
+.products-page #variantsContainer .remove-variant:hover {
+    background: #b42323;
+    color: #fff;
+}
+
+/* أزرار الفورم تحت */
+.products-page #productModal .form-actions {
+    margin-top: 26px;
+    padding-top: 20px;
+}
+
+.products-page #productModal .form-actions button {
+    min-width: 120px;
+    font-weight: 600;
+}
