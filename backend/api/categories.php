@@ -83,17 +83,14 @@ try{
         break;
 
     case "DELETE":
-       $data=json_encode(file_get_contents("php://input"),true);
-       $id=$data["id"];
-       
-        $result = $category->deleteCategories($id);
-        http_response_code(201);
+        http_response_code(405);
+        header("Allow: GET, POST, PUT");
         echo json_encode([
-         "seccses"=>$result,
-         "massage"=>"Category delete successfully"
+         "success"=>false,
+         "message"=>"Category hiding is managed by this browser. The database was not changed."
         ]);
-
         break;
+
     default :
         http_response_code(405);
         echo json_encode([ 

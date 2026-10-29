@@ -33,11 +33,6 @@ class Category {
       return $stmt->execute([$name,$image_url,$status,$id]);
 
      }
-     public function deleteCategories($id){
-        $sql="DELETE FROM categories WHERE id=?";
-        $stmt=$this->conn->prepare($sql);
-        return $stmt->execute([$id]);
-     }
      public function allcategoriesProducts($id){
       $sql="SELECT * FROM products WHERE category_id=?";
       $stmt=$this->conn->prepare($sql);

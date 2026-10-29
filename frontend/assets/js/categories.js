@@ -2,15 +2,18 @@ import {
     getAllCategories,
     getCategoryProducts,
     createCategory,
-    updateCategory,
-    deleteCategory,
-   
-
+    updateCategory
 } from "./services/categories-services.js";
 
 const tableBody = document.getElementById("categoriesTableBody");
 const searchInput = document.getElementById("searchCategory");
 const addCategoryButton = document.getElementById("addCategoryBtn");
+const hiddenCategoriesStorageKey = "eco-marc-hidden-categories";
+const hiddenCategoryIds = new Set(
+    (localStorage.getItem(hiddenCategoriesStorageKey) || "")
+        .split(",")
+        .filter(id => /^[1-9]\d*$/.test(id))
+);
 let categories = [];
 let changingCategory = false;
 
@@ -29,7 +32,7 @@ async function loadCategories() {
 }
 
 function displayCategories(data) {
-    tableBody.innerHTML = "";
+    tableBody.replaceChildren();
     if (data.length === 0) {
         const row = tableBody.insertRow();
         const cell = row.insertCell();
@@ -39,6 +42,8 @@ function displayCategories(data) {
     }
 
     for (const category of data) {
+        if (hiddenCategoryIds.has(String(category.id))) continue;
+
         const row = document.createElement("tr");
         const categoryCell = document.createElement("td");
         const categoryInfo = document.createElement("div");
@@ -111,7 +116,12 @@ function showFilteredCategories() {
     const query = searchInput.value.trim().toLowerCase();
     const filtered = [];
     for (const category of categories) {
-        if (category.name.toLowerCase().includes(query)) filtered.push(category);
+        if (
+            !hiddenCategoryIds.has(String(category.id)) &&
+            category.name.toLowerCase().includes(query)
+        ) {
+            filtered.push(category);
+        }
     }
     displayCategories(filtered);
 }
@@ -227,13 +237,29 @@ async function removeCategory(id) {
     if (changingCategory) return;
     changingCategory = true;
     try {
-        const confirmed = await Alerts.confirm("Delete this category?", "This removes the category from your store.");
+        const category = categories.find(item => String(item.id) === String(id));
+        if (!category) return;
+
+        const confirmed = await Alerts.confirm(
+            "Hide this category from the page?",
+            `${category.name} will be hidden on this browser only. Its database record and products will not change.`
+        );
         if (!confirmed.isConfirmed) return;
-        await deleteCategory(id);
-        Alerts.toast("Category deleted");
-        await loadCategories();
+
+        hiddenCategoryIds.add(String(id));
+        localStorage.setItem(
+            hiddenCategoriesStorageKey,
+            Array.from(hiddenCategoryIds).join(",")
+        );
+        showFilteredCategories();
+        Alerts.toast("Category hidden on this browser");
     } catch (error) {
-        Alerts.show("Category was not deleted", error.message, "error");
+        hiddenCategoryIds.delete(String(id));
+        Alerts.show(
+            "Category could not be hidden",
+            error.message || "Browser storage is unavailable. The database was not changed.",
+            "error"
+        );
     } finally {
         changingCategory = false;
     }

@@ -47,7 +47,3 @@ export async function createCategory(name, image_url,status) {
 export async function updateCategory(id, name, image_url,status) {
     return categoryRequest("PUT", { id: Number(id), name: name, image_url: image_url, status: status });
 }
-
-export async function deleteCategory(id) {
-    return categoryRequest("DELETE", { id: Number(id) });
-}
