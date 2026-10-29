@@ -90,6 +90,16 @@ function displayCategories(data) {
         editButton.setAttribute("aria-label", "Edit " + category.name);
         editButton.addEventListener("click", function () { openCategoryForm(category); });
 
+        const statusButton = document.createElement("button");
+        
+        statusButton.type = "button";
+        statusButton.textContent = "Status";
+        
+        statusButton.addEventListener("click", function () {
+            changeCategoryStatus(category);
+        });
+
+
         const deleteButton = document.createElement("button");
         deleteButton.type = "button";
         deleteButton.textContent = "Delete";
@@ -99,6 +109,7 @@ function displayCategories(data) {
         deleteButton.addEventListener("click", function () { removeCategory(category); });
 
         actions.appendChild(editButton);
+        actions.appendChild(statusButton);
         actions.appendChild(deleteButton);
         actionsCell.appendChild(actions);
         row.append(categoryCell, productsCell, statusCell, actionsCell);

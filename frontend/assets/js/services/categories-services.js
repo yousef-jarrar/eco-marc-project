@@ -1,6 +1,4 @@
-// نستخدم عنوان المشروع الحالي من إعدادات الإدارة المشتركة.
-const API_URL = AdminConfig.apiBase + "categories.php";
-
+const API_URL = "http://localhost/eco-marc-project/backend/api/categories.php";
 async function categoryRequest(method, data = null, query = "") {
     const options = {
         method: method,
@@ -21,7 +19,6 @@ async function categoryRequest(method, data = null, query = "") {
         throw new Error("The server returned an unexpected response. Please retry.");
     }
 
-    // الـ API الحالي يستعمل هذه الأسماء في ردود الحفظ والخطأ.
     if (!response.ok || result.seccses === false || result.seccess === false || result.success === false) {
         throw new Error(result.message || result.massage || "Category request failed.");
     }

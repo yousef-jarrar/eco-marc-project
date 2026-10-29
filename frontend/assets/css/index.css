@@ -125,7 +125,6 @@
   :root {
     --header-height: 72px;
   }
-
 }
 
 @media (max-width: 580px) {
@@ -136,7 +135,6 @@
     --admin-header-height: 64px;
     --chat-width: 100%;
   }
-
 }
 
 @media (prefers-reduced-motion: reduce) {

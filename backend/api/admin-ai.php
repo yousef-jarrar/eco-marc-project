@@ -1,4 +1,5 @@
 <?php
+
 date_default_timezone_set('Asia/Amman');
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
@@ -8,44 +9,65 @@ require_once __DIR__ . '/../classes/AdminAI.php';
 require_once __DIR__ . '/../classes/OllamaService.php';
 require_once __DIR__ . '/../middleware/admin.php';
 require_once __DIR__ . '/../middleware/csrf.php';
+
 requireAdmin();
 
 $streaming = false;
 
-function sendAIEvent(array $event): void {
-    echo json_encode($event, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE) . "\n";
+function sendAIEvent(array $event): void
+{
+    echo json_encode(
+        $event,
+        JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE
+    ) . "\n";
     flush();
 }
 
 try {
-    $method = $_SERVER['REQUEST_METHOD'];
+    $method = $_SERVER['REQUEST_METHOD'] ?? '';
     if (!in_array($method, ['GET', 'POST'], true)) {
         header('Allow: GET, POST');
         http_response_code(405);
-        echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Method not allowed'
+        ]);
         exit;
     }
 
     $body = [];
     $history = [];
     $message = '';
+
     if ($method === 'POST') {
 
         requireCsrf();
         $raw = file_get_contents('php://input');
-        if (strlen($raw) > 100000) throw new InvalidArgumentException('The request is too large.');
+        if (strlen($raw) > 100000) {
+            throw new InvalidArgumentException('The request is too large.');
+        }
+
         $body = json_decode($raw, true);
-        if (!is_array($body)) throw new InvalidArgumentException('Send a valid JSON request.');
-        if (!is_string($body['message'] ?? null)) throw new InvalidArgumentException('Supply a message.');
+        if (!is_array($body)) {
+            throw new InvalidArgumentException('Send a valid JSON request.');
+        }
+        if (!is_string($body['message'] ?? null)) {
+            throw new InvalidArgumentException('Supply a message.');
+        }
+
         $message = trim($body['message']);
-        if ($message === '' || mb_strlen($message) > 1000) throw new InvalidArgumentException('Use a message of 1 to 1000 characters.');
+        if ($message === '' || mb_strlen($message) > 1000) {
+            throw new InvalidArgumentException('Use a message of 1 to 1000 characters.');
+        }
+
         $history = AdminAI::cleanHistory($body['history'] ?? []);
     }
 
-    $input = $_GET;
-    if ($method === 'POST') $input = $body;
+    $input = $method === 'POST' ? $body : $_GET;
     foreach (['from', 'to'] as $key) {
-        if (isset($input[$key]) && !is_string($input[$key])) throw new InvalidArgumentException('Reporting dates must be strings.');
+        if (isset($input[$key]) && !is_string($input[$key])) {
+            throw new InvalidArgumentException('Reporting dates must be strings.');
+        }
     }
     $period = AdminAI::getPeriod($input['from'] ?? null, $input['to'] ?? null);
 
@@ -54,7 +76,10 @@ try {
         if (time() - $lastRequest < 2) {
             http_response_code(429);
             header('Retry-After: 2');
-            echo json_encode(['success' => false, 'message' => 'Please wait a moment before sending another question.']);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Please wait a moment before sending another question.'
+            ]);
             exit;
         }
         $_SESSION['last_ai_request_at'] = time();
@@ -72,17 +97,28 @@ try {
         $connection->rollBack();
         throw $error;
     }
+
     if ($method === 'GET') {
-        echo json_encode(['success' => true, 'data' => $data], JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+        echo json_encode(
+            ['success' => true, 'data' => $data],
+            JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR
+        );
         exit;
     }
 
     $intent = $ai->classifyQuestion($message, $history);
     $arabic = preg_match('/\p{Arabic}/u', $message) === 1;
     $cards = $ai->getCards($intent, $data);
-    $response = ['success' => true, 'period' => $period, 'intent' => $intent,
-        'summary' => $data['summary'], 'comparison' => $data['comparison'],
-        'cards' => $cards, 'product_stock' => $data['product_stock'], 'source' => 'ollama'];
+    $response = [
+        'success' => true,
+        'period' => $period,
+        'intent' => $intent,
+        'summary' => $data['summary'],
+        'comparison' => $data['comparison'],
+        'cards' => $cards,
+        'product_stock' => $data['product_stock'],
+        'source' => 'ollama'
+    ];
 
     if ($intent === 'unsupported') {
         $response['source'] = 'scope';
@@ -98,7 +134,9 @@ try {
         header('Content-Type: application/x-ndjson; charset=utf-8');
         header('X-Accel-Buffering: no');
         ini_set('zlib.output_compression', '0');
-        while (ob_get_level() > 0) ob_end_flush();
+        while (ob_get_level() > 0) {
+            ob_end_flush();
+        }
         sendAIEvent(['type' => 'context', 'period' => $period, 'intent' => $intent]);
     }
 
@@ -114,6 +152,7 @@ try {
             . "For top-product stock follow-ups use product_stock and name the product; if its stock is missing, say so.\n"
             . 'Today: ' . date('Y-m-d') . "\nQuestion category: $intent\nCURRENT_DATA:\n"
             . json_encode($data, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+
         try {
             $callback = null;
             if ($streaming) {
@@ -121,7 +160,13 @@ try {
                     sendAIEvent(['type' => 'token', 'text' => $token]);
                 };
             }
-            $response['answer'] = (new OllamaService())->chat($prompt, $message, $history, $callback);
+
+            $response['answer'] = (new OllamaService())->chat(
+                $prompt,
+                $message,
+                $history,
+                $callback
+            );
         } catch (Throwable $error) {
             error_log('Ecommerce AI: ' . $error->getMessage());
             $response['source'] = 'calculated';
@@ -130,16 +175,25 @@ try {
         }
     }
 
-    if ($streaming) sendAIEvent(['type' => 'done', 'data' => $response]);
-    else echo json_encode($response, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+    if ($streaming) {
+        sendAIEvent(['type' => 'done', 'data' => $response]);
+    } else {
+        echo json_encode($response, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+    }
 } catch (InvalidArgumentException $error) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'message' => $error->getMessage()]);
+    echo json_encode([
+        'success' => false,
+        'message' => $error->getMessage()
+    ]);
 } catch (Throwable $error) {
     error_log('Lumeire admin AI: ' . $error->getMessage());
     if ($streaming) sendAIEvent(['type' => 'error', 'message' => 'Could not finish the response. Please retry.']);
     else {
         http_response_code(500);
-        echo json_encode(['success' => false, 'message' => 'Store insights are temporarily unavailable. Please retry.']);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Store insights are temporarily unavailable. Please retry.'
+        ]);
     }
 }

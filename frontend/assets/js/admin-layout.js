@@ -48,12 +48,13 @@ function displayDate(value) {
 // عند إضافة صفحة جديدة نغيّر available إلى true.
 // Categories قبل Products، ولا يوجد رابط Analytics.
 const adminPages = [
-  { name: "Overview", page: "index", file: "index.html", icon: "chart-pie", available: false },
-  { name: "Categories", page: "categories", file: "categories.html", icon: "layer-group", available: true },
+  { name: "Overview", page: "overview", file: "overveiw.html", icon: "chart-pie", available: true },
   { name: "Products", page: "products", file: "Products.html", icon: "box", available: true },
+  { name: "Categories", page: "categories", file: "categories.html", icon: "layer-group", available: true },
   { name: "Orders", page: "orders", file: "orders.html", icon: "bag-shopping", available: false },
   { name: "Customers", page: "customers", file: "Customer.html", icon: "users", available: true },
   { name: "Reviews", page: "reviews", file: "reviews.html", icon: "star", available: true },
+  { name: "Analytics", page: "analytics", file: "analytics.html", icon: "chart-line", available: false },
   { name: "AI business assistant", page: "ai", file: "ai-assistant.html", icon: "wand-magic-sparkles", available: true },
   { name: "Settings", page: "settings", file: "settings.html", icon: "gear", available: true }
 ];
