@@ -36,18 +36,6 @@
     line-height: 1.6;
 }
 
-.products-page #addProductBtn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 9px;
-    flex-shrink: 0;
-    padding: 12px 20px;
-    border: 0;
-    border-radius: 9px;
-    cursor: pointer;
-    white-space: nowrap;
-}
 
 
 .products-page .content-card {
@@ -615,9 +603,7 @@ body.products-page #productModal.modal.open {
         flex-direction: column;
     }
 
-    .products-page #addProductBtn {
-        width: 100%;
-    }
+    
 
     .products-page .filter-grid {
         grid-template-columns: minmax(0, 1fr);
