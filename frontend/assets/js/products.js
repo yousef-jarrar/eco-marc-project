@@ -1,14 +1,13 @@
+"use strict";
 
-        "use strict";
-
-      
-        const PRODUCTS_API = "../../backend/api/Products.php";
-        const CATEGORIES_API = "../../backend/api/categories.php";
-        const DISCOUNTS_API = "../../backend/api/Discounts.php";
+         
+        const PRODUCTS_API = AdminConfig.apiBase + "Products.php";
+        const CATEGORIES_API = AdminConfig.apiBase + "categories.php";
+        const DISCOUNTS_API = AdminConfig.apiBase + "Discount.php";
 
         const IMAGE_BASE_PATH = "../../";
 
-        // HTML elements
+         
         const productsTableBody =
             document.getElementById("productsTableBody");
 
@@ -30,7 +29,7 @@
         const productImagesInput =
             document.getElementById("productImages");
 
-        // Data
+         
         let products = [];
         let categories = [];
         let discounts = [];
@@ -46,7 +45,7 @@
       
 
         async function getJson(url, options = {}) {
-            const response = await fetch(url, options);
+            const response = await EcoAuth.fetch(url, options);
             const responseText = await response.text();
 
             let data;
@@ -112,6 +111,8 @@
         function showMessage(element, message, type = "success") {
             element.textContent = message;
             element.className = "message show " + type;
+    if (type === "error") Alerts.show("Products", message, "error");
+    else Alerts.toast(message);
         }
 
         function hideMessage(element) {
@@ -389,7 +390,25 @@
         }
 
    
+        function populateProductFilters() {
+            const variants = products.flatMap(getVariants);
+            const options = {
+                filterCategory: categories.map(category => [String(category.id), category.name]),
+                filterColor: [...new Set(variants.map(variant => String(variant.color).toLowerCase()))].sort().map(value => [value, value]),
+                filterSize: [...new Set(variants.map(variant => String(variant.size)))].sort((a,b) => a.localeCompare(b, undefined, {numeric:true})).map(value => [value, value])
+            };
+            for (const id of Object.keys(options)) {
+                const select = document.getElementById(id);
+                if (!select || select.tagName !== "SELECT") continue;
+                const value = select.value;
+                select.replaceChildren(new Option(id === "filterCategory" ? "All Categories" : id === "filterColor" ? "All Colors" : "All Sizes", ""));
+                for (const [key, label] of options[id]) select.add(new Option(label, key));
+                select.value = options[id].some(option => option[0] === value) ? value : "";
+            }
+        }
+
         function renderProducts() {
+            populateProductFilters();
             const filteredProducts = getFilteredProducts();
 
             const totalPages = Math.max(
@@ -536,9 +555,9 @@
                 currentPage >= totalPages;
         }
 
-        // --------------------------------------------------
-        // Variants
-        // --------------------------------------------------
+         
+         
+         
 
         function readVariants() {
             const rows =
@@ -547,7 +566,7 @@
             return Array.from(rows).map(function (row) {
                 return {
                     size: row.querySelector(".variant-size").value,
-                    color: row.querySelector(".variant-color").value.trim(),
+                    color: row.querySelector(".variant-color").value.trim().toLowerCase(),
                     quantity: Number(
                         row.querySelector(".variant-quantity").value
                     )
@@ -605,7 +624,7 @@
             const sizeOptions = [
                 "XS", "S", "M", "L", "XL", "XXL",
                 "36", "37", "38", "39", "40", "41",
-                "42", "43", "44", "45"
+                "42", "43", "44", "45", "46", "ONE_SIZE"
             ];
 
             const size = String(variant.size ?? "");
@@ -709,10 +728,15 @@
             }
 
             const combinations = new Set();
+            const allowedColors = ["black", "white", "gray", "red", "blue", "navy", "green", "yellow", "orange", "pink", "purple", "brown", "beige", "other"];
 
             for (const variant of variants) {
                 if (!variant.size || !variant.color.trim()) {
                     return "Please select a size and enter a color for every variant.";
+                }
+
+                if (!allowedColors.includes(variant.color)) {
+                    return "Use one of these colors: " + allowedColors.join(", ") + ".";
                 }
 
                 if (
@@ -737,9 +761,9 @@
             return "";
         }
 
-        // --------------------------------------------------
-        // Form and modal
-        // --------------------------------------------------
+         
+         
+         
 
         function resetForm() {
             productForm.reset();
@@ -863,9 +887,9 @@
             openModal();
         }
 
-        // --------------------------------------------------
-        // Images
-        // --------------------------------------------------
+         
+         
+         
 
         function renderImagePreview() {
             const preview =
@@ -920,9 +944,9 @@
             preview.innerHTML = existingHtml + selectedHtml;
         }
 
-        // --------------------------------------------------
-        // Save product
-        // --------------------------------------------------
+         
+         
+         
 
         async function saveProduct(event) {
             event.preventDefault();
@@ -1009,6 +1033,21 @@
                 return;
             }
 
+            if (!document.getElementById("productId").value && selectedImages.length === 0) {
+                showMessage(formMessage, "Upload at least one product image.", "error");
+                return;
+            }
+            if (selectedImages.length > 5) {
+                showMessage(formMessage, "Upload up to 5 images at a time.", "error");
+                return;
+            }
+            for (const file of selectedImages) {
+                if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type) || file.size > 5 * 1024 * 1024) {
+                    showMessage(formMessage, "Use JPG, PNG, WEBP or GIF images, each 5MB or less.", "error");
+                    return;
+                }
+            }
+
             const formData = new FormData(productForm);
 
             formData.set("quantity", String(productQuantity));
@@ -1075,9 +1114,9 @@
             }
         }
 
-        // --------------------------------------------------
-        // Delete product
-        // --------------------------------------------------
+         
+         
+         
 
         async function deleteProduct(id) {
             const product = products.find(function (item) {
@@ -1093,11 +1132,9 @@
                 return;
             }
 
-            const confirmed = confirm(
-                `Are you sure you want to delete "${product.name}"?`
-            );
+            const confirmed = await Alerts.confirm("Delete this product?", "This removes " + product.name + " from your store.");
 
-            if (!confirmed) {
+    if (!confirmed.isConfirmed) {
                 return;
             }
 
@@ -1126,9 +1163,9 @@
             }
         }
 
-        // --------------------------------------------------
-        // View product
-        // --------------------------------------------------
+         
+         
+         
 
         function viewProduct(id) {
             window.location.href =
@@ -1136,17 +1173,17 @@
                 encodeURIComponent(id);
         }
 
-        // --------------------------------------------------
-        // Event listeners
-        // --------------------------------------------------
+         
+         
+         
 
-        // Open Add Product modal
+         
         document.getElementById("addProductBtn").addEventListener(
             "click",
             openAddForm
         );
 
-        // Close modal
+         
         document.getElementById("closeModalBtn").addEventListener(
             "click",
             closeModal
@@ -1163,7 +1200,7 @@
             }
         });
 
-        // Add variant
+         
         document.getElementById("addVariantBtn").addEventListener(
             "click",
             function () {
@@ -1171,19 +1208,19 @@
             }
         );
 
-        // Update quantity summary
+         
         document.getElementById("productQuantity").addEventListener(
             "input",
             updateTotalVariantQuantity
         );
 
-        // Submit product form
+         
         productForm.addEventListener(
             "submit",
             saveProduct
         );
 
-        // Search filters
+         
         [
             "filterProduct",
             "filterCategory",
@@ -1199,7 +1236,7 @@
             );
         });
 
-        // Clear filters
+         
         document.getElementById("clearFiltersBtn").addEventListener(
             "click",
             function () {
@@ -1214,7 +1251,7 @@
             }
         );
 
-        // Previous page
+         
         document.getElementById("prevPageBtn").addEventListener(
             "click",
             function () {
@@ -1225,7 +1262,7 @@
             }
         );
 
-        // Next page
+         
         document.getElementById("nextPageBtn").addEventListener(
             "click",
             function () {
@@ -1243,7 +1280,7 @@
             }
         );
 
-        // View / Edit / Delete buttons
+         
         productsTableBody.addEventListener(
             "click",
             function (event) {
@@ -1268,7 +1305,7 @@
             }
         );
 
-        // Select images
+         
         productImagesInput.addEventListener(
             "change",
             function (event) {
@@ -1280,7 +1317,7 @@
             }
         );
 
-        // Remove an image from the preview
+         
         document.getElementById("imagePreview").addEventListener(
             "click",
             function (event) {
@@ -1313,9 +1350,9 @@
             }
         );
 
-        // --------------------------------------------------
-        // Initialize page
-        // --------------------------------------------------
+         
+         
+         
 
         async function initPage() {
             try {

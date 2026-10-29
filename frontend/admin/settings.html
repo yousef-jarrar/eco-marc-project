@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="auth-checking">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -10,6 +10,10 @@
   <link rel="stylesheet" href="../assets/css/global.css">
   <link rel="stylesheet" href="../assets/css/admin.css">
   <link rel="stylesheet" href="../assets/css/admin-settings.css">
+  <style>html.auth-checking body { visibility: hidden; }</style>
+    
+  <script src="../assets/js/auth.js?v=20261029-scriptfix"></script>
+<link rel="icon" type="image/svg+xml" href="../../assets/lumiere-icon-light.svg">
 </head>
 <body data-page="settings" class="settings-page">
   <a class="sr-only" href="#main">Skip to content</a>
@@ -56,7 +60,7 @@
 
                     <div class="form-group">
                         <label for="freeDeliveryThreshold">
-                            Free delivery threshold (JOD)
+                            Free delivery threshold (JOD, optional)
                         </label>
 
                         <input
@@ -66,7 +70,6 @@
                             min="0"
                             step="0.01"
                             value=""
-                            required
                         >
                     </div>
 
@@ -84,10 +87,14 @@
     </main>
   </div>
 
+  
+  
+  
+  
   <script src="../assets/vendor/sweetalert2.all.min.js"></script>
-  <script src="../assets/js/admin-api.js"></script>
-  <script src="../assets/js/alerts.js"></script>
-  <script src="../assets/js/admin-layout.js"></script>
-  <script type="module" src="../assets/js/settings.js"></script>
+<script src="../assets/js/admin-api.js?v=20261029-scriptfix"></script>
+<script src="../assets/js/alerts.js?v=20261029-scriptfix"></script>
+<script src="../assets/js/admin-layout.js?v=20261029-scriptfix"></script>
+<script type="module" src="../assets/js/settings.js?v=20261029-session2"></script>
 </body>
 </html>

@@ -3,7 +3,7 @@ header("Content-Type: application/json; charset=utf-8");
 
 require_once __DIR__ . "/../config/db.php";
 require_once __DIR__ . "/../classes/Review.php";
-// Auth
+ 
 require_once __DIR__ . "/../middleware/admin.php";
 requireAdmin() ;
 
@@ -17,8 +17,7 @@ try {
 
     $method = $_SERVER["REQUEST_METHOD"];
     if (in_array($method, ["PATCH", "DELETE"], true)) {
-        // TEMPORARY: local testing only. Restore before deployment.
-        // requireCsrf();
+        requireCsrf();
     }
 
     switch ($method) {

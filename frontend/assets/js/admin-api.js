@@ -1,26 +1,13 @@
-// إعدادات الاتصال بالباك إند.
+ 
 const AdminConfig = {
-  apiBase: "/eco-marc-project/backend/api/",
-  timeout: 120000,
-  csrfStorageKey: "eco-marc-admin-csrf"
+  apiBase: new URL("../../backend/api/", document.baseURI).href,
+  timeout: 120000
 };
-
 function getCsrfToken() {
-  const meta = document.querySelector('meta[name="csrf-token"]');
-
-  if (meta && meta.content.trim() !== "") {
-    return meta.content.trim();
-  }
-
-  const savedToken = sessionStorage.getItem(AdminConfig.csrfStorageKey);
-  if (savedToken) {
-    return savedToken;
-  }
-
-  return "";
+  return EcoAuth.token();
 }
 
-// كل طلبات الصفحات تمر من هذه الدالة.
+ 
 async function sendRequest(endpoint, options = {}) {
   let method = "GET";
   if (options.method) {
@@ -33,14 +20,6 @@ async function sendRequest(endpoint, options = {}) {
     headers["Content-Type"] = "application/json";
   }
 
-// TEMPORARY: CSRF paused for local testing. Restore before deployment.
-//   if (method !== "GET") {
-//     const token = getCsrfToken();
-//     if (token === "") {
-//       throw new Error("Your session could not be verified. Sign in again, then retry.");
-//     }
-//     headers["X-CSRF-Token"] = token;
-//   }
 
   const controller = new AbortController();
 
@@ -48,7 +27,7 @@ async function sendRequest(endpoint, options = {}) {
     controller.abort();
   }
 
-  // زر الإلغاء في صفحة المساعد يستخدم نفس الطلب.
+   
   if (options.signal) {
     options.signal.addEventListener("abort", cancelRequest, { once: true });
     if (options.signal.aborted) {
@@ -70,8 +49,8 @@ async function sendRequest(endpoint, options = {}) {
   }
 
   try {
-    const response = await fetch(AdminConfig.apiBase + endpoint, settings);
-    // رد المساعد يصل على أجزاء، أما باقي الطلبات فترجع JSON عادي.
+    const response = await EcoAuth.fetch(AdminConfig.apiBase + endpoint, settings);
+     
     if (options.onEvent && response.ok && (response.headers.get("Content-Type") || "").includes("application/x-ndjson")) {
       return await readAssistantStream(response, options.onEvent);
     }
@@ -82,6 +61,11 @@ async function sendRequest(endpoint, options = {}) {
     try {
       result = JSON.parse(responseText);
     } catch (error) {
+      if (response.status === 401) {
+        const authError = new Error("Please sign in with your admin account, then retry.");
+        authError.status = response.status;
+        throw authError;
+      }
       throw new Error("The server returned an unexpected response. Please try again.");
     }
 
@@ -134,6 +118,18 @@ async function getInsights(from, to) {
   return result.data;
 }
 
+async function getOverview(from, to) {
+  let endpoint = "overveiw.php";
+  if (from && to) {
+    endpoint += "?from=" + encodeURIComponent(from) + "&to=" + encodeURIComponent(to);
+  }
+  const result = await sendRequest(endpoint);
+  if (!result.data || typeof result.data !== "object") {
+    throw new Error("The overview response is missing data.");
+  }
+  return result.data;
+}
+
 async function sendAIMessage(message, signal) {
   const result = await sendRequest("admin-ai.php", {
     method: "POST",
@@ -173,11 +169,12 @@ async function deleteReview(id) {
   });
 }
 
-// أسماء الخدمات التي تستعملها الصفحات.
+ 
 const AdminAPI = {
   token: getCsrfToken,
   request: sendRequest,
   insights: getInsights,
+  overview: getOverview,
   ask: sendAIMessage,
   askDetails: sendDetailedAIMessage,
   reviews: getReviews,
@@ -186,7 +183,7 @@ const AdminAPI = {
   deleteReview: deleteReview
 };
 
-// قراءة سطور JSON مع الحفاظ على الحروف العربية بين الأجزاء.
+ 
 async function readAssistantStream(response, onEvent) {
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
