@@ -1,8 +1,7 @@
-const API_URL = "../../backend/api/cart.php";
+const API_URL = new URL("../../backend/api/cart.php", location.href).href;
 
-// Change this if your application stores the logged-in user's ID
-// under a different localStorage key.
-const USER_ID = localStorage.getItem("user_id") || "1";
+ 
+ 
 
 const params = new URLSearchParams(window.location.search);
 const orderId = params.get("id");
@@ -17,7 +16,7 @@ const statusSelect = document.getElementById("status-select");
 const saveStatusButton = document.getElementById("save-status");
 const statusMessage = document.getElementById("status-message");
 
-/* ---------- helpers ---------- */
+ 
 
 function showError(message) {
     loadingMessage.classList.add("hidden");
@@ -55,6 +54,13 @@ function formatDate(value) {
     return date.toLocaleString();
 }
 
+function orderImageUrl(value) {
+    if (!value) return "";
+    try {
+        const url = new URL(value, new URL("../../", location.href));
+        return ["http:", "https:"].includes(url.protocol) ? url.href : "";
+    } catch { return ""; }
+}
 function displayValue(value) {
     if (value === null || value === undefined || value === "") {
         return "—";
@@ -76,7 +82,7 @@ function setStatusMessage(text, type = "") {
     statusMessage.textContent = text;
 }
 
-/* ---------- rendering ---------- */
+ 
 
 function renderStatus(status) {
     const element = document.getElementById("order-status");
@@ -84,7 +90,7 @@ function renderStatus(status) {
 
     element.textContent = value;
 
-    // Only known statuses become CSS classes.
+     
     const allowedStatuses = [
         "completed",
         "delivered",
@@ -108,7 +114,7 @@ function renderStatusControls(status) {
     const current = String(status ?? "").toLowerCase();
     const locked = current === "cancelled";
 
-    // If the status isn't one of the dropdown options, add it so it shows correctly.
+     
     const hasOption = Array.from(statusSelect.options).some(
         (option) => option.value === current
     );
@@ -151,15 +157,16 @@ function renderItems(items) {
     items.forEach((item) => {
         const row = document.createElement("tr");
 
-        // Product (image + name + id)
+         
         const productCell = document.createElement("td");
         const productWrap = document.createElement("div");
         productWrap.className = "product-cell";
 
-        if (item.product_image) {
+        const imageUrl = orderImageUrl(item.product_image);
+        if (imageUrl) {
             const image = document.createElement("img");
             image.className = "product-image";
-            image.src = item.product_image;
+            image.src = imageUrl;
             image.alt = displayValue(item.product_name);
             image.loading = "lazy";
             image.addEventListener("error", () => image.remove());
@@ -183,7 +190,7 @@ function renderItems(items) {
         productWrap.appendChild(productText);
         productCell.appendChild(productWrap);
 
-        // Variant
+         
         const variantCell = document.createElement("td");
         const variantParts = [];
 
@@ -199,7 +206,7 @@ function renderItems(items) {
             ? variantParts.join(" · ")
             : "—";
 
-        // Price, quantity, subtotal
+         
         const price = Number(item.price ?? 0);
         const quantity = Number(item.quantity ?? 0);
 
@@ -254,7 +261,7 @@ function renderOrder(order) {
     orderContent.classList.remove("hidden");
 }
 
-/* ---------- API calls ---------- */
+ 
 
 async function loadOrderDetails() {
     if (!orderId || !/^\d+$/.test(orderId) || Number(orderId) < 1) {
@@ -267,7 +274,7 @@ async function loadOrderDetails() {
     orderContent.classList.add("hidden");
 
     try {
-        const response = await fetch(API_URL, {
+        const response = await EcoAuth.fetch(API_URL, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -275,7 +282,7 @@ async function loadOrderDetails() {
             },
             body: JSON.stringify({
                 action: "details",
-                user_id: Number(USER_ID),
+
                 order_id: Number(orderId)
             })
         });
@@ -288,7 +295,7 @@ async function loadOrderDetails() {
             );
         }
 
-        // Supports { success: true, data: {...} } or the order object directly.
+         
         const order = result.data ?? result.order ?? result;
 
         if (
@@ -319,7 +326,7 @@ async function saveStatus() {
     setStatusMessage("Saving...");
 
     try {
-        const response = await fetch(API_URL, {
+        const response = await EcoAuth.fetch(API_URL, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
@@ -327,7 +334,7 @@ async function saveStatus() {
             },
             body: JSON.stringify({
                 action: "order_status",
-                user_id: Number(USER_ID),
+
                 order_id: Number(orderId),
                 status: newStatus
             })
@@ -346,7 +353,7 @@ async function saveStatus() {
         if (newStatus === "cancelled") {
             statusSelect.disabled = true;
             setStatusMessage("Order cancelled.", "success");
-            return; // keep the Save button disabled
+            return;  
         }
 
         setStatusMessage("Status updated.", "success");
@@ -358,7 +365,7 @@ async function saveStatus() {
     saveStatusButton.disabled = false;
 }
 
-/* ---------- events ---------- */
+ 
 
 retryButton.addEventListener("click", loadOrderDetails);
 saveStatusButton.addEventListener("click", saveStatus);

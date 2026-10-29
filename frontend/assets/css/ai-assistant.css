@@ -227,7 +227,7 @@
 
 }
 
-/* فترة التقرير والمقارنة */
+ 
 .reporting-panel { margin-bottom: 24px; }
 .reporting-form { display: grid; grid-template-columns: 1.2fr 1fr 1fr auto; gap: 16px; align-items: end; }
 .reporting-form > div { min-width: 0; }
@@ -249,6 +249,6 @@
 @media(max-width:1100px) { .reporting-form { grid-template-columns: repeat(2, minmax(0,1fr)); } }
 @media(max-width:580px) { .assistant-kpis { grid-template-columns: repeat(2, minmax(0,1fr)); } .reporting-form { gap: 12px; } .reporting-form > div:first-child { grid-column: 1/-1; } .reporting-form button { grid-column: 1/-1; } .reporting-caption { display: block; } .reporting-caption span { display: block; margin-bottom: 6px; } .answer-item { flex-wrap: wrap; } .messages { height: 400px; } }
 
-/* منع الرسم من تجاوز الحاوية أثناء تغيير حجم الشاشة */
+ 
 .chart-wrap { overflow: hidden; }
 .chart-wrap canvas { max-width: 100%; }

@@ -3,7 +3,7 @@
     Require all denied
 </FilesMatch>
 
-# Never expose repository metadata or private key files.
+
 <FilesMatch "\.(key|p12|pfx)$">
     Require all denied
 </FilesMatch>

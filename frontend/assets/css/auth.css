@@ -1,4 +1,4 @@
-/* تصميم الدخول والتسجيل مأخوذ من قالب المتجر، باستخدام متغيرات المشروع. */
+ 
 html.auth-checking body { visibility: hidden; }
 * { box-sizing: border-box; }
 body { margin: 0; color: var(--color-text); background: #fff; font: 14px/1.6 var(--font-body); }
@@ -83,13 +83,13 @@ a { color: inherit; }
   .auth-wordmark { font-size: 21px; }
 }
 
-/* شعار المشروع في صفحات الدخول والتسجيل. */
+ 
 .auth-header .auth-wordmark { align-items: center; gap: 12px; }
 .auth-header .auth-wordmark strong { font: inherit; }
 .auth-header .auth-wordmark img { width: 40px; height: 40px; flex-shrink: 0; }
 @media (max-width: 760px) { .auth-header .auth-wordmark { font-size: 18px; gap: 8px; } .auth-header .auth-wordmark img { width: 30px; height: 30px; } }
 
-/* نقلل الفراغات في التسجيل حتى تناسب شاشات اللابتوب. */
+ 
 body[data-auth-mode="register"] .auth-form-wrap { padding-top: 28px; padding-bottom: 28px; }
 body[data-auth-mode="register"] .auth-form-wrap h1 { font-size: 30px; margin-bottom: 12px; }
 body[data-auth-mode="register"] #form-description { margin-bottom: 0; }

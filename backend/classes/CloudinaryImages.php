@@ -13,7 +13,7 @@ class CloudinaryImages {
                 $this->client->configuration->api->timeout = 15;
                 $this->client->configuration->api->uploadTimeout = 15;
             } catch (Throwable $error) {
-                // لا نرجع رسائل SDK أو .env للمتصفح لأنها قد تحتوي معلومات حساسة.
+                 
                 throw new RuntimeException('Image storage is not configured correctly. Please check the server configuration.', 503);
             }
         }
@@ -36,7 +36,7 @@ class CloudinaryImages {
             }
             return ['image_url' => $url, 'public_id' => $publicId];
         } catch (Throwable $error) {
-            // نسجل المعرّف فقط ليتم تنظيف أي رفع نجح قبل انقطاع الرد.
+             
             $failure = new CloudinaryUploadException('Could not upload the product image. Please try again.', 502);
             $failure->publicId = $publicId;
             throw $failure;
@@ -53,7 +53,7 @@ class CloudinaryImages {
         }
     }
 
-    // محاولة حذف مباشرة بعد الحفظ؛ لا يوجد جدول أو إعادة محاولة تلقائية.
+     
     public function cleanup(Product $products, array $publicIds = []): void {
         foreach (array_unique($publicIds) as $publicId) {
             try {

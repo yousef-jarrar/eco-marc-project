@@ -1,4 +1,4 @@
-/* نفس تقسيمة وألوان فوتر القالب، بروابط الحساب المتوفرة في المشروع. */
+ 
 .site-footer { background: var(--color-primary); color: #ddd; padding: 64px 5% 24px; }
 .site-footer-grid { display: grid; grid-template-columns: 2fr 1fr 1.4fr; gap: 60px; max-width: 1440px; margin: auto; }
 .site-footer-logo { display: inline-flex; align-items: center; gap: 14px; color: #fff; text-decoration: none; font: 800 27px var(--font-heading); letter-spacing: -.04em; }

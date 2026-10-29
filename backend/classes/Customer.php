@@ -80,7 +80,7 @@ class Customer
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // GET: Get one customer
+     
     public function getById(int $id): array|false
     {
         $sql = "
@@ -130,7 +130,7 @@ class Customer
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    // POST: Create customer
+     
     public function create(array $data): int
     {
         $sql = "INSERT INTO users
@@ -151,7 +151,7 @@ class Customer
         return (int) $this->db->lastInsertId();
     }
 
-    // PUT: Update customer
+     
     public function update(int $id, array $data): void
     {
         $sql = "UPDATE users
@@ -174,7 +174,7 @@ class Customer
         ]);
     }
 
-    // DELETE: Delete customer
+     
     public function delete(int $id): bool
     {
         $sql = "DELETE FROM users

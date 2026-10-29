@@ -1,4 +1,4 @@
-// نحول النص إلى نص آمن قبل وضعه داخل HTML.
+ 
 function escapeHTML(value) {
   if (value === null || value === undefined) {
     return "";
@@ -45,16 +45,15 @@ function displayDate(value) {
   });
 }
 
-// عند إضافة صفحة جديدة نغيّر available إلى true.
-// Categories قبل Products، ولا يوجد رابط Analytics.
+ 
+ 
 const adminPages = [
   { name: "Overview", page: "overview", file: "overveiw.html", icon: "chart-pie", available: true },
-  { name: "Products", page: "products", file: "Products.html", icon: "box", available: true },
   { name: "Categories", page: "categories", file: "categories.html", icon: "layer-group", available: true },
-  { name: "Orders", page: "orders", file: "orders.html", icon: "bag-shopping", available: false },
+  { name: "Products", page: "products", file: "Products.html", icon: "box", available: true },
+  { name: "Orders", page: "orders", file: "orders.html", icon: "bag-shopping", available: true },
   { name: "Customers", page: "customers", file: "Customer.html", icon: "users", available: true },
   { name: "Reviews", page: "reviews", file: "reviews.html", icon: "star", available: true },
-  { name: "Analytics", page: "analytics", file: "analytics.html", icon: "chart-line", available: false },
   { name: "AI business assistant", page: "ai", file: "ai-assistant.html", icon: "wand-magic-sparkles", available: true },
   { name: "Settings", page: "settings", file: "settings.html", icon: "gear", available: true }
 ];
@@ -234,7 +233,7 @@ loadAdminTopbar();
 try {
   if (localStorage.getItem("eco-marc-sidebar-collapsed") === "1") document.body.classList.add("sidebar-is-collapsed");
 } catch (error) {
-  // القائمة تظل تعمل لو التخزين غير متاح.
+   
 }
 updateCollapsedMenu();
 
@@ -281,7 +280,7 @@ document.addEventListener("keydown", function (event) {
   }
 });
 
-// اسم المستخدم من الجلسة الفعلية.
+ 
 document.getElementById("admin-logout").addEventListener("click", EcoAuth.logout);
 EcoAuth.ready.then(function (session) {
   if (!session.user) return;

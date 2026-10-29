@@ -1,4 +1,4 @@
-// جلسة واحدة لكل الصفحات. الرمز يبقى في الذاكرة ولا يُحفظ في localStorage.
+ 
 const EcoAuth = (function () {
   const api = "/xampp/php-project/backend/api/auth.php";
   const login = "/xampp/php-project/frontend/account/login.html";
@@ -37,7 +37,7 @@ const EcoAuth = (function () {
 
   async function refreshForWrite(requireLogin) {
     await ready;
-    // تبويب آخر قد يغيّر الجلسة أو CSRF؛ نقرأ الرمز الحالي قبل إرسال البيانات.
+     
     const session = await loadSession();
     if (requireLogin && !session.user) {
       location.replace(login + "?next=" + encodeURIComponent(location.pathname + location.search));
@@ -53,7 +53,7 @@ const EcoAuth = (function () {
     return session;
   }
 
-  // نعرض خطأ الاتصال فقط؛ أخطاء الصلاحية تحوّل المستخدم لصفحة الدخول.
+   
   ready.catch(function (error) {
     if (!state) {
       function showError() {
@@ -91,7 +91,7 @@ const EcoAuth = (function () {
     if (!["GET", "HEAD", "OPTIONS"].includes(method)) headers.set("X-CSRF-Token", state.csrf_token);
     const response = await fetch(url, Object.assign({}, options, { headers: headers, credentials: "same-origin" }));
     if (response.status === 401 && isAdminPage) location.replace(login + "?next=" + encodeURIComponent(location.pathname + location.search));
-    // لا نكرر طلبات الحفظ تلقائياً؛ نحدّث الرمز للطلب القادم فقط.
+     
     if (response.status === 403) {
       try {
         const result = await response.clone().json();
@@ -103,7 +103,7 @@ const EcoAuth = (function () {
 
   function destination(user) {
     const next = new URLSearchParams(location.search).get("next");
-    const allowed = ["ai-assistant.html", "categories.html", "Customer.html", "Customer-details.html", "Products.html", "ProductDetails.html", "reviews.html", "settings.html"];
+    const allowed = ["ai-assistant.html", "categories.html", "Customer.html", "Customer-details.html", "Products.html", "ProductDetails.html", "reviews.html", "settings.html", "overveiw.html", "orders.html", "order-details.html"];
     if (user.role === "admin" && next) {
       const url = new URL(next, location.origin);
       if (url.origin === location.origin && url.pathname.startsWith("/xampp/php-project/frontend/admin/") && allowed.includes(url.pathname.split("/").pop())) return url.pathname + url.search;
