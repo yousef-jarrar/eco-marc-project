@@ -1,14 +1,29 @@
  
 const EcoAuth = (function () {
-  const projectRoot = new URL("../../../", document.currentScript.src);
+  const scriptUrl = document.currentScript ? document.currentScript.src : new URL("../assets/js/auth.js", location.href).href;
+  const projectRoot = new URL("../../../", scriptUrl);
   const api = new URL("backend/api/auth.php", projectRoot).href;
   const login = new URL("frontend/account/login.html", projectRoot).href;
   const account = new URL("frontend/account/index.html", projectRoot).href;
+  const adminFolder = new URL("frontend/admin/", projectRoot).pathname;
   const admin = new URL("frontend/admin/ai-assistant.html", projectRoot).href;
-  const adminPath = new URL("frontend/admin/", projectRoot).pathname;
   let state = null;
   let pageUserId = null;
-  const isAdminPage = location.pathname.includes("/frontend/admin/");
+  const isAdminPage = location.pathname.startsWith(adminFolder);
+
+  async function readAuthResponse(response) {
+    const text = await response.text();
+    let result;
+    try { result = JSON.parse(text); }
+    catch {
+      if (response.status === 404) throw new Error("The sign-in endpoint could not be found. Check your project URL.");
+      throw new Error("The sign-in server returned an invalid response. Check the PHP error log and local environment setup.");
+    }
+    if (!result || typeof result !== "object" || Array.isArray(result) || typeof result.success !== "boolean") {
+      throw new Error("The sign-in server returned an unexpected response.");
+    }
+    return result;
+  }
 
   async function loadSession() {
     const controller = new AbortController();
@@ -17,7 +32,7 @@ const EcoAuth = (function () {
     try {
       response = await fetch(api, { credentials: "same-origin", cache: "no-store", signal: controller.signal });
     } finally { clearTimeout(timer); }
-    const result = await response.json();
+    const result = await readAuthResponse(response);
     if (!response.ok || !result.success) throw new Error(result.message || "Could not check your session.");
     state = result;
     return state;
@@ -74,7 +89,7 @@ const EcoAuth = (function () {
       headers: { "Content-Type": "application/json", "X-CSRF-Token": state.csrf_token },
       body: JSON.stringify(Object.assign({}, data, { action: action }))
     });
-    const result = await response.json();
+    const result = await readAuthResponse(response);
     if (!response.ok || !result.success) {
       if (result.code === "csrf_invalid") await loadSession();
       throw new Error(result.message || "Authentication failed.");
@@ -107,8 +122,11 @@ const EcoAuth = (function () {
     const next = new URLSearchParams(location.search).get("next");
     const allowed = ["ai-assistant.html", "categories.html", "Customer.html", "Customer-details.html", "Products.html", "ProductDetails.html", "reviews.html", "settings.html", "overveiw.html", "orders.html", "order-details.html"];
     if (user.role === "admin" && next) {
-      const url = new URL(next, location.origin);
-      if (url.origin === location.origin && url.pathname.startsWith(adminPath) && allowed.includes(url.pathname.split("/").pop())) return url.pathname + url.search;
+      try {
+        const url = new URL(next, location.origin);
+        const page = url.pathname.slice(adminFolder.length);
+        if (url.origin === location.origin && url.pathname.startsWith(adminFolder) && allowed.includes(page)) return url.pathname + url.search;
+      } catch { }
     }
     return user.role === "admin" ? admin : account;
   }
