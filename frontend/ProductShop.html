@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" class="auth-checking">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Details | LUMIÈRE</title>
+  <link rel="stylesheet" href="assets/css/fonts.css"><link rel="stylesheet" href="assets/css/index.css">
+  <link rel="stylesheet" href="assets/css/shop.css"><link rel="stylesheet" href="assets/vendor/fontawesome.min.css">
+  <script src="assets/js/auth.js"></script>
+</head>
+<body class="shop-page">
+  <header class="shop-header"><a href="Landing.html" class="shop-logo">LUMIÈRE</a><nav><a href="user/wishlist.html"><i class="fa-regular fa-heart"></i></a><a href="account/index.html"><i class="fa-solid fa-user"></i></a>
+<button
+    type="button"
+    class="nav-cart-button"
+    id="store-cart-button"
+    aria-label="Open shopping cart"
+>
+    <i class="fa-solid fa-bag-shopping"></i>
+
+    <b class="nav-cart-count" id="store-cart-count" hidden>0</b>
+</button>
+</nav></header>
+  <main class="detail-container"><a class="back-to-shop" href="Shop.html"><i class="fa-solid fa-arrow-left"></i> Back to the collection</a>
+    <p id="details-status" class="details-status" role="status">Loading product...</p><section id="product-details" class="product-details" hidden></section>
+  </main>
+  <footer class="shop-footer"><span>LUMIÈRE</span><a href="Shop.html">Continue shopping</a></footer>
+  <script src="assets/vendor/sweetalert2.all.min.js"></script><script src="assets/js/alerts.js"></script><script src="assets/js/store-common.js"></script><script src="assets/js/product-details.js"></script>
+</body></html>
