@@ -1,17 +1,19 @@
 // إعدادات الاتصال بالباك إند.
 const AdminConfig = {
+<<<<<<< HEAD
+  apiBase: "../../backend/api/",
+=======
   apiBase: "/eco-marc-project/backend/api/",
+>>>>>>> 6237a1b14440715356ed58424447593c3cfd3ed4
   timeout: 120000,
   csrfStorageKey: "eco-marc-admin-csrf"
 };
-
 function getCsrfToken() {
   const meta = document.querySelector('meta[name="csrf-token"]');
 
   if (meta && meta.content.trim() !== "") {
     return meta.content.trim();
   }
-
   const savedToken = sessionStorage.getItem(AdminConfig.csrfStorageKey);
   if (savedToken) {
     return savedToken;
@@ -82,6 +84,11 @@ async function sendRequest(endpoint, options = {}) {
     try {
       result = JSON.parse(responseText);
     } catch (error) {
+      if (response.status === 401) {
+        const authError = new Error("Please sign in with your admin account, then retry.");
+        authError.status = response.status;
+        throw authError;
+      }
       throw new Error("The server returned an unexpected response. Please try again.");
     }
 
@@ -134,6 +141,18 @@ async function getInsights(from, to) {
   return result.data;
 }
 
+async function getOverview(from, to) {
+  let endpoint = "overveiw.php";
+  if (from && to) {
+    endpoint += "?from=" + encodeURIComponent(from) + "&to=" + encodeURIComponent(to);
+  }
+  const result = await sendRequest(endpoint);
+  if (!result.data || typeof result.data !== "object") {
+    throw new Error("The overview response is missing data.");
+  }
+  return result.data;
+}
+
 async function sendAIMessage(message, signal) {
   const result = await sendRequest("admin-ai.php", {
     method: "POST",
@@ -178,6 +197,7 @@ const AdminAPI = {
   token: getCsrfToken,
   request: sendRequest,
   insights: getInsights,
+  overview: getOverview,
   ask: sendAIMessage,
   askDetails: sendDetailedAIMessage,
   reviews: getReviews,

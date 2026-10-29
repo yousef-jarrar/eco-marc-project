@@ -32,12 +32,21 @@ try{
     echo json_encode($result);
 
     break;
+
     case "POST":
         $data=json_decode(file_get_contents("php://input"),true);
         $name=$data["name"];
         $image_url=$data["image_url"] ?? null;
-         
-        $result=$category->creatCategories($name,$image_url);
+        $status=$data["status"] ?? "active";
+        if(!in_array($status,["active","inactive"])){
+            http_response_code(400);
+            echo json_encode([
+                "success"=>false,
+                "message"=>"Invalid status value. Must be 'active' or 'inactive'."
+            ]);
+            exit;
+        }
+        $result=$category->creatCategories($name,$image_url,$status);
 
        
         echo json_encode([
@@ -52,8 +61,17 @@ try{
         $id=$data["id"];
         $name=$data["name"];
         $image_url=$data["image_url"];
+        $status=$data["status"] ?? "active";
+        if(!in_array($status,["active","inactive"])){
+            http_response_code(400);
+            echo json_encode([
+                "success"=>false,
+                "message"=>"Invalid category status"
+            ]);
+            break;
+        }
 
-        $result = $category->updateCategories($id, $name, $image_url);
+        $result = $category->updateCategories($id, $name, $image_url, $status);
       
         
         
@@ -65,7 +83,7 @@ try{
         break;
 
     case "DELETE":
-       $data=json_decode(file_get_contents("php://input"),true);
+       $data=json_encode(file_get_contents("php://input"),true);
        $id=$data["id"];
        
         $result = $category->deleteCategories($id);
@@ -78,7 +96,7 @@ try{
         break;
     default :
         http_response_code(405);
-        echo json_decode([ 
+        echo json_encode([ 
         "seccess"=>false,
         "massage"=>" Method not allowed"
     ]);
