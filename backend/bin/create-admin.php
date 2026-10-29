@@ -1,5 +1,5 @@
 <?php
-// ينفذ من الطرفية فقط، ولا يحتوي أي كلمة مرور افتراضية.
+ 
 if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 require_once __DIR__ . '/../config/db.php';
 $email = strtolower(trim(readline('Admin email: ')));

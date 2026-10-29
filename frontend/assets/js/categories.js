@@ -4,7 +4,7 @@ import {
     createCategory,
     updateCategory,
     deleteCategory
-} from "./services/categories-services.js?v=20261029-cloudinary";
+} from "./services/categories-services.js?v=20261029-routefix";
 
 const tableBody = document.getElementById("categoriesTableBody");
 const searchInput = document.getElementById("searchCategory");
@@ -126,7 +126,7 @@ function showFilteredCategories() {
     displayCategories(filtered);
 }
 
-// الصورة الحالية تبقى كما هي إلى أن يختار المستخدم استبدالها أو إزالتها.
+ 
 async function openCategoryForm(category = null) {
     if (changingCategory) return;
     setCategoryBusy(true);

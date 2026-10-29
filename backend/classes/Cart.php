@@ -285,11 +285,11 @@ class Cart
         }
     }
 
-    /**
-     * The products table has no discount_id column, so there is no
-     * discount: discount_amount is always 0. checkout() uses the same rule,
-     * so the cart page and the saved order always show the same total.
-     */
+     
+
+
+
+
     public function getCartTotal(int $user_id): array
     {
         $sql = "SELECT COALESCE(SUM(p.price * ci.quantity), 0) AS subtotal
@@ -402,8 +402,8 @@ class Cart
                 }
             }
 
-            // Take the stock. The WHERE quantity >= ? makes this safe
-            // even if two customers check out at the same time.
+             
+             
             $sql = "UPDATE product_variants
                     SET quantity = quantity - ?
                     WHERE id = ? AND quantity >= ?";
@@ -499,9 +499,9 @@ class Cart
         }
     }
 
-    /**
-     * Customer cancels ONE of their own pending orders.
-     */
+     
+
+
     public function updateStatus(
         int $user_id,
         int $order_id,
@@ -546,9 +546,9 @@ class Cart
         }
     }
 
-    /**
-     * Admin changes the status of any order (order details page).
-     */
+     
+
+
     public function updateOrderStatus(int $order_id, string $status): bool
     {
         $allowed = [
@@ -631,10 +631,10 @@ class Cart
         return $stmt->execute([$user_id]);
     }
 
-    /**
-     * The schema has no placed_at column, so carts.created_at is used
-     * as the order date (aliased to placed_at for the front end).
-     */
+     
+
+
+
     public function getLatestOrders(
         string $username = "",
         ?string $start_date = null,
@@ -660,7 +660,7 @@ class Cart
         }
 
         if ($end_date !== null) {
-            // < next day, so the whole end date is included
+             
             $where[] = "c.created_at < DATE_ADD(:end_date, INTERVAL 1 DAY)";
             $params[":end_date"] = $end_date;
         }
@@ -701,7 +701,7 @@ class Cart
 
     public function getOrderDetails(int $order_id): ?array
     {
-        // Order information
+         
         $sql = "
             SELECT
                 c.id AS order_id,
@@ -732,7 +732,7 @@ class Cart
             return null;
         }
 
-        // Items, with the product's primary image from product_images
+         
         $sql = "
             SELECT
                 ci.quantity,

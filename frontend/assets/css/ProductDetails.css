@@ -181,7 +181,7 @@
     grid-template-columns: 1fr;
   }
 }
-/* محاذاة صفحة التفاصيل مع الهيكل المشترك */
+ 
 .product-page { max-width: var(--container-admin-max); padding: 36px 40px; }
 .product-details-page .page-heading { flex-wrap: wrap; }
 .product-details-page .product-grid > * { min-width: 0; }

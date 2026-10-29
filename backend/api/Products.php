@@ -30,7 +30,7 @@ try {
 
     $id = isset($_GET["id"]) ? (int) $_GET["id"] : 0;
 
-    // GET: Get products or one product
+     
     if ($method === "GET") {
 
         if (isset($_GET["category_id"])) {
@@ -68,7 +68,7 @@ try {
         exit;
     }
 
-    // POST: Create or update product
+     
     if ($method === "POST") {
 
         $id = isset($_POST["id"]) ? (int) $_POST["id"] : 0;
@@ -84,7 +84,7 @@ try {
             ? (int) $_POST["is_active"]
             : 1;
 
-        // Validate product details
+         
         if (
             $name === "" ||
             $price === "" ||
@@ -109,7 +109,7 @@ try {
             exit;
         }
 
-        // Validate discount
+         
         if ($discountId === "") {
             $discountId = null;
         } else {
@@ -122,21 +122,21 @@ try {
             }
         }
 
-        // Validate status
+         
         if (!in_array($isActive, [0, 1], true)) {
             http_response_code(400);
             echo json_encode(["message" => "Invalid product status"]);
             exit;
         }
 
-        // Check product when editing
+         
         if ($id > 0 && !$products->productExists($id)) {
             http_response_code(404);
             echo json_encode(["message" => "Product not found"]);
             exit;
         }
 
-        // Read variants from the form
+         
         $variants = json_decode($_POST["variants"] ?? "[]", true);
 
         if (!is_array($variants) || count($variants) === 0) {
@@ -212,7 +212,7 @@ try {
             ];
         }
 
-        // The sum of variant quantities must equal the product quantity
+         
         $productQuantity = (int) $quantity;
 
         if ($totalVariantQuantity !== $productQuantity) {
@@ -243,7 +243,7 @@ try {
             }
         }
 
-        // نتحقق من جميع الملفات قبل بدء أي رفع سحابي.
+         
         $imagePaths = [];
         $imageFiles = [];
         if (isset($_FILES['images'])) {
@@ -275,7 +275,7 @@ try {
             }
         }
 
-        // Data sent to the Product class
+         
         $data = [
             "name" => $name,
             "description" => $description,
@@ -286,7 +286,7 @@ try {
             "is_active" => $isActive
         ];
 
-        // Update product
+         
         if ($id > 0) {
             $products->updateProduct(
                 $id,
@@ -297,7 +297,7 @@ try {
             );
 
 
-            // انتهى الحفظ؛ الصور الجديدة أصبحت مستخدمة ولا تُحذف عند فشل التنظيف.
+             
             $uploadedImages = [];
             try { (new CloudinaryImages())->cleanup($products, $products->removedImageIds()); }
             catch (Throwable $error) { error_log('Lumeire: Cloudinary image deletion could not finish.'); }
@@ -310,7 +310,7 @@ try {
             exit;
         }
 
-        // Create product
+         
         $newId = $products->createProduct(
             $data,
             $imagePaths,
@@ -318,7 +318,7 @@ try {
         );
 
 
-            // انتهى الحفظ؛ الصور الجديدة أصبحت مستخدمة ولا تُحذف عند فشل التنظيف.
+             
             $uploadedImages = [];
             try { (new CloudinaryImages())->cleanup($products, $products->removedImageIds()); }
             catch (Throwable $error) { error_log('Lumeire: Cloudinary image deletion could not finish.'); }
@@ -333,7 +333,7 @@ try {
         exit;
     }
 
-    // DELETE: Soft delete product
+     
     if ($method === "DELETE") {
 
         if ($id <= 0 || !$products->productExists($id)) {

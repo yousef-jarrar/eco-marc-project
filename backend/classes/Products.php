@@ -17,7 +17,7 @@ class Product
         }
     }
 
-    // Get all active products
+     
     public function getProducts()
     {
         $sql = "SELECT
@@ -44,7 +44,7 @@ class Product
         return $products;
     }
 
-    // Get one product
+     
     public function getProduct($id)
     {
         $sql = "SELECT
@@ -69,7 +69,7 @@ class Product
         return $this->addProductDetails($product);
     }
 
-    // Add images and variants without changing product quantity
+     
     private function addProductDetails($product)
     {
         $sql = "SELECT id, image_url, public_id, is_primary
@@ -98,13 +98,13 @@ class Product
 
         $product["variants"] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Keep quantity from the products table.
-        // Do not calculate it from the variants.
+         
+         
 
         return $product;
     }
 
-    // Check category
+     
     public function categoryExists($categoryId)
     {
         $stmt = $this->connect->prepare(
@@ -116,7 +116,7 @@ class Product
         return $stmt->fetch(PDO::FETCH_ASSOC) ? true : false;
     }
 
-    // Check discount
+     
     public function discountExists($discountId)
     {
         if ($discountId === null || $discountId === "") {
@@ -132,7 +132,7 @@ class Product
         return $stmt->fetch(PDO::FETCH_ASSOC) ? true : false;
     }
 
-    // Check product
+     
     public function productExists($id)
     {
         $stmt = $this->connect->prepare(
@@ -144,7 +144,7 @@ class Product
         return $stmt->fetch(PDO::FETCH_ASSOC) ? true : false;
     }
 
-    // Create product
+     
     public function createProduct($data, $imagePaths, $variants)
     {
         $this->removedImages = [];
@@ -169,7 +169,7 @@ class Product
 
         $productId = $this->connect->lastInsertId();
 
-        // Save variants
+         
         $sql = "INSERT INTO product_variants
                     (product_id, size, color, quantity)
                 VALUES (?, ?, ?, ?)";
@@ -185,7 +185,7 @@ class Product
             ]);
         }
 
-        // Save multiple images
+         
         $sql = "INSERT INTO product_images
                     (product_id, image_url, public_id, is_primary)
                 VALUES (?, ?, ?, ?)";
@@ -209,8 +209,8 @@ class Product
         }
     }
 
-    // Update product
-    // نحافظ على أرقام المقاسات والألوان المرتبطة بطلبات سابقة.
+     
+     
     public function updateProduct($id, $data, $imagePaths, $variants, ?array $keepImages = null)
     {
         $this->removedImages = [];
@@ -314,7 +314,7 @@ class Product
         return (int)$statement->fetchColumn() > 0;
     }
 
-    // Delete product (soft delete)
+     
     public function deleteProduct($id)
     {
         $stmt = $this->connect->prepare(
@@ -324,7 +324,7 @@ class Product
         return $stmt->execute([$id]);
     }
 
-    // Get products by category
+     
     public function getProductsByCategory($categoryId)
     {
         $stmt = $this->connect->prepare(

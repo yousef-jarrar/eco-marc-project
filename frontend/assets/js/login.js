@@ -27,7 +27,7 @@ async function setupGoogle(session, linking) {
           } else location.replace(EcoAuth.destination(result.user));
         } catch (error) {
           await Alerts.show("Google sign-in failed", error.message, "error");
-          // nonce جديد للمحاولة التالية بدون إعادة إرسال الرمز السابق.
+           
           location.reload();
         }
       }
@@ -62,7 +62,7 @@ EcoAuth.ready.then(function (session) {
 
 if (loginForm) {
   document.getElementById("retry-session").addEventListener("click", function () { location.reload(); });
-  // نحافظ على وجهة الرجوع عند التنقل بين الدخول والتسجيل.
+   
   const next = new URLSearchParams(location.search).get("next");
   if (next) document.getElementById("switch-mode").href += "?next=" + encodeURIComponent(next);
   document.getElementById("toggle-password").addEventListener("click", function () {

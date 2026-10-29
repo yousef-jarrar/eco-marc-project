@@ -1,4 +1,4 @@
-// فوتر مشترك لصفحات الحساب، مبني على تصميم قالب المتجر.
+ 
 const footer = document.getElementById("site-footer");
 if (footer) {
   footer.innerHTML = `

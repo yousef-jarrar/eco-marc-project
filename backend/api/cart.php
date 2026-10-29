@@ -3,6 +3,8 @@
 header("Content-Type: application/json; charset=utf-8");
 
 require_once __DIR__ . "/../classes/Cart.php";
+require_once __DIR__ . "/../middleware/admin.php";
+require_once __DIR__ . "/../middleware/csrf.php";
 function fail(int $code, string $message): void
 {
     http_response_code($code);
@@ -87,13 +89,14 @@ function getDetails(Cart $cart, array $body): array
     return $data;
 }
 
-// ---------- main ----------
+ 
 
 try {
+    $user = requireUser();
     $cart   = new Cart();
     $method = $_SERVER["REQUEST_METHOD"];
 
-    // GET has no body: read from the query string
+     
     if ($method === "GET") {
         $body = $_GET;
     } else {
@@ -111,7 +114,9 @@ try {
         fail(405, "Method not allowed");
     }
 
-    $user_id = intField($body, "user_id");
+    $user_id = (int)$user["id"];
+    if (in_array($action, ["latest", "details", "order_status"], true) && $user["role"] !== "admin") fail(403, "Admin access required.");
+    if ($method !== "GET") requireCsrf();
 
     if (!$user_id) {
         fail(400, "Invalid user ID");
@@ -176,6 +181,12 @@ try {
             break;
 
         case "PATCH":
+            if ($action === "order_status") {
+                $order_id = intField($body, "order_id");
+                if (!$order_id || !is_string($body["status"] ?? null)) fail(400, "Invalid order status request.");
+                ok($cart->updateOrderStatus($order_id, $body["status"]));
+            }
+
             if ($action === "quantity") {
                 $cart_item_id = intField($body, "cart_item_id");
                 $quantity     = intField($body, "quantity");
@@ -232,10 +243,10 @@ try {
     }
 
 } catch (InvalidArgumentException $e) {
-    // Messages like "cart is empty" or "exceeds stock" are safe to show
+     
     fail(422, $e->getMessage());
 
 }  catch (Throwable $e) {
-    error_log($e->getMessage());
-    fail(500, "DEBUG: " . $e->getMessage());
+    error_log("Eco Marc: order request failed.");
+    fail(500, "Orders are temporarily unavailable. Please try again.");
 }

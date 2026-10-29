@@ -1,1 +1,0 @@
--- Cloudinary stores image_url/public_id on image rows. No cleanup queue is used.

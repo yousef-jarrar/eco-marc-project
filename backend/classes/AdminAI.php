@@ -7,7 +7,7 @@ class AdminAI {
         $this->conn = $conn;
     }
 
-    // فترة التقرير والفترة السابقة يكون لهما نفس عدد الأيام.
+     
     public static function getPeriod(?string $from = null, ?string $to = null): array {
         $timezone = new DateTimeZone('Asia/Amman');
         $today = new DateTimeImmutable('today', $timezone);
@@ -170,7 +170,7 @@ class AdminAI {
         return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // مخزون المنتجات المذكورة أو الأكثر مبيعاً يساعد في أسئلة المتابعة.
+     
     public function getProductStock(array $productIds, string $question): array {
         $catalog = $this->conn->query('SELECT id, name FROM products WHERE is_active = 1')->fetchAll(PDO::FETCH_ASSOC);
         foreach ($catalog as $product) {
