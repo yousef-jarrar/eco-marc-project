@@ -1,0 +1,223 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="">
+  <title>LUMIÈRE | Discounts</title>
+
+  <link rel="stylesheet" href="../assets/vendor/bootstrap.min.css">
+  <link rel="stylesheet" href="../assets/vendor/fontawesome.min.css">
+  <link rel="stylesheet" href="../assets/css/index.css">
+  <link rel="stylesheet" href="../assets/css/global.css">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+  <link rel="stylesheet" href="../assets/css/discounts.css">
+</head>
+
+<body data-page="discounts">
+  <a class="sr-only" href="#main">Skip to content</a>
+
+  <button
+    class="sidebar-backdrop"
+    id="sidebar-backdrop"
+    aria-label="Close navigation"
+    hidden
+  ></button>
+
+  <aside class="admin-sidebar" id="admin-sidebar">
+    <div id="sidebar-content"></div>
+  </aside>
+
+  <div class="admin-shell">
+    <header class="admin-topbar">
+      <button
+        class="icon-button"
+        id="menu-toggle"
+        aria-controls="admin-sidebar"
+        aria-expanded="false"
+        aria-label="Open menu"
+      >
+        <i class="fa-solid fa-bars" aria-hidden="true"></i>
+      </button>
+
+      <span class="topbar-path">LUMIÈRE / Discounts</span>
+
+      <div class="topbar-actions">
+        <span class="avatar" aria-label="Admin workspace">L</span>
+      </div>
+    </header>
+
+    <main class="admin-main" id="main">
+      <!-- Page heading -->
+      <div class="page-heading">
+        <div>
+          <h1>Discounts &amp; coupons</h1>
+          <p class="muted">
+            Manage promotions and coupon codes in one place.
+          </p>
+        </div>
+
+        <button class="secondary" id="add-discount" type="button">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i>
+          Add discount
+        </button>
+      </div>
+
+      <!-- Error message -->
+      <div
+        class="error-banner"
+        id="discounts-error"
+        role="alert"
+        hidden
+      >
+        <strong>Discounts are unavailable.</strong>
+        <div id="discounts-error-text"></div>
+
+        <button class="secondary" id="retry-discounts" type="button">
+          Retry connection
+        </button>
+      </div>
+
+      <!-- Discount statistics -->
+      <section class="kpis" aria-label="Discount statistics">
+        <article class="kpi">
+          <div class="kpi-label">
+            Total discounts
+            <i class="fa-solid fa-tags" aria-hidden="true"></i>
+          </div>
+          <div class="kpi-value" id="total-discounts">—</div>
+          <div class="kpi-note">Active discounts</div>
+        </article>
+
+        <article class="kpi">
+          <div class="kpi-label">
+            Normal discounts
+            <i class="fa-solid fa-percent" aria-hidden="true"></i>
+          </div>
+          <div class="kpi-value" id="normal-discounts">—</div>
+          <div class="kpi-note">Product promotions</div>
+        </article>
+
+        <article class="kpi">
+          <div class="kpi-label">
+            Coupons
+            <i class="fa-solid fa-ticket" aria-hidden="true"></i>
+          </div>
+          <div class="kpi-value" id="coupon-discounts">—</div>
+          <div class="kpi-note">Coupon-code promotions</div>
+        </article>
+      </section>
+
+      <!-- Search and date filters -->
+      <div class="discounts-toolbar">
+        <div class="discount-search-field">
+          <label for="discount-search">Search discounts</label>
+          <input
+            id="discount-search"
+            type="search"
+            placeholder="Name or coupon code..."
+          >
+        </div>
+
+        <div class="discount-date-field">
+          <label for="discount-start-filter">Start date from</label>
+          <input id="discount-start-filter" type="date">
+        </div>
+
+        <div class="discount-date-field">
+          <label for="discount-end-filter">End date until</label>
+          <input id="discount-end-filter" type="date">
+        </div>
+
+        <button
+          class="secondary filter-clear-btn"
+          id="clear-discount-filters"
+          type="button"
+        >
+          Clear
+        </button>
+      </div>
+
+      <!-- Discounts table -->
+      <section class="panel reviews-panel">
+        <div class="panel-heading">
+          <h2>All discounts</h2>
+
+          <span
+            class="tiny muted"
+            id="discount-count"
+            aria-live="polite"
+          >
+            Loading…
+          </span>
+        </div>
+
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Discount</th>
+                <th>Type</th>
+                <th>Percentage</th>
+                <th>Coupon code</th>
+                <th>Start date</th>
+                <th>End date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+
+            <tbody id="discounts-body" aria-live="polite"></tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-footer">
+          <span id="discount-pagination-label" aria-live="polite">
+            Page 1
+          </span>
+
+<div class="pagination-footer">
+  <div class="pagination-buttons">
+    <button
+      type="button"
+      class="secondary"
+      id="discount-previous"
+      aria-label="Previous page"
+      title="Previous page"
+      disabled
+    >
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
+
+    <button
+      type="button"
+      class="secondary"
+      id="discount-next"
+      aria-label="Next page"
+      title="Next page"
+      disabled
+    >
+      <i class="fa-solid fa-chevron-right"></i>
+    </button>
+  </div>
+</div>
+      </section>
+
+      <span
+        class="last-updated"
+        id="discounts-updated"
+        aria-live="polite"
+      ></span>
+    </main>
+  </div>
+
+  <!-- JavaScript -->
+  <script src="../assets/vendor/sweetalert2.all.min.js"></script>
+  <script src="../assets/js/admin-api.js"></script>
+  <script src="../assets/js/alerts.js"></script>
+  <script src="../assets/js/admin-layout.js"></script>
+  <script src="../assets/js/discounts.js"></script>
+</body>
+</html>

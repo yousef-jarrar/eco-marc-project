@@ -1,0 +1,165 @@
+
+/* ==============================
+   Discounts: Search and Filters
+   ============================== */
+
+.discounts-toolbar {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: nowrap;
+  margin: 20px 0;
+}
+
+.discount-search-field {
+  flex: 1 1 260px;
+  min-width: 180px;
+}
+
+.discount-date-field {
+  flex: 0 1 180px;
+  min-width: 140px;
+}
+
+.discount-search-field label,
+.discount-date-field label {
+  display: block;
+  margin-bottom: 6px;
+  color: #5b6573;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.discount-search-field input,
+.discount-date-field input {
+  width: 100%;
+  height: 40px;
+  padding: 0 10px;
+  box-sizing: border-box;
+  border: 1px solid #d9dee7;
+  border-radius: 7px;
+  background: #fff;
+  color: #0b1220;
+  font-size: 13px;
+}
+
+.discount-search-field input:focus,
+.discount-date-field input:focus {
+  outline: none;
+  border-color: #3968ac;
+  box-shadow: 0 0 0 3px rgb(57 104 172 / 12%);
+}
+
+.filter-clear-btn {
+  flex-shrink: 0;
+  min-height: 40px;
+  padding: 0 14px;
+  font-size: 13px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+/* ==============================
+   Compact Table Action Buttons
+   ============================== */
+
+#discounts-body td:last-child {
+  white-space: nowrap;
+}
+
+#discounts-body td:last-child > div {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: nowrap;
+}
+
+#discounts-body button[data-action] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 26px;
+  min-height: 26px;
+  padding: 0 7px;
+  border: 1px solid #d9dee7;
+  border-radius: 5px;
+  background: #fff;
+  color: #274778;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+#discounts-body button[data-action] i {
+  font-size: 9px;
+}
+
+#discounts-body button[data-action="edit"]:hover {
+  background: #f0f4fa;
+  border-color: #3968ac;
+}
+
+#discounts-body button[data-action="deactivate"] {
+  color: #b42318;
+  border-color: #f0c9c5;
+}
+
+#discounts-body button[data-action="deactivate"]:hover {
+  background: #fff1f0;
+  border-color: #d92d20;
+}
+
+#discounts-body button[data-action]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ==============================
+   Compact Pagination Buttons
+   ============================== */
+
+#discount-previous,
+#discount-next {
+  min-height: 30px;
+  height: 30px;
+  padding: 0 10px;
+  font-size: 12px;
+  line-height: 1;
+}
+
+#discount-previous i,
+#discount-next i {
+  font-size: 11px;
+}
+
+/* ==============================
+   Responsive Layout
+   ============================== */
+
+@media (max-width: 850px) {
+  .discounts-toolbar {
+    flex-wrap: wrap;
+  }
+
+  .discount-search-field {
+    flex: 1 1 100%;
+  }
+
+  .discount-date-field {
+    flex: 1 1 160px;
+  }
+}
+
+@media (max-width: 480px) {
+  .discount-date-field {
+    flex: 1 1 100%;
+  }
+
+  .filter-clear-btn {
+    width: 100%;
+  }
+}
