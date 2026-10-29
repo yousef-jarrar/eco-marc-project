@@ -273,23 +273,37 @@ function renderRecentOrders(orders) {
 
   for (const order of orders) {
     const row = overviewOrdersBody.insertRow();
+    row.className = "overview-order-row";
     const customer = [order.first_name, order.last_name].filter(Boolean).join(" ");
     const orderNumber = document.createElement("strong");
     orderNumber.textContent = "EM-" + String(order.id).padStart(4, "0");
-    row.insertCell().appendChild(orderNumber);
-    row.insertCell().textContent = customer || "Customer";
-    row.insertCell().textContent = String(order.placed_at || order.created_at || "").slice(0, 10);
-    row.insertCell().textContent = number(order.item_count) + (number(order.item_count) === 1 ? " item" : " items");
-    row.insertCell().textContent = overviewFormatMoney(order.total);
-    row.insertCell().textContent = "Not recorded";
+    const cells = [
+      ["Order", orderNumber],
+      ["Customer", customer || "Customer"],
+      ["Date", String(order.placed_at || order.created_at || "").slice(0, 10)],
+      ["Items", number(order.item_count) + (number(order.item_count) === 1 ? " item" : " items")],
+      ["Total", overviewFormatMoney(order.total)],
+      ["Payment", "Not recorded"]
+    ];
+    for (const [label, value] of cells) {
+      const cell = row.insertCell();
+      cell.dataset.label = label;
+      if (value instanceof Node) {
+        cell.appendChild(value);
+      } else {
+        cell.textContent = value;
+      }
+    }
 
     const statusCell = row.insertCell();
+    statusCell.dataset.label = "Status";
     const status = document.createElement("span");
     status.className = "status overview-order-status";
     status.textContent = String(order.status || "unknown");
     statusCell.appendChild(status);
 
     const actionCell = row.insertCell();
+    actionCell.dataset.label = "Details";
     const detailsButton = document.createElement("button");
     detailsButton.type = "button";
     detailsButton.className = "secondary overview-details-button";

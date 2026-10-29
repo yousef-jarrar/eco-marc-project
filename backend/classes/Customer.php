@@ -21,6 +21,7 @@ class Customer
                 u.phone,
                 u.address,
                 u.created_at,
+                u.is_active,
                 COUNT(DISTINCT CASE
                     WHEN c.status IN (
                         'pending',
@@ -40,7 +41,7 @@ class Customer
             FROM users u
             LEFT JOIN carts c ON c.user_id = u.id
             LEFT JOIN cart_details cd ON cd.cart_id = c.id
-            WHERE u.role = 'customer'
+            WHERE u.role = 'customer' AND u.is_active = 1
         ";
 
         $params = [];
@@ -70,7 +71,8 @@ class Customer
                 u.email,
                 u.phone,
                 u.address,
-                u.created_at
+                u.created_at,
+                u.is_active
             ORDER BY u.id DESC
         ";
 
@@ -93,6 +95,7 @@ class Customer
                 u.address,
                 u.role,
                 u.created_at,
+                u.is_active,
                 COUNT(DISTINCT CASE
                     WHEN c.status IN (
                         'pending',
@@ -112,7 +115,7 @@ class Customer
             FROM users u
             LEFT JOIN carts c ON c.user_id = u.id
             LEFT JOIN cart_details cd ON cd.cart_id = c.id
-            WHERE u.id = :id AND u.role = 'customer'
+            WHERE u.id = :id AND u.role = 'customer' AND u.is_active = 1
             GROUP BY
                 u.id,
                 u.first_name,
@@ -121,7 +124,8 @@ class Customer
                 u.phone,
                 u.address,
                 u.role,
-                u.created_at
+                u.created_at,
+                u.is_active
         ";
 
         $stmt = $this->db->prepare($sql);
@@ -160,7 +164,7 @@ class Customer
                     email = :email,
                     phone = :phone,
                     address = :address
-                WHERE id = :id AND role = 'customer'";
+                WHERE id = :id AND role = 'customer' AND is_active = 1";
 
         $stmt = $this->db->prepare($sql);
 
@@ -174,15 +178,4 @@ class Customer
         ]);
     }
 
-     
-    public function delete(int $id): bool
-    {
-        $sql = "DELETE FROM users
-                WHERE id = :id AND role = 'customer'";
-
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute(["id" => $id]);
-
-        return $stmt->rowCount() > 0;
-    }
 }

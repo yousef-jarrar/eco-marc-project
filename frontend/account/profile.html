@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en" class="auth-checking">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="csrf-token" content="">
+  <meta name="description" content="Manage your LUMIÈRE profile, delivery address and password.">
+  <title>Personal information | LUMIÈRE</title>
+  <link rel="icon" type="image/svg+xml" href="../../assets/lumiere-icon-light.svg">
+  <link rel="stylesheet" href="../assets/css/fonts.css">
+  <link rel="stylesheet" href="../assets/css/index.css">
+  <link rel="stylesheet" href="../assets/vendor/fontawesome.min.css">
+  <link rel="stylesheet" href="../assets/css/site-footer.css?v=20261029-landing">
+  <link rel="stylesheet" href="../assets/css/profile.css?v=20261029-profile1">
+  <script src="../assets/js/auth.js?v=20261029-profile1"></script>
+</head>
+<body>
+  <a class="profile-skip" href="#main">Skip to content</a>
+  <header class="store-header">
+    <a class="store-brand" href="../Landing.html" aria-label="LUMIÈRE home">
+      <img src="../../assets/lumiere-icon-light.svg" alt="" width="35" height="35">
+      <strong>LUMIÈRE</strong>
+    </a>
+    <nav class="store-nav" aria-label="Store navigation">
+      <a href="../Landing.html#men">Men</a>
+      <a href="../Landing.html#women">Women</a>
+      <a href="../Landing.html#footwear">Footwear</a>
+      <a href="../Landing.html#accessories">Accessories</a>
+      <a href="../Landing.html#new-arrivals">New arrivals</a>
+      <a href="../Landing.html#sale">Sale</a>
+    </nav>
+    <div class="store-actions" aria-label="Account actions">
+      <a href="../Landing.html" aria-label="Search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></a>
+      <a href="index.html" aria-label="My account"><i class="fa-solid fa-user" aria-hidden="true"></i></a>
+      <a href="../Landing.html#favorites" aria-label="Wishlist"><i class="fa-regular fa-heart" aria-hidden="true"></i></a>
+      <a href="../Landing.html#cart" aria-label="Shopping bag"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i></a>
+    </div>
+  </header>
+
+  <main class="profile-main" id="main">
+    <div class="profile-heading">
+      <p class="profile-eyebrow">YOUR ACCOUNT</p>
+      <h1 id="profile-greeting">Hello.</h1>
+      <p>Your details. Your next chapter.</p>
+    </div>
+
+    <div class="profile-layout">
+      <aside class="profile-sidebar" aria-label="Account navigation">
+        <a class="profile-nav-link is-current" href="profile.html" aria-current="page">Personal information</a>
+        <a class="profile-nav-link" href="../Landing.html#orders">My orders</a>
+        <a class="profile-nav-link" href="../Landing.html#favorites">Wishlist</a>
+        <button class="profile-logout" id="profile-logout" type="button">Log out</button>
+      </aside>
+
+      <div class="profile-content">
+        <section class="profile-card" aria-labelledby="personal-title">
+          <div class="profile-card-heading">
+            <h2 id="personal-title">Personal information</h2>
+          </div>
+          <form id="personal-form" class="profile-form">
+            <div class="profile-fields">
+              <div class="profile-field">
+                <label for="first-name">First name</label>
+                <input id="first-name" name="first_name" type="text" maxlength="100" autocomplete="given-name" required>
+              </div>
+              <div class="profile-field">
+                <label for="last-name">Last name</label>
+                <input id="last-name" name="last_name" type="text" maxlength="100" autocomplete="family-name" required>
+              </div>
+              <div class="profile-field">
+                <label for="email">Email address</label>
+                <input id="email" name="email" type="email" autocomplete="email" readonly aria-describedby="email-note">
+                <small id="email-note">Email address cannot be changed here.</small>
+              </div>
+              <div class="profile-field">
+                <label for="phone">Phone number</label>
+                <input id="phone" name="phone" type="tel" maxlength="20" autocomplete="tel" placeholder="+962 7 9000 0000">
+              </div>
+            </div>
+            <div class="profile-form-footer">
+              <button class="profile-button profile-button-dark" type="submit">Save information</button>
+              <p class="profile-status" id="personal-status" aria-live="polite"></p>
+            </div>
+          </form>
+        </section>
+
+        <section class="profile-card" aria-labelledby="address-title">
+          <div class="profile-card-heading">
+            <h2 id="address-title">Saved address</h2>
+          </div>
+          <form id="address-form" class="profile-form">
+            <div class="profile-field">
+              <label for="address">Delivery address</label>
+              <textarea id="address" name="address" maxlength="1000" rows="3" autocomplete="street-address" placeholder="Street, city, country"></textarea>
+            </div>
+            <div class="profile-form-footer">
+              <button class="profile-button" type="submit">Save address</button>
+              <p class="profile-status" id="address-status" aria-live="polite"></p>
+            </div>
+          </form>
+        </section>
+
+        <section class="profile-card" aria-labelledby="password-title">
+          <div class="profile-card-heading">
+            <div>
+              <h2 id="password-title">Change password</h2>
+              <p class="profile-card-copy">Use at least 12 characters for your new password.</p>
+            </div>
+          </div>
+          <form id="password-form" class="profile-form">
+            <div class="profile-fields">
+              <div class="profile-field">
+                <label for="current-password">Current password</label>
+                <input id="current-password" name="current_password" type="password" maxlength="72" autocomplete="current-password" required>
+              </div>
+              <div class="profile-field">
+                <label for="new-password">New password</label>
+                <input id="new-password" name="new_password" type="password" minlength="12" maxlength="72" autocomplete="new-password" required>
+              </div>
+              <div class="profile-field">
+                <label for="confirm-password">Confirm new password</label>
+                <input id="confirm-password" name="confirm_password" type="password" minlength="12" maxlength="72" autocomplete="new-password" required>
+              </div>
+            </div>
+            <div class="profile-form-footer">
+              <button class="profile-button profile-button-dark" type="submit">Update password</button>
+              <p class="profile-status" id="password-status" aria-live="polite"></p>
+            </div>
+          </form>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer" id="site-footer" aria-label="Site footer"></footer>
+  <script src="../assets/js/site-footer.js?v=20261029-landing"></script>
+  <script src="../assets/vendor/sweetalert2.all.min.js"></script>
+  <script src="../assets/js/alerts.js?v=20261029-session2"></script>
+  <script src="../assets/js/pages/profile.js?v=20261029-profile1" defer></script>
+</body>
+</html>

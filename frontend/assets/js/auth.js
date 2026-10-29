@@ -2,11 +2,11 @@
 const EcoAuth = (function () {
   const scriptUrl = document.currentScript ? document.currentScript.src : new URL("../assets/js/auth.js", location.href).href;
   const projectRoot = new URL("../../../", scriptUrl);
-  const api = new URL("backend/api/auth.php", projectRoot).pathname;
-  const login = new URL("frontend/account/login.html", projectRoot).pathname;
-  const account = new URL("frontend/account/index.html", projectRoot).pathname;
+  const api = new URL("backend/api/auth.php", projectRoot).href;
+  const login = new URL("frontend/account/login.html", projectRoot).href;
+  const account = new URL("frontend/account/index.html", projectRoot).href;
   const adminFolder = new URL("frontend/admin/", projectRoot).pathname;
-  const admin = adminFolder + "ai-assistant.html";
+  const admin = new URL("frontend/admin/ai-assistant.html", projectRoot).href;
   let state = null;
   let pageUserId = null;
   const isAdminPage = location.pathname.startsWith(adminFolder);
@@ -124,7 +124,8 @@ const EcoAuth = (function () {
     if (user.role === "admin" && next) {
       try {
         const url = new URL(next, location.origin);
-        if (url.origin === location.origin && allowed.some(file => url.pathname === adminFolder + file)) return url.pathname + url.search;
+        const page = url.pathname.slice(adminFolder.length);
+        if (url.origin === location.origin && url.pathname.startsWith(adminFolder) && allowed.includes(page)) return url.pathname + url.search;
       } catch { }
     }
     return user.role === "admin" ? admin : account;

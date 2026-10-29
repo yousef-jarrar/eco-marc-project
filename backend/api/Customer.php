@@ -1,4 +1,3 @@
-
 <?php
 
 header("Content-Type: application/json; charset=UTF-8");
@@ -51,10 +50,10 @@ function validateCustomer(array $data): array
     }
 
     $firstName = trim($data["first_name"]);
-    $lastName  = trim($data["last_name"]);
-    $email     = trim($data["email"]);
-    $phone     = trim($data["phone"] ?? "");
-    $address   = trim($data["address"] ?? "");
+    $lastName = trim($data["last_name"]);
+    $email = trim($data["email"]);
+    $phone = trim($data["phone"] ?? "");
+    $address = trim($data["address"] ?? "");
 
     if ($firstName === "" || $lastName === "" || $email === "") {
         respond(422, [
@@ -79,10 +78,10 @@ function validateCustomer(array $data): array
 
     return [
         "first_name" => $firstName,
-        "last_name"  => $lastName,
-        "email"      => $email,
-        "phone"      => $phone,
-        "address"    => $address
+        "last_name" => $lastName,
+        "email" => $email,
+        "phone" => $phone,
+        "address" => $address
     ];
 }
 
@@ -90,7 +89,7 @@ try {
     requireAdmin();
 
     $method = $_SERVER["REQUEST_METHOD"] ?? "";
-    if (in_array($method, ["POST", "PUT", "DELETE"], true)) {
+    if (in_array($method, ["POST", "PUT"], true)) {
         requireCsrf();
     }
 
@@ -181,29 +180,14 @@ try {
             ]);
 
         case "DELETE":
-            if ($id === null) {
-                respond(400, [
-                    "success" => false,
-                    "message" => "Customer ID is required"
-                ]);
-            }
-
-            if ($customer->getById($id) === false) {
-                respond(404, [
-                    "success" => false,
-                    "message" => "Customer not found"
-                ]);
-            }
-
-            $customer->delete($id);
-
-            respond(200, [
-                "success" => true,
-                "message" => "Customer deleted successfully"
+            header("Allow: GET, POST, PUT");
+            respond(405, [
+                "success" => false,
+                "message" => "Customer hiding is managed by this browser. The database was not changed."
             ]);
 
         default:
-            header("Allow: GET, POST, PUT, DELETE");
+            header("Allow: GET, POST, PUT");
 
             respond(405, [
                 "success" => false,
