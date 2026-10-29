@@ -1,0 +1,479 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart | Eco Marc</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #3968AC;
+            --text: #111111;
+            --muted: #666666;
+            --border: #e5e5e5;
+            --summary: #f7f7f6;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Inter", sans-serif;
+            color: var(--text);
+            background: #fff;
+        }
+
+        button, a {
+            font: inherit;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        /* Store navigation */
+        .navbar {
+            height: 82px;
+            padding: 0 8.5%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            gap: 30px;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: 700;
+            letter-spacing: -1.5px;
+            white-space: nowrap;
+        }
+
+        .logo span {
+            color: #c3a779;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 27px;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .nav-links a:hover,
+        .nav-icons a:hover {
+            color: var(--primary);
+        }
+
+        .nav-icons {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .nav-icons .material-symbols-outlined {
+            font-size: 20px;
+        }
+
+        .cart-icon {
+            position: relative;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #111;
+            color: white;
+            font-size: 10px;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: grid;
+            place-items: center;
+        }
+
+        /* Main cart layout */
+        .cart-container {
+            width: 83%;
+            max-width: 1500px;
+            margin: 76px auto 60px;
+            display: grid;
+            grid-template-columns: minmax(0, 1.55fr) minmax(340px, 1fr);
+            gap: 46px;
+            align-items: start;
+        }
+
+        .cart-heading {
+            font-size: 27px;
+            font-weight: 500;
+            margin: 0 0 32px;
+        }
+
+        .cart-items {
+            min-width: 0;
+        }
+
+        .cart-item {
+            display: grid;
+            grid-template-columns: 92px minmax(0, 1fr) auto;
+            gap: 19px;
+            padding: 0 0 23px;
+            margin-bottom: 22px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .cart-item-image {
+            width: 92px;
+            height: 116px;
+            object-fit: cover;
+            background: #f5f5f5;
+        }
+
+        .cart-item-info {
+            min-width: 0;
+        }
+
+        .cart-item-name {
+            margin: 2px 0 10px;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .cart-item-details {
+            margin: 0 0 18px;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .quantity-control {
+            display: inline-flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0;
+            height: 43px;
+            border: 1px solid #dedede;
+        }
+
+        .quantity-control button {
+            width: 38px;
+            height: 41px;
+            border: 0;
+            background: transparent;
+            font-size: 16px;
+        }
+
+        .quantity-control button:hover {
+            background: #f1f1f1;
+        }
+
+        .quantity-value {
+            min-width: 22px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .remove-button {
+            border: 0;
+            background: transparent;
+            padding: 10px 0;
+            margin-left: 10px;
+            font-size: 12px;
+        }
+
+        .remove-button:hover {
+            text-decoration: underline;
+        }
+
+        .cart-item-price {
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            padding-top: 4px;
+        }
+
+        .continue-shopping {
+            display: inline-flex;
+            padding: 14px 21px;
+            border: 1px solid #d5d5d5;
+            font-size: 13px;
+            margin-top: 0;
+            transition: background .2s;
+        }
+
+        .continue-shopping:hover {
+            background: #f5f5f5;
+        }
+
+        /* Order summary */
+        .order-summary {
+            background: var(--summary);
+            padding: 30px;
+        }
+
+        .order-summary h2 {
+            font-size: 21px;
+            font-weight: 500;
+            margin: 0 0 22px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            font-size: 13px;
+            margin: 0 0 22px;
+        }
+
+        .summary-row span:last-child {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .summary-divider {
+            border: 0;
+            border-top: 1px solid #d8d8d8;
+            margin: 26px 0 22px;
+        }
+
+        .summary-total {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 19px;
+        }
+
+        .checkout-button {
+            width: 100%;
+            min-height: 47px;
+            background: #111;
+            color: white;
+            border: 1px solid #111;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkout-button:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .delivery-note {
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .cart-message {
+            color: var(--muted);
+            font-size: 14px;
+            padding: 20px 0;
+        }
+
+        .cart-error {
+            color: #b42318;
+        }
+
+        .chat-button {
+            position: fixed;
+            bottom: 22px;
+            right: 25px;
+            height: 54px;
+            width: 54px;
+            border-radius: 50%;
+            background: #111;
+            color: white;
+            border: 0;
+            display: grid;
+            place-items: center;
+            box-shadow: 0 3px 14px #0002;
+        }
+
+        /* Responsive layout */
+        @media (max-width: 1000px) {
+            .navbar {
+                padding: 0 4%;
+            }
+
+            .cart-container {
+                width: 92%;
+                grid-template-columns: minmax(0, 1fr) 340px;
+                gap: 25px;
+            }
+
+            .nav-links {
+                gap: 14px;
+            }
+        }
+
+        @media (max-width: 760px) {
+            .navbar {
+                height: 70px;
+                padding: 0 5%;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .cart-container {
+                width: 90%;
+                margin: 35px auto;
+                grid-template-columns: 1fr;
+                gap: 35px;
+            }
+
+            .cart-heading {
+                font-size: 24px;
+            }
+
+            .order-summary {
+                padding: 24px;
+            }
+        }
+
+        @media (max-width: 430px) {
+            .cart-item {
+                grid-template-columns: 75px minmax(0, 1fr);
+                gap: 13px;
+            }
+
+            .cart-item-image {
+                width: 75px;
+                height: 100px;
+            }
+
+            .cart-item-price {
+                grid-column: 2;
+                padding-top: 0;
+            }
+
+            .quantity-control button {
+                width: 32px;
+            }
+
+            .remove-button {
+                margin-left: 5px;
+            }
+
+            .nav-icons {
+                gap: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="navbar">
+        <a class="logo" href="../index.html">eco marc<span>.</span></a>
+
+        <nav class="nav-links">
+            <a href="../index.html">Men</a>
+            <a href="../index.html">Women</a>
+            <a href="../index.html">Footwear</a>
+            <a href="../index.html">Accessories</a>
+            <a href="../index.html">New arrivals</a>
+            <a href="../index.html">Sale</a>
+        </nav>
+
+        <div class="nav-icons">
+            <a href="../index.html" aria-label="Search">
+                <span class="material-symbols-outlined">search</span>
+            </a>
+            <a href="../index.html" aria-label="Account">
+                <span class="material-symbols-outlined">person</span>
+            </a>
+            <a href="../index.html" aria-label="Wishlist">
+                <span class="material-symbols-outlined">favorite</span>
+            </a>
+            <a class="cart-icon" href="cart.html" aria-label="Shopping cart">
+                <span class="material-symbols-outlined">shopping_bag</span>
+                <span class="cart-count" id="cart-count">0</span>
+            </a>
+        </div>
+    </header>
+
+    <main class="cart-container">
+        <section class="cart-section">
+            <h1 class="cart-heading">Your cart</h1>
+
+            <div id="cart-error" class="cart-message cart-error" hidden></div>
+            <div id="cart-loading" class="cart-message">Loading your cart...</div>
+
+            <div id="cart-items" class="cart-items"></div>
+
+            <div id="cart-empty" class="cart-message" hidden>
+                Your cart is empty.
+                <a href="../index.html">Continue exploring</a>
+            </div>
+
+            <a class="continue-shopping" href="../index.html">
+                Continue exploring
+            </a>
+        </section>
+
+        <aside class="order-summary">
+            <h2>Order summary</h2>
+
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span id="cart-subtotal">JOD 0.00</span>
+            </div>
+
+            <div class="summary-row">
+                <span>Discount</span>
+                <span id="cart-discount">−JOD 0.00</span>
+            </div>
+
+            <div class="summary-row">
+                <span>Delivery</span>
+                <span id="cart-delivery">Complimentary</span>
+            </div>
+
+            <hr class="summary-divider">
+
+            <div class="summary-row summary-total">
+                <span>Total</span>
+                <span id="cart-total">JOD 0.00</span>
+            </div>
+
+            <button type="button" class="checkout-button" id="checkout-button">
+                Continue to checkout
+                <span class="material-symbols-outlined">arrow_forward</span>
+            </button>
+
+            <p class="delivery-note">
+                Delivery calculated for Jordan. Final charges will be confirmed at checkout.
+            </p>
+        </aside>
+    </main>
+
+    <button class="chat-button" type="button" aria-label="Chat">
+        <span class="material-symbols-outlined">chat</span>
+    </button>
+
+    <!-- Keep your project's existing authentication and alert scripts here. -->
+    <script src="../assets/js/auth.js?v=20261029-teamfix"></script>
+    <script src="../assets/vendor/sweetalert2.all.min.js"></script>
+    <script src="../assets/js/alerts.js?v=20261029-pages"></script>
+    <script src="../assets/js/cart.js?v=20261029"></script>
+</body>
+</html>
