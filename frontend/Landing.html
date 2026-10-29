@@ -446,7 +446,7 @@ header .wrap{transition:height .4s var(--ease)}
 
 <script>
  
-const API = "/xampp/php-project/backend/api/";    
+const API = new URL("../backend/api/", location.href).href;    
 const SHOP_URL = "#shop";            
 const LOGIN_URL = "login.html";      
 const REGISTER_URL = "register.html";

@@ -11,7 +11,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
         'httponly' => true,
         'samesite' => 'Lax',
     ]);
-    session_start();
+    if (!session_start()) throw new RuntimeException('Session storage is unavailable. Check the PHP session configuration.', 503);
 }
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
