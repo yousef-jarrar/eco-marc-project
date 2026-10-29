@@ -21,16 +21,16 @@ class Category {
       return $stmt->fetch(PDO::FETCH_ASSOC);
 
      } 
-     public function creatCategories($name,$image_url){
-      $sql="INSERT INTO categories (name ,image_url) VALUES (?,?)";
+     public function creatCategories($name,$image_url,$status){
+      $sql="INSERT INTO categories (name ,image_url,status) VALUES (?,?,?)";
       $stmt=$this->conn->prepare($sql);
-      return $stmt->execute([$name,$image_url]);
+      return $stmt->execute([$name,$image_url,$status]);
      
      }
-     public function updateCategories($id,$name,$image_url){
-      $sql="UPDATE categories SET name= ?, image_url = ?  WHERE id= ?";
+     public function updateCategories($id,$name,$image_url,$status){
+      $sql="UPDATE categories SET name= ?, image_url = ?, status = ? WHERE id= ?";
       $stmt=$this->conn->prepare($sql);
-      return $stmt->execute([$name,$image_url,$id]);
+      return $stmt->execute([$name,$image_url,$status,$id]);
 
      }
      public function deleteCategories($id){

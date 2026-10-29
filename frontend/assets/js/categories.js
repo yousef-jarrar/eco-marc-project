@@ -3,7 +3,9 @@ import {
     getCategoryProducts,
     createCategory,
     updateCategory,
-    deleteCategory
+    deleteCategory,
+   
+
 } from "./services/categories-services.js";
 
 const tableBody = document.getElementById("categoriesTableBody");
@@ -65,7 +67,13 @@ function displayCategories(data) {
         });
 
         const statusCell = document.createElement("td");
-        statusCell.textContent = "—";
+        const statusBadge=document.createElement("span");
+        statusBadge.className = "status " + category.status;
+
+       statusBadge.textContent =
+       category.status === "active" ? "Active" : "Inactive";
+       statusCell.appendChild(statusBadge);
+       
         const actionsCell = document.createElement("td");
         const actions = document.createElement("div");
         actions.className = "category-actions";
@@ -75,12 +83,23 @@ function displayCategories(data) {
         editButton.textContent = "Edit";
         editButton.addEventListener("click", function () { openCategoryForm(category); });
 
+        const statusButton = document.createElement("button");
+        
+        statusButton.type = "button";
+        statusButton.textContent = "Status";
+        
+        statusButton.addEventListener("click", function () {
+            changeCategoryStatus(category);
+        });
+
+
         const deleteButton = document.createElement("button");
         deleteButton.type = "button";
         deleteButton.textContent = "Delete";
         deleteButton.addEventListener("click", function () { removeCategory(category.id); });
 
         actions.appendChild(editButton);
+        actions.appendChild(statusButton);
         actions.appendChild(deleteButton);
         actionsCell.appendChild(actions);
         row.append(categoryCell, productsCell, statusCell, actionsCell);
@@ -104,10 +123,12 @@ async function openCategoryForm(category = null) {
     let title = "Add category";
     let name = "";
     let image = "";
+    let status = "active";
     if (category) {
         title = "Edit category";
         name = category.name;
         image = category.image_url || "";
+        status = category.status;
     }
 
     const fields = `
@@ -116,6 +137,7 @@ async function openCategoryForm(category = null) {
             <input id="categoryName" type="text" maxlength="100" required value="${escapeHTML(name)}">
             <label for="categoryImage">Image URL</label>
             <input id="categoryImage" type="url" placeholder="https://example.com/image.jpg" value="${escapeHTML(image)}">
+
         </div>
     `;
 
@@ -125,6 +147,7 @@ async function openCategoryForm(category = null) {
             const imageInput = document.getElementById("categoryImage");
             const categoryName = nameInput.value.trim();
             const imageUrl = imageInput.value.trim();
+            
 
             if (categoryName === "") {
                 Alerts.validation("Enter the category name.");
@@ -136,8 +159,8 @@ async function openCategoryForm(category = null) {
             }
 
             try {
-                if (category) return await updateCategory(category.id, categoryName, imageUrl);
-                return await createCategory(categoryName, imageUrl);
+                if (category) return await updateCategory(category.id, categoryName, imageUrl, status);
+                return await createCategory(categoryName, imageUrl, "active");
             } catch (error) {
                 // يبقى النموذج مفتوحاً حتى لا نفقد ما كتبه المستخدم.
                 Alerts.validation(error.message);
@@ -153,6 +176,52 @@ async function openCategoryForm(category = null) {
         changingCategory = false;
     }
 }
+
+async function changeCategoryStatus(category) {
+
+    if (changingCategory) return;
+
+    changingCategory = true;
+
+    try {
+        const newStatus = category.status === "active"
+            ? "inactive"
+            : "active";
+
+        const title = newStatus === "active"
+            ? "Activate this category?"
+            : "Deactivate this category?";
+
+        const confirmed = await Alerts.confirm(
+            title,
+            "Are you sure you want to change this category status?"
+        );
+
+        if (!confirmed.isConfirmed) return;
+
+        await updateCategory(
+            category.id,
+            category.name,
+            category.image_url || "",
+            newStatus
+        );
+
+        Alerts.toast("Category status updated successfully");
+
+        await loadCategories();
+
+    } catch (error) {
+        Alerts.show(
+            "Failed to update category status",
+            error.message,
+            "error"
+        );
+
+    } finally {
+        changingCategory = false;
+    }
+}
+
 
 async function removeCategory(id) {
     if (changingCategory) return;
