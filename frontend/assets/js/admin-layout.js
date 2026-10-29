@@ -50,7 +50,7 @@ function displayDate(value) {
 const adminPages = [
   { name: "Overview", page: "index", file: "index.html", icon: "chart-pie", available: false },
   { name: "Categories", page: "categories", file: "categories.html", icon: "layer-group", available: true },
-  { name: "Products", page: "products", file: "products.html", icon: "box", available: false },
+  { name: "Products", page: "products", file: "Products.html", icon: "box", available: true },
   { name: "Orders", page: "orders", file: "orders.html", icon: "bag-shopping", available: false },
   { name: "Customers", page: "customers", file: "Customer.html", icon: "users", available: true },
   { name: "Reviews", page: "reviews", file: "reviews.html", icon: "star", available: true },
@@ -87,7 +87,7 @@ function loadAdminMenu() {
   const content = document.getElementById("sidebar-content");
   content.innerHTML = `
     <a class="wordmark" href="ai-assistant.html" aria-label="Eco Marc administration">
-      <strong class="wordmark-full">eco marc<span>.</span></strong>
+      <strong class="wordmark-full"> <span><img src="../../assets/lumiere-icon-light.svg" alt="LUMIÈRE" width="35"></span>LUMIÈRE</strong>
       <strong class="wordmark-small">e<span>.</span></strong>
     </a>
     <p class="nav-caption">Store management</p>
@@ -138,8 +138,8 @@ function loadAdminTopbar() {
     <div class="topbar-actions">
       <button class="icon-button" id="inventory-notifications" aria-label="Inventory notifications" title="Inventory notifications">${fa("bell")}</button>
       <div class="admin-identity">
-        <span class="avatar" aria-label="Eco Marc">EM</span>
-        <div class="admin-identity-text"><strong>Eco Marc Admin</strong><span>Store administration</span></div>
+        <span class="avatar" aria-label="Eco Marc">L</span>
+        <div class="admin-identity-text"><strong>LUMIÈRE Admin</strong><span>Store administration</span></div>
       </div>
     </div>
   `;

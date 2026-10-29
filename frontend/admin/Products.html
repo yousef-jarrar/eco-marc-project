@@ -1,0 +1,357 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title> LUMIÈRE | Products</title>
+<link rel="stylesheet" href="../assets/css/products.css">
+    <link rel="stylesheet" href="../assets/vendor/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/vendor/fontawesome.min.css">
+    <link rel="stylesheet" href="../assets/css/index.css">
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+  
+</head>
+
+<body data-page="products" class="products-page">
+
+    <a class="sr-only" href="#main">Skip to content</a>
+
+    <button
+        class="sidebar-backdrop"
+        id="sidebar-backdrop"
+        aria-label="Close navigation"
+        hidden
+    ></button>
+
+    <aside class="admin-sidebar" id="admin-sidebar">
+        <div id="sidebar-content"></div>
+    </aside>
+
+    <div class="layout">
+
+        <div class="admin-shell">
+
+            <header class="admin-topbar">
+                <span class="topbar-path">LUMIÈRE / Products</span>
+            </header>
+
+            <main class="admin-main" id="main">
+
+                <div class="page-heading">
+                    <div>
+                        <h1>A place for every piece.</h1>
+                        <p>Browse, search, and manage your products.</p>
+                    </div>
+
+                    <button type="button" id="addProductBtn">
+                        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                        Add Product
+                    </button>
+                </div>
+
+                <section class="content-card">
+
+                    <div class="table-heading">
+                        <h2>All Products</h2>
+                    </div>
+
+                    <div class="filter-grid">
+
+                        <div class="filter-item">
+                            <label for="filterProduct">Product Name or ID</label>
+                            <input
+                                type="text"
+                                class="filter-input"
+                                id="filterProduct"
+                                placeholder="Search here...."
+                            >
+                        </div>
+
+                        <div class="filter-item">
+                            <label for="filterCategory">Category Name or ID</label>
+                            <input
+                                type="text"
+                                class="filter-input"
+                                id="filterCategory"
+                                placeholder="Search here...."
+                            >
+                        </div>
+
+                        <div class="filter-item">
+                            <label for="filterColor">Color</label>
+                            <input
+                                type="text"
+                                class="filter-input"
+                                id="filterColor"
+                                placeholder="Search here...."
+                            >
+                        </div>
+
+                        <div class="filter-item">
+                            <label for="filterSize">Size</label>
+                            <input
+                                type="text"
+                                class="filter-input"
+                                id="filterSize"
+                                placeholder="Search here...."
+                            >
+                        </div>
+
+                    </div>
+
+                    <div class="filter-actions">
+                        <button
+                            type="button"
+                            class="secondary-btn"
+                            id="clearFiltersBtn"
+                        >
+                            Clear Filters
+                        </button>
+                    </div>
+
+                    <div
+                        id="tableMessage"
+                        class="message"
+                        role="status"
+                        aria-live="polite"
+                    ></div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Category</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Variants</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="productsTableBody">
+                                <tr>
+                                    <td colspan="6" class="empty-state">
+                                        Loading products...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="pagination">
+                        <span id="paginationInfo">Showing 0 products</span>
+
+                        <div class="pagination-buttons">
+                            <button type="button" id="prevPageBtn">
+                                <i class="fa-solid fa-arrow-left"></i>
+                            </button>
+
+                            <button type="button" id="nextPageBtn">
+                               <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                </section>
+
+            </main>
+
+        </div>
+
+    </div>
+
+    <!-- Add / Edit Product Modal -->
+    <div
+        class="modal"
+        id="productModal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modalTitle"
+    >
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h2 id="modalTitle">Add Product</h2>
+
+                <button
+                    type="button"
+                    class="close-btn"
+                    id="closeModalBtn"
+                    aria-label="Close"
+                >
+                    &times;
+                </button>
+            </div>
+
+            <div
+                id="formMessage"
+                class="message"
+                role="status"
+                aria-live="polite"
+            ></div>
+
+            <form id="productForm" enctype="multipart/form-data">
+
+                <input type="hidden" id="productId" name="id">
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label for="productName">Product Name *</label>
+                        <input
+                            class="field"
+                            type="text"
+                            id="productName"
+                            name="name"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="productCategory">Category *</label>
+                        <select
+                            class="field"
+                            id="productCategory"
+                            name="category_id"
+                            required
+                        >
+                            <option value="">Select category</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="productPrice">Price *</label>
+                        <input
+                            class="field"
+                            type="number"
+                            id="productPrice"
+                            name="price"
+                            min="0"
+                            step="0.01"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="productQuantity">
+                            Total Product Quantity *
+                        </label>
+
+                        <input
+                            class="field"
+                            type="number"
+                            id="productQuantity"
+                            name="quantity"
+                            min="0"
+                            step="1"
+                            required
+                        >
+
+                        <p class="hint">
+                            The sum of all variant quantities must match
+                            this number.
+                        </p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="productDiscount">Discount</label>
+
+                        <select
+                            class="field"
+                            id="productDiscount"
+                            name="discount_id"
+                        >
+                            <option value="">No discount</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="productDescription">Description *</label>
+
+                        <textarea
+                            class="field"
+                            id="productDescription"
+                            name="description"
+                            required
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="productImages">Product Images</label>
+
+                        <input
+                            class="field"
+                            type="file"
+                            id="productImages"
+                            name="images[]"
+                            accept="image/*"
+                            multiple
+                        >
+
+                        <p class="hint">
+                            When editing, leave this empty if you do not
+                            want to upload additional images.
+                        </p>
+
+                        <div class="image-preview" id="imagePreview"></div>
+                    </div>
+
+                </div>
+
+                <h3 class="section-title">Product Variants</h3>
+
+                <p class="hint">
+                    Add each size and color combination and its quantity.
+                </p>
+
+                <div class="stock-summary" id="stockSummary">
+                    <span>Variants total / Product quantity</span>
+                    <strong id="totalVariantQuantity">0 / 0</strong>
+                </div>
+
+                <div id="variantsContainer"></div>
+
+                <button
+                    type="button"
+                    class="secondary-btn"
+                    id="addVariantBtn"
+                >
+                    + Add Variant
+                </button>
+
+                <div class="form-actions">
+                    <button
+                        type="button"
+                        class="secondary-btn"
+                        id="cancelBtn"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="primary-btn"
+                        id="saveProductBtn"
+                    >
+                        Save Product
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+<script src="../assets/vendor/sweetalert2.all.min.js"></script>
+<script src="../assets/js/admin-api.js"></script>
+<script src="../assets/js/alerts.js"></script>
+<script src="../assets/js/admin-layout.js"></script>
+<script src="../assets/js/products.js"></script>
+
+
+</body>
+</html>

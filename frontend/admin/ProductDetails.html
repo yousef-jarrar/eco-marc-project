@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Product details | Eco Marc Admin</title>
+  <link rel="stylesheet" href="../assets/vendor/bootstrap.min.css">
+  <link rel="stylesheet" href="../assets/vendor/fontawesome.min.css">
+  <link rel="stylesheet" href="../assets/css/index.css">
+  <link rel="stylesheet" href="../assets/css/global.css">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+  <link rel="stylesheet" href="../assets/css/ProductDetails.css">
+</head>
+<body data-page="products" class="product-details-page">
+  <a class="sr-only" href="#main">Skip to content</a>
+  <button class="sidebar-backdrop" id="sidebar-backdrop" aria-label="Close navigation" hidden></button>
+  <aside class="admin-sidebar" id="admin-sidebar"><div id="sidebar-content"></div></aside>
+
+  <div class="admin-shell">
+    <header class="admin-topbar"><span class="topbar-path">Eco Marc / Products / Product details</span></header>
+    <main class="admin-main product-page" id="main">
+<div class="page-heading">
+        <div>
+            <h1>Product Details</h1>
+            <p class="muted">View product information, images and available variants.</p>
+        </div>
+        <a class="button secondary" href="Products.html">
+            <i class="fa-solid fa-arrow-left"></i> Back to Products
+        </a>
+    </div>
+
+    <div id="message" class="loading">Loading product...</div>
+
+    <div id="detailsContent" style="display:none">
+        <div class="product-grid">
+            <section class="panel image-panel">
+                <img id="mainImage" class="main-image" alt="Product image">
+                <div id="gallery" class="gallery"></div>
+            </section>
+
+            <section class="panel">
+                <div class="muted tiny" id="productId"></div>
+                <h2 class="product-title" id="productName"></h2>
+
+                <div class="price-row">
+                    <div class="price" id="productPrice"></div>
+                    <div id="productStatus"></div>
+                </div>
+
+                <div class="details">
+                    <div class="detail">
+                        <span>Category</span>
+                        <strong id="categoryName"></strong>
+                    </div>
+                    <div class="detail">
+                        <span>Total quantity</span>
+                        <strong id="productQuantity"></strong>
+                    </div>
+                    <div class="detail">
+                        <span>Discount</span>
+                        <strong id="discountName"></strong>
+                    </div>
+                    <div class="detail">
+                        <span>Discount percentage</span>
+                        <strong id="discountPercentage"></strong>
+                    </div>
+                </div>
+
+                <h2>Description</h2>
+                <div class="description" id="productDescription"></div>
+            </section>
+        </div>
+
+        <section class="panel variants-panel">
+            <div class="panel-heading">
+                <div>
+                    <h2>Product Variants</h2>
+                    <p class="muted">Sizes, colors and available quantities.</p>
+                </div>
+            </div>
+
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Size</th>
+                            <th>Color</th>
+                            <th>Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody id="variantsTable"></tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+    </main>
+  </div>
+
+  <script src="../assets/vendor/sweetalert2.all.min.js"></script>
+  <script src="../assets/js/admin-api.js"></script>
+  <script src="../assets/js/alerts.js"></script>
+  <script src="../assets/js/admin-layout.js"></script>
+  <script type="module" src="../assets/js/ProductDetails.js"></script>
+</body>
+</html>
