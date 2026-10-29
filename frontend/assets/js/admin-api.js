@@ -20,7 +20,6 @@ async function sendRequest(endpoint, options = {}) {
     headers["Content-Type"] = "application/json";
   }
 
-
   const controller = new AbortController();
 
   function cancelRequest() {
@@ -50,7 +49,7 @@ async function sendRequest(endpoint, options = {}) {
 
   try {
     const response = await EcoAuth.fetch(AdminConfig.apiBase + endpoint, settings);
-     
+    // رد المساعد يصل على أجزاء، أما باقي الطلبات فترجع JSON عادي.
     if (options.onEvent && response.ok && (response.headers.get("Content-Type") || "").includes("application/x-ndjson")) {
       return await readAssistantStream(response, options.onEvent);
     }
@@ -156,6 +155,40 @@ async function getReviewStatistics() {
   return result.data;
 }
 
+async function getCustomers(search = "") {
+  let endpoint = "Customer.php";
+  if (search) {
+    endpoint += "?search=" + encodeURIComponent(search);
+  }
+  const result = await sendRequest(endpoint);
+  if (!Array.isArray(result.data)) {
+    throw new Error("The customers response must contain a data array.");
+  }
+  return result.data;
+}
+
+async function getCustomer(id) {
+  const result = await sendRequest("Customer.php?id=" + encodeURIComponent(id));
+  if (!result.data || typeof result.data !== "object") {
+    throw new Error("The customer response is missing data.");
+  }
+  return result.data;
+}
+
+async function createCustomer(data) {
+  return sendRequest("Customer.php", {
+    method: "POST",
+    body: data
+  });
+}
+
+async function updateCustomer(id, data) {
+  return sendRequest("Customer.php?id=" + encodeURIComponent(id), {
+    method: "PUT",
+    body: data
+  });
+}
+
 async function updateReviewStatus(id, status) {
   return sendRequest("reviews.php", {
     method: "PATCH",
@@ -177,6 +210,10 @@ const AdminAPI = {
   overview: getOverview,
   ask: sendAIMessage,
   askDetails: sendDetailedAIMessage,
+  customers: getCustomers,
+  customer: getCustomer,
+  createCustomer: createCustomer,
+  updateCustomer: updateCustomer,
   reviews: getReviews,
   reviewStats: getReviewStatistics,
   setReviewStatus: updateReviewStatus,

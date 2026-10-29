@@ -1,9 +1,11 @@
 <?php
+
 require_once __DIR__ . '/../config/session.php';
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../classes/Auth.php';
 
-function requireUser(): array {
+function requireUser(): array
+{
     $auth = new Auth((new Database())->connect());
     $user = $auth->currentUser();
     if (!$user) {
@@ -14,7 +16,8 @@ function requireUser(): array {
     return $user;
 }
 
-function requireRole(string $role): array {
+function requireRole(string $role): array
+{
     $user = requireUser();
     if ($user['role'] !== $role) {
         http_response_code(403);
@@ -24,6 +27,8 @@ function requireRole(string $role): array {
     return $user;
 }
 
-function requireAdmin(): void {
+function requireAdmin(): void
+{
     requireRole('admin');
+    header('X-CSRF-Token: ' . $_SESSION['csrf_token']);
 }

@@ -48,16 +48,25 @@ function categoryImageForm(name, imageUrl, file, id = null) {
     return form;
 }
 
-export async function createCategory(name, image_url, file = null) {
-    if (file) return categoryRequest("POST", categoryImageForm(name, image_url, file));
-    return categoryRequest("POST", { name: name, image_url: image_url });
+export async function createCategory(name, image_url, file = null, status = "active") {
+    if (file) {
+        const form = categoryImageForm(name, image_url, file);
+        form.set("status", status);
+        return categoryRequest("POST", form);
+    }
+    return categoryRequest("POST", { name: name, image_url: image_url, status: status });
 }
 
-export async function updateCategory(id, name, image_url, file = null) {
-    if (file) return categoryRequest("POST", categoryImageForm(name, image_url, file, id));
-    return categoryRequest("PUT", { id: Number(id), name: name, image_url: image_url });
-}
-
-export async function deleteCategory(id) {
-    return categoryRequest("DELETE", { id: Number(id) });
+export async function updateCategory(id, name, image_url, file = null, status = "active") {
+    if (file) {
+        const form = categoryImageForm(name, image_url, file, id);
+        form.set("status", status);
+        return categoryRequest("POST", form);
+    }
+    return categoryRequest("PUT", {
+        id: Number(id),
+        name: name,
+        image_url: image_url,
+        status: status
+    });
 }

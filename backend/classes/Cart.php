@@ -6,6 +6,11 @@ class Cart
 {
     private $db;
 
+    // A discount counts only while it is switched on and inside its date range.
+    private const DISCOUNT_IS_LIVE = "d.is_active = 1
+        AND (d.start_date IS NULL OR d.start_date <= NOW())
+        AND (d.end_date IS NULL OR d.end_date >= NOW())";
+
     public function __construct()
     {
         $database = new Database();
@@ -35,11 +40,16 @@ class Cart
     {
         $sql = "SELECT c.id AS cart_id, ci.id AS cart_item_id, ci.variant_id, ci.quantity,
                        p.id AS product_id, p.name AS product_name, p.price,
+                       COALESCE(d.percentage, 0) AS discount_percentage,
                        pv.size, pv.color, pv.quantity AS stock
                 FROM carts c
                 JOIN cart_items ci ON ci.cart_id = c.id
                 JOIN product_variants pv ON pv.id = ci.variant_id
                 JOIN products p ON p.id = pv.product_id
+                LEFT JOIN discounts d
+                       ON d.id = p.discount_id
+                      AND d.type = 'normal'
+                      AND " . self::DISCOUNT_IS_LIVE . "
                 WHERE c.user_id = ? AND c.status = 'active'";
 
         $stmt = $this->db->prepare($sql);
@@ -285,36 +295,171 @@ class Cart
         }
     }
 
-     
-
-
-
-
+    /**
+     * Cart page totals. Uses the same calculateTotals() as checkout(),
+     * so the cart and the saved order can never disagree.
+     */
     public function getCartTotal(int $user_id): array
     {
-        $sql = "SELECT COALESCE(SUM(p.price * ci.quantity), 0) AS subtotal
-                FROM carts c
-                JOIN cart_items ci ON ci.cart_id = c.id
+        $sql = "SELECT id FROM carts WHERE user_id = ? AND status = 'active' LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$user_id]);
+        $cart_id = $stmt->fetchColumn();
+
+        if (!$cart_id) {
+            return [
+                "subtotal" => 0.0,
+                "product_discount" => 0.0,
+                "coupon_discount" => 0.0,
+                "discount_amount" => 0.0,
+                "delivery_fee" => 0.0,
+                "total" => 0.0,
+                "coupon_code" => null
+            ];
+        }
+
+        $t = $this->calculateTotals((int) $cart_id);
+
+        return [
+            "subtotal" => $t["subtotal"],
+            "product_discount" => $t["product_discount"],
+            "coupon_discount" => $t["coupon_discount"],
+            "discount_amount" => $t["discount_amount"],
+            "delivery_fee" => $t["delivery_fee"],
+            "total" => $t["total"],
+            "coupon_code" => $t["coupon_code"]
+        ];
+    }
+
+    /**
+     * 1. Product (normal) discounts come from products.discount_id.
+     * 2. The coupon (carts.coupon_id) is taken off the price that is
+     *    left after the product discounts.
+     * 3. Only discounts that are active and inside their dates count.
+     */
+    private function calculateTotals(int $cart_id): array
+    {
+        $sql = "SELECT
+                    COALESCE(SUM(p.price * ci.quantity), 0) AS subtotal,
+                    COALESCE(SUM(
+                        p.price * ci.quantity * COALESCE(d.percentage, 0) / 100
+                    ), 0) AS product_discount
+                FROM cart_items ci
                 JOIN product_variants pv ON pv.id = ci.variant_id
                 JOIN products p ON p.id = pv.product_id
-                WHERE c.user_id = ? AND c.status = 'active'";
+                LEFT JOIN discounts d
+                       ON d.id = p.discount_id
+                      AND d.type = 'normal'
+                      AND " . self::DISCOUNT_IS_LIVE . "
+                WHERE ci.cart_id = ?";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$cart_id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $subtotal = round((float) $row["subtotal"], 2);
+        $product_discount = round((float) $row["product_discount"], 2);
+
+        // Coupon on this cart (if any) and whether it is still valid
+        $sql = "SELECT c.coupon_id, d.percentage, d.coupon_code
+                FROM carts c
+                LEFT JOIN discounts d
+                       ON d.id = c.coupon_id
+                      AND d.type = 'coupon'
+                      AND " . self::DISCOUNT_IS_LIVE . "
+                WHERE c.id = ?";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$cart_id]);
+        $coupon = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $coupon_discount = 0.0;
+        $coupon_code = null;
+        $coupon_invalid = false;
+
+        if ($coupon && $coupon["coupon_id"] !== null) {
+            if ($coupon["percentage"] === null) {
+                $coupon_invalid = true; // expired, switched off, or deleted
+            } else {
+                $coupon_code = $coupon["coupon_code"];
+                $coupon_discount = round(
+                    ($subtotal - $product_discount)
+                    * (float) $coupon["percentage"] / 100,
+                    2
+                );
+            }
+        }
+
+        $discount_amount = round($product_discount + $coupon_discount, 2);
+        $delivery_fee = round($this->calculateDeliveryFee($subtotal), 2);
+        $total = round(
+            max(0, $subtotal - $discount_amount + $delivery_fee),
+            2
+        );
+
+        return [
+            "subtotal" => $subtotal,
+            "product_discount" => $product_discount,
+            "coupon_discount" => $coupon_discount,
+            "discount_amount" => $discount_amount,
+            "delivery_fee" => $delivery_fee,
+            "total" => $total,
+            "coupon_code" => $coupon_code,
+            "coupon_invalid" => $coupon_invalid
+        ];
+    }
+
+    public function applyCoupon(int $user_id, string $code): array
+    {
+        $code = trim($code);
+
+        if ($code === "") {
+            throw new InvalidArgumentException("Coupon code is required.");
+        }
+
+        $sql = "SELECT id FROM carts WHERE user_id = ? AND status = 'active' LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$user_id]);
+        $cart_id = $stmt->fetchColumn();
+
+        if (!$cart_id) {
+            throw new InvalidArgumentException("Your cart is empty.");
+        }
+
+        $sql = "SELECT d.id
+                FROM discounts d
+                WHERE d.coupon_code = ?
+                  AND d.type = 'coupon'
+                  AND " . self::DISCOUNT_IS_LIVE . "
+                LIMIT 1";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$code]);
+        $coupon_id = $stmt->fetchColumn();
+
+        if (!$coupon_id) {
+            throw new InvalidArgumentException(
+                "Invalid or expired coupon code."
+            );
+        }
+
+        $sql = "UPDATE carts SET coupon_id = ? WHERE id = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$coupon_id, $cart_id]);
+
+        return $this->getCartTotal($user_id);
+    }
+
+    public function removeCoupon(int $user_id): bool
+    {
+        $sql = "UPDATE carts
+                SET coupon_id = NULL
+                WHERE user_id = ? AND status = 'active'";
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$user_id]);
 
-        $subtotal = (float) $stmt->fetchColumn();
-        $discount_amount = 0.0;
-
-        $delivery_fee = $this->calculateDeliveryFee($subtotal);
-
-        $total = max(0, $subtotal - $discount_amount + $delivery_fee);
-
-        return [
-            "subtotal" => round($subtotal, 2),
-            "discount_amount" => round($discount_amount, 2),
-            "delivery_fee" => round($delivery_fee, 2),
-            "total" => round($total, 2)
-        ];
+        return true;
     }
 
     private function calculateDeliveryFee(float $subtotal): float
@@ -402,8 +547,8 @@ class Cart
                 }
             }
 
-             
-             
+            // Take the stock. The WHERE quantity >= ? makes this safe
+            // even if two customers check out at the same time.
             $sql = "UPDATE product_variants
                     SET quantity = quantity - ?
                     WHERE id = ? AND quantity >= ?";
@@ -423,23 +568,19 @@ class Cart
                 }
             }
 
-            $sql = "SELECT COALESCE(SUM(p.price * ci.quantity), 0) AS subtotal
-                    FROM cart_items ci
-                    JOIN product_variants pv ON pv.id = ci.variant_id
-                    JOIN products p ON p.id = pv.product_id
-                    WHERE ci.cart_id = ?";
+            // Same calculation as the cart page: product discounts + coupon.
+            $totals = $this->calculateTotals($cart_id);
 
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute([$cart_id]);
-            $subtotal = (float) $stmt->fetchColumn();
+            if ($totals["coupon_invalid"]) {
+                throw new InvalidArgumentException(
+                    "The coupon on your cart is no longer valid. Remove it and try again."
+                );
+            }
 
-            $discount_amount = 0.0;
-            $delivery_fee = $this->calculateDeliveryFee($subtotal);
-
-            $total = max(
-                0,
-                $subtotal - $discount_amount + $delivery_fee
-            );
+            $subtotal = $totals["subtotal"];
+            $discount_amount = $totals["discount_amount"];
+            $delivery_fee = $totals["delivery_fee"];
+            $total = $totals["total"];
 
             $sql = "INSERT INTO cart_details (
                         cart_id,
@@ -499,9 +640,9 @@ class Cart
         }
     }
 
-     
-
-
+    /**
+     * Customer cancels ONE of their own pending orders.
+     */
     public function updateStatus(
         int $user_id,
         int $order_id,
@@ -546,9 +687,9 @@ class Cart
         }
     }
 
-     
-
-
+    /**
+     * Admin changes the status of any order (order details page).
+     */
     public function updateOrderStatus(int $order_id, string $status): bool
     {
         $allowed = [
@@ -631,10 +772,10 @@ class Cart
         return $stmt->execute([$user_id]);
     }
 
-     
-
-
-
+    /**
+     * The schema has no placed_at column, so carts.created_at is used
+     * as the order date (aliased to placed_at for the front end).
+     */
     public function getLatestOrders(
         string $username = "",
         ?string $start_date = null,
@@ -660,7 +801,7 @@ class Cart
         }
 
         if ($end_date !== null) {
-             
+            // < next day, so the whole end date is included
             $where[] = "c.created_at < DATE_ADD(:end_date, INTERVAL 1 DAY)";
             $params[":end_date"] = $end_date;
         }
@@ -701,7 +842,7 @@ class Cart
 
     public function getOrderDetails(int $order_id): ?array
     {
-         
+        // Order information
         $sql = "
             SELECT
                 c.id AS order_id,
@@ -732,7 +873,7 @@ class Cart
             return null;
         }
 
-         
+        // Items, with the product's primary image from product_images
         $sql = "
             SELECT
                 ci.quantity,
