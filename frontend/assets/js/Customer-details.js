@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function loadCustomerDetails() {
         try {
-            const response = await fetch(apiUrl, {
+            const response = await EcoAuth.fetch(apiUrl, {
                 credentials: "same-origin",
                 headers: { Accept: "application/json" }
             });

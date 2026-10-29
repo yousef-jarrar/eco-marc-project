@@ -45,7 +45,7 @@
       
 
         async function getJson(url, options = {}) {
-            const response = await fetch(url, options);
+            const response = await EcoAuth.fetch(url, options);
             const responseText = await response.text();
 
             let data;
@@ -548,7 +548,7 @@
             return Array.from(rows).map(function (row) {
                 return {
                     size: row.querySelector(".variant-size").value,
-                    color: row.querySelector(".variant-color").value.trim(),
+                    color: row.querySelector(".variant-color").value.trim().toLowerCase(),
                     quantity: Number(
                         row.querySelector(".variant-quantity").value
                     )
@@ -606,7 +606,7 @@
             const sizeOptions = [
                 "XS", "S", "M", "L", "XL", "XXL",
                 "36", "37", "38", "39", "40", "41",
-                "42", "43", "44", "45"
+                "42", "43", "44", "45", "46", "ONE_SIZE"
             ];
 
             const size = String(variant.size ?? "");
@@ -710,10 +710,15 @@
             }
 
             const combinations = new Set();
+            const allowedColors = ["black", "white", "gray", "red", "blue", "navy", "green", "yellow", "orange", "pink", "purple", "brown", "beige", "other"];
 
             for (const variant of variants) {
                 if (!variant.size || !variant.color.trim()) {
                     return "Please select a size and enter a color for every variant.";
+                }
+
+                if (!allowedColors.includes(variant.color)) {
+                    return "Use one of these colors: " + allowedColors.join(", ") + ".";
                 }
 
                 if (
@@ -1008,6 +1013,21 @@
                     "error"
                 );
                 return;
+            }
+
+            if (!document.getElementById("productId").value && selectedImages.length === 0) {
+                showMessage(formMessage, "Upload at least one product image.", "error");
+                return;
+            }
+            if (selectedImages.length > 5) {
+                showMessage(formMessage, "Upload up to 5 images at a time.", "error");
+                return;
+            }
+            for (const file of selectedImages) {
+                if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type) || file.size > 5 * 1024 * 1024) {
+                    showMessage(formMessage, "Use JPG, PNG, WEBP or GIF images, each 5MB or less.", "error");
+                    return;
+                }
             }
 
             const formData = new FormData(productForm);

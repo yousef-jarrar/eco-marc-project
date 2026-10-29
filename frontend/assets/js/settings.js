@@ -22,7 +22,7 @@ async function settingsRequest(method, data = null) {
         options.body = JSON.stringify(data);
     }
 
-    const response = await fetch(API_URL, options);
+    const response = await EcoAuth.fetch(API_URL, options);
     let result;
     try {
         result = await response.json();
@@ -62,9 +62,10 @@ settingsForm.addEventListener("submit", async function (event) {
 
     const data = {
         delivery_fee: Number(deliveryFee.value),
-        free_delivery_at: Number(freeDeliveryThreshold.value)
+        free_delivery_at: null
     };
-    if (!Number.isFinite(data.delivery_fee) || !Number.isFinite(data.free_delivery_at) || data.delivery_fee < 0 || data.free_delivery_at < 0) {
+    if (freeDeliveryThreshold.value.trim() !== "") data.free_delivery_at = Number(freeDeliveryThreshold.value);
+    if (!Number.isFinite(data.delivery_fee) || (data.free_delivery_at !== null && !Number.isFinite(data.free_delivery_at)) || data.delivery_fee < 0 || data.free_delivery_at < 0) {
         Alerts.show("Check the delivery amounts", "Use valid amounts of zero or more.", "warning");
         return;
     }

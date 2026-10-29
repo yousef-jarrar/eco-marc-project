@@ -1,23 +1,11 @@
 // إعدادات الاتصال بالباك إند.
 const AdminConfig = {
   apiBase: "/xampp/php-project/backend/api/",
-  timeout: 120000,
-  csrfStorageKey: "eco-marc-admin-csrf"
+  timeout: 120000
 };
 
 function getCsrfToken() {
-  const meta = document.querySelector('meta[name="csrf-token"]');
-
-  if (meta && meta.content.trim() !== "") {
-    return meta.content.trim();
-  }
-
-  const savedToken = sessionStorage.getItem(AdminConfig.csrfStorageKey);
-  if (savedToken) {
-    return savedToken;
-  }
-
-  return "";
+  return EcoAuth.token();
 }
 
 // كل طلبات الصفحات تمر من هذه الدالة.
@@ -33,14 +21,6 @@ async function sendRequest(endpoint, options = {}) {
     headers["Content-Type"] = "application/json";
   }
 
-// TEMPORARY: CSRF paused for local testing. Restore before deployment.
-//   if (method !== "GET") {
-//     const token = getCsrfToken();
-//     if (token === "") {
-//       throw new Error("Your session could not be verified. Sign in again, then retry.");
-//     }
-//     headers["X-CSRF-Token"] = token;
-//   }
 
   const controller = new AbortController();
 
@@ -70,7 +50,7 @@ async function sendRequest(endpoint, options = {}) {
   }
 
   try {
-    const response = await fetch(AdminConfig.apiBase + endpoint, settings);
+    const response = await EcoAuth.fetch(AdminConfig.apiBase + endpoint, settings);
     // رد المساعد يصل على أجزاء، أما باقي الطلبات فترجع JSON عادي.
     if (options.onEvent && response.ok && (response.headers.get("Content-Type") || "").includes("application/x-ndjson")) {
       return await readAssistantStream(response, options.onEvent);
