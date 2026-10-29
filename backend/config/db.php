@@ -8,7 +8,9 @@ class Database
     public function __construct()
     {
         $host = "localhost";
+
         $dbname = "ecommerce";
+
         $username = "root";
         $password = "";
 

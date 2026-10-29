@@ -96,7 +96,7 @@ try{
         break;
     default :
         http_response_code(405);
-        echo json_decode([ 
+        echo json_encode([ 
         "seccess"=>false,
         "massage"=>" Method not allowed"
     ]);
