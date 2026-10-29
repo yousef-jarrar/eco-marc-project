@@ -1,24 +1,29 @@
 <?php
-function requireAdmin(): void {
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
+require_once __DIR__ . '/../config/session.php';
+require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../classes/Auth.php';
 
-    if (!isset($_SESSION["user_id"])) {
+function requireUser(): array {
+    $auth = new Auth((new Database())->connect());
+    $user = $auth->currentUser();
+    if (!$user) {
         http_response_code(401);
-        echo json_encode([
-            "success" => false,
-            "message" => "Authentication required"
-        ]);
+        echo json_encode(['success' => false, 'message' => 'Please sign in.']);
         exit;
     }
+    return $user;
+}
 
-    if (($_SESSION["role"] ?? null) !== "admin") {
+function requireRole(string $role): array {
+    $user = requireUser();
+    if ($user['role'] !== $role) {
         http_response_code(403);
-        echo json_encode([
-            "success" => false,
-            "message" => "Admin access required"
-        ]);
+        echo json_encode(['success' => false, 'message' => 'You do not have permission to access this resource.']);
         exit;
     }
+    return $user;
+}
+
+function requireAdmin(): void {
+    requireRole('admin');
 }

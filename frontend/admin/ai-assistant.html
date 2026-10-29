@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="auth-checking">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="../assets/css/global.css">
     <link rel="stylesheet" href="../assets/css/admin.css">
     <link rel="stylesheet" href="../assets/css/ai-assistant.css">
+    <style>html.auth-checking body { visibility: hidden; }</style>
+    <script src="../assets/js/auth.js?v=20261029-session2"></script>
   </head>
   <body data-page="ai">
     <a class="sr-only" href="#main">Skip to content</a>
@@ -130,7 +132,7 @@
             </div>
             <div class="messages" id="messages" role="log" aria-live="polite" aria-relevant="additions text">
               <article class="message assistant">
-                <div class="message-label">Eco Marc Business Assistant</div>
+                <div class="message-label">Lumeire Business Assistant</div>
                 <div class="message-text">Let’s look at the data behind your store. Ask about sales, inventory, orders or customer reviews.</div>
               </article>
             </div>
@@ -221,13 +223,13 @@
     </script>
     <script src="../assets/vendor/chart.umd.min.js">
     </script>
-    <script src="../assets/js/admin-api.js">
+    <script src="../assets/js/admin-api.js?v=20261029-session2">
     </script>
-    <script src="../assets/js/alerts.js">
+    <script src="../assets/js/alerts.js?v=20261029-session2">
     </script>
-    <script src="../assets/js/admin-layout.js">
+    <script src="../assets/js/admin-layout.js?v=20261029-session2">
     </script>
-    <script src="../assets/js/ai-assistant.js">
+    <script src="../assets/js/ai-assistant.js?v=20261029-session2">
     </script>
   </body>
 </html>

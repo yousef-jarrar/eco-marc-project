@@ -32,10 +32,10 @@ async function loadProductDetails() {
     }
 
     try {
-        const response = await fetch(`${API_PRODUCTS}?id=${encodeURIComponent(id)}`);
+        const response = await EcoAuth.fetch(`${API_PRODUCTS}?id=${encodeURIComponent(id)}`);
         const product = await response.json();
 
-        if (!response.ok) {
+        if (!response.ok || !product || !product.id) {
             throw new Error(product.message || "Product could not be found.");
         }
 
@@ -49,6 +49,17 @@ async function loadProductDetails() {
         document.getElementById("categoryName").textContent = product.category_name || "—";
         document.getElementById("productQuantity").textContent = Number(product.quantity || 0);
         document.getElementById("discountName").textContent = product.discount_name || "No discount";
+
+        const status = document.getElementById("productStatus");
+        if (product.is_active === undefined) {
+            status.textContent = "—";
+        } else if (Number(product.is_active) === 1) {
+            status.className = "status approved";
+            status.textContent = "Active";
+        } else {
+            status.className = "status inactive";
+            status.textContent = "Inactive";
+        }
 
         const percentage = product.discount_percentage;
         document.getElementById("discountPercentage").textContent =

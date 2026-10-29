@@ -55,7 +55,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const status = document.createElement("span");
             status.className = "status-badge";
-            status.textContent = "Active";
+            status.textContent = "—";
+            status.className = "muted";
+            if (customer.status) {
+                status.textContent = customer.status;
+                status.className = "status-badge";
+            }
             statusCell.appendChild(status);
 
             viewLink.href =
@@ -102,7 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function loadCustomers() {
         try {
-            const response = await fetch(apiUrl, {
+            const response = await EcoAuth.fetch(apiUrl, {
                 credentials: "same-origin",
                 headers: { Accept: "application/json" }
             });
