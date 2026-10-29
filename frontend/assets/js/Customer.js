@@ -124,6 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 : "Unable to load customers.";
             row.appendChild(cell);
             tableBody.replaceChildren(row);
+            Alerts.show("Customers could not load", error.message || "Please retry.", "error");
         }
     }
 

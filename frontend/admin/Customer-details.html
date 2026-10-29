@@ -1,83 +1,77 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" dir="ltr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Details - Eco-Marc Admin</title>
-    <link rel="stylesheet" href="../assets/css/index.css">
-    <link rel="stylesheet" href="../assets/css/global.css">
-    <link rel="stylesheet" href="../assets/css/admin.css?v=2">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="csrf-token" content="">
+  <title> LUMIÈRE| Customer details</title>
+  <link rel="stylesheet" href="../assets/vendor/bootstrap.min.css">
+  <link rel="stylesheet" href="../assets/vendor/fontawesome.min.css">
+  <link rel="stylesheet" href="../assets/css/index.css">
+  <link rel="stylesheet" href="../assets/css/global.css">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+  <link rel="stylesheet" href="../assets/css/customers.css">
 </head>
-<body class="admin-page customer-details-page">
-    <div class="admin-container">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="logo">ecomarc.</div>
-            
-            <div class="menu-category">Store management</div>
-            <ul class="menu-list">
-                <li><a href="overview.html">Overview</a></li>
-                <li><a href="products.html">Products</a></li>
-                <li><a href="categories.html">Categories</a></li>
-                <li><a href="orders.html">Orders</a></li>
-                <li><a href="Customer.html" class="active">Customers</a></li>
-                <li><a href="reviews.html">Reviews</a></li>
-                <li><a href="analytics.html">Analytics</a></li>
-                <li><a href="ai-assistant.html">AI business assistant</a></li>
-                <li><a href="settings.html">Settings</a></li>
-            </ul>
+<body data-page="customers">
+  <a class="sr-only" href="#main">Skip to content</a>
+  <button class="sidebar-backdrop" id="sidebar-backdrop" aria-label="Close navigation" hidden></button>
+  <aside class="admin-sidebar" id="admin-sidebar">
+    <div id="sidebar-content"></div>
+  </aside>
 
-            <div class="menu-category" style="margin-top: 20px;">Your workspace</div>
-            <ul class="menu-list">
-                <li><a href="../../index.html" target="_blank">View store</a></li>
-            </ul>
-        </aside>
+  <div class="admin-shell">
+    <header class="admin-topbar">
+      <span class="topbar-path">LUMIÈRE / Customers / Customer details</span>
+    </header>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <header class="page-header">
-                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
-                    <a href="Customer.html" class="back-btn" style="text-decoration: none; color: #333; font-weight: 500;">← Back to Customers</a>
-                </div>
-                <h1 id="pageTitle">Customer Profile.</h1>
-                <p>Detailed view of customer information and order history.</p>
-            </header>
+    <main class="admin-main" id="main">
+      <a href="Customer.html" class="customer-back-link">
+        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+        Back to Customers
+      </a>
 
-            <!-- Customer Info Card -->
-            <div class="customer-card" style="background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 25px;">
-                <h2 id="customerName" style="margin-bottom: 15px; color: #111;">Loading...</h2>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; color: #555;">
-                    <div><strong>Customer ID:</strong> <span id="customerId">-</span></div>
-                    <div><strong>Email:</strong> <span id="customerEmail">-</span></div>
-                    <div><strong>Phone:</strong> <span id="customerPhone">-</span></div>
-                    <div><strong>Address:</strong> <span id="customerAddress">-</span></div>
-                    <div><strong>Joined Date:</strong> <span id="customerJoined">-</span></div>
-                    <div><strong>Total Orders:</strong> <span id="totalOrders">0</span></div>
-                    <div><strong>Total Spent:</strong> <span id="customerSpent">JOD 0.00</span></div>
-                </div>
-            </div>
+      <div class="page-heading">
+        <div>
+          <h1 id="pageTitle">Customer profile.</h1>
+          <p class="muted">Detailed view of customer information and order history.</p>
+        </div>
+      </div>
 
-            <!-- Customer Orders Section -->
-            <div class="table-container" style="background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                <h3 style="margin-bottom: 20px; color: #111;">Customer Orders</h3>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Date</th>
-                            <th>Total Amount</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="customerOrdersBody">
-                        <tr><td colspan="4">Detailed order history is not available from the current API.</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </main>
-    </div>
+      <section class="panel customer-info-panel" aria-label="Customer information">
+        <h2 id="customerName" aria-live="polite">Loading customer…</h2>
+        <div class="customer-info-grid">
+          <div><strong>Customer ID</strong><span id="customerId">—</span></div>
+          <div><strong>Email</strong><span id="customerEmail">—</span></div>
+          <div><strong>Phone</strong><span id="customerPhone">—</span></div>
+          <div><strong>Address</strong><span id="customerAddress">—</span></div>
+          <div><strong>Joined date</strong><span id="customerJoined">—</span></div>
+          <div><strong>Total orders</strong><span id="totalOrders">—</span></div>
+          <div><strong>Total spent</strong><span id="customerSpent">—</span></div>
+        </div>
+      </section>
 
-    <script src="../assets/js/admin-api.js"></script>
-    <script src="../assets/js/Customer-details.js"></script>
+      <section class="panel customer-table-panel customer-orders-panel" aria-label="Customer orders">
+        <div class="panel-heading">
+          <h2>Customer orders</h2>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr><th>Order ID</th><th>Date</th><th>Total amount</th><th>Status</th></tr>
+            </thead>
+            <tbody id="customerOrdersBody" aria-live="polite">
+              <tr><td colspan="4">Detailed order history is not available from the current API.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../assets/vendor/sweetalert2.all.min.js"></script>
+  <script src="../assets/js/admin-api.js"></script>
+  <script src="../assets/js/alerts.js"></script>
+  <script src="../assets/js/admin-layout.js"></script>
+  <script src="../assets/js/Customer-details.js"></script>
 </body>
 </html>
