@@ -1,6 +1,10 @@
 // إعدادات الاتصال بالباك إند.
 const AdminConfig = {
+<<<<<<< HEAD
   apiBase: "../../backend/api/",
+=======
+  apiBase: "/eco-marc-project/backend/api/",
+>>>>>>> 6237a1b14440715356ed58424447593c3cfd3ed4
   timeout: 120000,
   csrfStorageKey: "eco-marc-admin-csrf"
 };

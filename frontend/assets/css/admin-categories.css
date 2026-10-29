@@ -93,12 +93,12 @@
     font-size: var(--font-size-xs);
 }
 
-.categories-table .status.Active {
+.categories-table .status.active {
     background: var(--color-success-light);
     color: var(--color-success);
 }
 
-.categories-table .status.Inactive {
+.categories-table .status.inactive {
     background: var(--color-danger-light);
     color: var(--color-danger);
 }

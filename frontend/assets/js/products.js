@@ -1,9 +1,10 @@
-"use strict";
 
-        // API paths
-        const PRODUCTS_API = AdminConfig.apiBase + "Products.php";
-        const CATEGORIES_API = AdminConfig.apiBase + "categories.php";
-        const DISCOUNTS_API = AdminConfig.apiBase + "Discount.php";
+        "use strict";
+
+      
+        const PRODUCTS_API = "../../backend/api/Products.php";
+        const CATEGORIES_API = "../../backend/api/categories.php";
+        const DISCOUNTS_API = "../../backend/api/Discounts.php";
 
         const IMAGE_BASE_PATH = "../../";
 
@@ -111,8 +112,6 @@
         function showMessage(element, message, type = "success") {
             element.textContent = message;
             element.className = "message show " + type;
-    if (type === "error") Alerts.show("Products", message, "error");
-    else Alerts.toast(message);
         }
 
         function hideMessage(element) {
@@ -1094,9 +1093,11 @@
                 return;
             }
 
-            const confirmed = await Alerts.confirm("Delete this product?", "This removes " + product.name + " from your store.");
+            const confirmed = confirm(
+                `Are you sure you want to delete "${product.name}"?`
+            );
 
-    if (!confirmed.isConfirmed) {
+            if (!confirmed) {
                 return;
             }
 
