@@ -4,22 +4,9 @@
   padding: 48px clamp(20px, 6vw, 72px) 64px;
 }
 
-.product-page .page-heading > button {
-  display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 9px;
-    flex-shrink: 0;
-    padding: 12px 20px;
-    border: 0;
-    border-radius: 9px;
-    cursor: pointer;
-    white-space: nowrap;
-      background: var(--color-primary);
-  color: white;
-}
+
 .product-page .page-heading > button:hover{
-      background: var(--color-primary-hover);
+      background: #171717 !important;
   color: white;
 }
 
