@@ -304,8 +304,9 @@ header .wrap{transition:height .4s var(--ease)}
 @media(prefers-reduced-motion:reduce){.hero .shot img{scale:1.12}.dust{display:none}}
 </style>
 <link rel="stylesheet" href="assets/css/site-footer.css?v=20261029-landing">
-<script src="assets/js/auth.js?v=20261029-teamfix"></script>
+<script src="assets/js/auth.js?v=20261029-complete"></script>
 <style>[hidden]{display:none!important}</style>
+<link rel="stylesheet" href="assets/css/sticky-header.css?v=20261029-sticky">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -330,6 +331,7 @@ header .wrap{transition:height .4s var(--ease)}
       <a class="m-only" data-reg href="#">Register</a>
     </nav>
     <div class="acts">
+      <a class="cart-btn" href="visual-search.html" aria-label="Search by image" title="Search by image"><i class="fa-solid fa-camera" aria-hidden="true"></i></a>
       <a class="login" data-login href="#">Log in</a>
       <a class="btn reg" data-reg href="#">Register</a>
       <button class="cart-btn" id="cartBtn" aria-label="Open cart"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i><b id="cbadge" hidden>0</b></button>
@@ -442,7 +444,7 @@ header .wrap{transition:height .4s var(--ease)}
 <footer class="site-footer" id="site-footer" aria-label="Site footer"></footer>
 <script src="assets/vendor/sweetalert2.all.min.js"></script>
 <script src="assets/js/alerts.js?v=20261029-landing"></script>
-<script src="assets/js/site-footer.js?v=20261029-landing"></script>
+<script src="assets/js/site-footer.js?v=20261029-box"></script>
 
 <script>
  
@@ -587,6 +589,7 @@ function renderProducts(list){
   const g=$("#grid"); g.replaceChildren();
   list.forEach(p=>{
     const c=el("div","card"),href=p.href||SHOP_URL;
+    c.id="product-"+p.id;
     const a=el("a","ph"); a.href=href; a.tabIndex=-1;
     const im=el("img"); im.src=p.img; im.alt=p.name; im.loading="lazy"; if(p.contain)im.className="contain"; a.appendChild(im);
     const h=el("h3"),l=el("a",null,p.name); l.href=href; h.appendChild(l);
@@ -604,6 +607,8 @@ function renderProducts(list){
 renderProducts(FALLBACK_PRODUCTS);
 getJSON(API+"Products.php").then(rows=>{
   if(!Array.isArray(rows)||!rows.length)return;
+  const requestedProduct = new URLSearchParams(location.search).get("product");
+  if(requestedProduct)rows.sort((a,b)=>Number(String(b.id)===requestedProduct)-Number(String(a.id)===requestedProduct));
   renderProducts(rows.slice(0,8).map(p=>({
     id:String(p.id), name:p.name, price:Number(p.price), pct:Number(p.discount_percentage)||0,
     img:imgPath(p.image_url)||COAT, contain:!p.image_url

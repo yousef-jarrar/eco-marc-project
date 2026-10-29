@@ -17,7 +17,7 @@ if (footer) {
           <span>LUMIÈRE</span>
         </a>
         <p>Find Your Style, Your Way.<br>Considered fashion and footwear for your everyday.</p>
-        <span class="site-footer-signature">By Eco Marc</span>
+        <span class="site-footer-signature">LUMIÈRE</span>
       </div>
       <nav aria-label="Footer account links">
         <h2>Your LUMIÈRE</h2>
@@ -47,3 +47,7 @@ if (footer) {
     </div>
   `;
 }
+
+const customerChatScript = document.createElement("script");
+customerChatScript.src = new URL("frontend/assets/js/customer-chat.js?v=20261029-box", footerRoot).href;
+document.body.append(customerChatScript);

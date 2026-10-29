@@ -120,7 +120,7 @@ const EcoAuth = (function () {
 
   function destination(user) {
     const next = new URLSearchParams(location.search).get("next");
-    const allowed = ["ai-assistant.html", "categories.html", "Customer.html", "Customer-details.html", "Products.html", "ProductDetails.html", "reviews.html", "settings.html", "overveiw.html", "orders.html", "order-details.html"];
+    const allowed = ["ai-knowledge.html", "ai-assistant.html", "categories.html", "Customer.html", "Customer-details.html", "Products.html", "ProductDetails.html", "reviews.html", "settings.html", "overveiw.html", "orders.html", "order-details.html"];
     if (user.role === "admin" && next) {
       try {
         const url = new URL(next, location.origin);

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en" class="auth-checking">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AI store information | LUMIÈRE</title>
+  <link rel="stylesheet" href="../assets/vendor/bootstrap.min.css">
+  <link rel="stylesheet" href="../assets/vendor/fontawesome.min.css">
+  <link rel="stylesheet" href="../assets/css/index.css">
+  <link rel="stylesheet" href="../assets/css/global.css">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+  <link rel="stylesheet" href="../assets/css/admin-settings.css">
+  <style>html.auth-checking body { visibility: hidden; }</style>
+    
+  <script src="../assets/js/auth.js?v=20261029-complete"></script>
+<link rel="icon" type="image/svg+xml" href="../../assets/lumiere-icon-light.svg">
+<link rel="stylesheet" href="../assets/css/sticky-header.css?v=20261029-sticky">
+<link rel="stylesheet" href="../assets/css/shopping-ai.css?v=20261029-complete">
+</head>
+<body data-page="settings" class="settings-page">
+  <a class="sr-only" href="#main">Skip to content</a>
+  <button class="sidebar-backdrop" id="sidebar-backdrop" aria-label="Close navigation" hidden></button>
+  <aside class="admin-sidebar" id="admin-sidebar">
+    <div id="sidebar-content"></div>
+  </aside>
+
+  <div class="admin-shell">
+    <header class="admin-topbar">
+      <span class="topbar-path">LUMIÈRE / AI information</span>
+    </header>
+    <main class="admin-main" id="main"><div class="page-heading"><h1>Better answers start with real details.</h1><p>Add verified store policies and product information. Leave unknown details blank.</p><a href="settings.html">← Back to settings</a></div><p class="shopping-status" id="knowledge-status" role="status"></p><button type="button" id="reload-knowledge" class="shopping-settings-link secondary">Reload information</button>
+      <div class="knowledge-layout"><section class="settings-card"><h2>Store information</h2><form id="store-knowledge-form" class="shopping-form"><div><label for="knowledge-returns">Return & exchange policy</label><textarea id="knowledge-returns" name="returns" maxlength="2000" rows="3"></textarea></div><div><label for="knowledge-delivery_times">Delivery times</label><textarea id="knowledge-delivery_times" name="delivery_times" maxlength="2000" rows="3"></textarea></div><div><label for="knowledge-delivery_areas">Delivery areas</label><textarea id="knowledge-delivery_areas" name="delivery_areas" maxlength="2000" rows="3"></textarea></div><div><label for="knowledge-payment_methods">Accepted payment methods</label><textarea id="knowledge-payment_methods" name="payment_methods" maxlength="2000" rows="3"></textarea></div><div><label for="knowledge-contact">Contact, locations & opening hours</label><textarea id="knowledge-contact" name="contact" maxlength="2000" rows="3"></textarea></div><label class="shopping-consent"><input type="checkbox" name="reviewed"><span>I reviewed this information and confirm it is accurate. Unchecked information stays a draft and is not used in customer answers.</span></label><button type="submit">Save store information</button></form></section>
+      <section class="settings-card"><h2>Product details</h2><label for="knowledge-product">Choose an active product</label><select id="knowledge-product" class="knowledge-select"><option value="">Choose a product</option></select><form id="product-knowledge-form" class="shopping-form" hidden><div class="shopping-row"><div><label for="knowledge-gender">Audience</label><select id="knowledge-gender" name="gender"><option value="">Unknown</option><option value="unisex">Unisex</option><option value="men">Men</option><option value="women">Women</option></select></div><div><label for="knowledge-style">Style</label><select id="knowledge-style" name="style"><option value="">Unknown</option><option value="casual">Casual</option><option value="formal">Formal</option><option value="sporty">Sporty</option></select></div></div><div><label for="knowledge-material">Material & composition</label><textarea id="knowledge-material" name="material" maxlength="2000" rows="3"></textarea></div><div><label for="knowledge-brand">Brand</label><input id="knowledge-brand" name="brand" maxlength="2000"></div><div><label for="knowledge-care">Care instructions</label><textarea id="knowledge-care" name="care" maxlength="2000" rows="3"></textarea></div><div><label for="knowledge-size_guide">Size guide & measurements</label><textarea id="knowledge-size_guide" name="size_guide" maxlength="2000" rows="3"></textarea></div><label class="shopping-consent"><input type="checkbox" name="reviewed"><span>I reviewed this information and confirm it is accurate. Unchecked information stays a draft and is not used in customer answers.</span></label><button type="submit">Save product information</button></form></section></div></main>
+  </div>
+
+  
+  
+  
+  
+  <script src="../assets/vendor/sweetalert2.all.min.js"></script>
+<script src="../assets/js/admin-api.js?v=20261029-scriptfix"></script>
+<script src="../assets/js/alerts.js?v=20261029-scriptfix"></script>
+<script src="../assets/js/admin-layout.js?v=20261029-landing"></script>
+<script src="../assets/js/ai-knowledge.js?v=20261029-complete"></script>
+</body>
+</html>

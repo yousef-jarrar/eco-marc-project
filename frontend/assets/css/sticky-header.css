@@ -1,0 +1,22 @@
+html { scroll-padding-top: 110px; }
+.admin-topbar,
+.auth-header,
+.account-header,
+.search-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: #fff;
+}
+.search-header { background: #f7f7f5; }
+.page > .top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: var(--background, #f4f5f6);
+  padding-block: 16px;
+}
+.search-main #results-title { scroll-margin-top: 110px; }
+@media (min-width: 761px) {
+  .search-workspace .upload-panel { top: 106px; }
+}
