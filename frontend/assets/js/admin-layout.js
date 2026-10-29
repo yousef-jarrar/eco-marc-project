@@ -87,7 +87,7 @@ function loadAdminMenu() {
   const content = document.getElementById("sidebar-content");
   content.innerHTML = `
     <a class="wordmark" href="ai-assistant.html" aria-label="Eco Marc administration">
-      <strong class="wordmark-full">eco marc<span>.</span></strong>
+      <strong class="wordmark-full"> <span><img src="../../assets/lumiere-icon-light.svg" alt="LUMIÈRE" width="35"></span>LUMIÈRE</strong>
       <strong class="wordmark-small">e<span>.</span></strong>
     </a>
     <p class="nav-caption">Store management</p>
@@ -138,8 +138,8 @@ function loadAdminTopbar() {
     <div class="topbar-actions">
       <button class="icon-button" id="inventory-notifications" aria-label="Inventory notifications" title="Inventory notifications">${fa("bell")}</button>
       <div class="admin-identity">
-        <span class="avatar" aria-label="Eco Marc">EM</span>
-        <div class="admin-identity-text"><strong>Eco Marc Admin</strong><span>Store administration</span></div>
+        <span class="avatar" aria-label="Eco Marc">L</span>
+        <div class="admin-identity-text"><strong>LUMIÈRE Admin</strong><span>Store administration</span></div>
       </div>
     </div>
   `;
