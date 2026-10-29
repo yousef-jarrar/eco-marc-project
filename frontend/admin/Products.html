@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Products | Eco Marc Admin</title>
+    <title> LUMIÈRE | Products</title>
 <link rel="stylesheet" href="../assets/css/products.css">
     <link rel="stylesheet" href="../assets/vendor/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/vendor/fontawesome.min.css">
@@ -35,7 +35,7 @@
         <div class="admin-shell">
 
             <header class="admin-topbar">
-                <span class="topbar-path">Eco Marc / Products</span>
+                <span class="topbar-path">LUMIÈRE / Products</span>
             </header>
 
             <main class="admin-main" id="main">
@@ -66,7 +66,7 @@
                                 type="text"
                                 class="filter-input"
                                 id="filterProduct"
-                                placeholder="Search name or product ID"
+                                placeholder="Search here...."
                             >
                         </div>
 
@@ -76,7 +76,7 @@
                                 type="text"
                                 class="filter-input"
                                 id="filterCategory"
-                                placeholder="Search category name or ID"
+                                placeholder="Search here...."
                             >
                         </div>
 
@@ -86,7 +86,7 @@
                                 type="text"
                                 class="filter-input"
                                 id="filterColor"
-                                placeholder="Search color"
+                                placeholder="Search here...."
                             >
                         </div>
 
@@ -96,7 +96,7 @@
                                 type="text"
                                 class="filter-input"
                                 id="filterSize"
-                                placeholder="Search size"
+                                placeholder="Search here...."
                             >
                         </div>
 
@@ -147,11 +147,11 @@
 
                         <div class="pagination-buttons">
                             <button type="button" id="prevPageBtn">
-                                Previous
+                                <i class="fa-solid fa-arrow-left"></i>
                             </button>
 
                             <button type="button" id="nextPageBtn">
-                                Next
+                               <i class="fa-solid fa-arrow-right"></i>
                             </button>
                         </div>
                     </div>
@@ -384,16 +384,14 @@
         let discounts = [];
 
         let currentPage = 1;
-        const pageSize = 8;
+        const pageSize = 4;
 
         let existingImages = [];
         let selectedImages = [];
 
         let isSaving = false;
 
-        // --------------------------------------------------
-        // API
-        // --------------------------------------------------
+      
 
         async function getJson(url, options = {}) {
             const response = await fetch(url, options);
@@ -483,9 +481,7 @@
             });
         }
 
-        // --------------------------------------------------
-        // Product helpers
-        // --------------------------------------------------
+    
 
         function quantityOf(product) {
             return Number(product.quantity) || 0;
@@ -569,9 +565,7 @@
             return Array.isArray(variants) ? variants : [];
         }
 
-        // --------------------------------------------------
-        // Load categories
-        // --------------------------------------------------
+      
 
         async function loadCategories() {
             const data = await getJson(CATEGORIES_API);
@@ -594,9 +588,7 @@
             });
         }
 
-        // --------------------------------------------------
-        // Load discounts
-        // --------------------------------------------------
+   
 
         async function loadDiscounts() {
             const select =
@@ -630,9 +622,7 @@
             }
         }
 
-        // --------------------------------------------------
-        // Load products
-        // --------------------------------------------------
+       
 
         async function loadProducts() {
             productsTableBody.innerHTML = `
@@ -648,7 +638,7 @@
             try {
                 const data = await getJson(PRODUCTS_API);
 
-                // Display all products returned by the API.
+             
                 products = getArray(data);
 
                 currentPage = 1;
@@ -679,9 +669,7 @@
             }
         }
 
-        // --------------------------------------------------
-        // Search and filters
-        // --------------------------------------------------
+       
 
         function getFilteredProducts() {
             const productSearch =
@@ -748,10 +736,7 @@
             });
         }
 
-        // --------------------------------------------------
-        // Render products
-        // --------------------------------------------------
-
+   
         function renderProducts() {
             const filteredProducts = getFilteredProducts();
 
@@ -844,7 +829,7 @@
                                             data-action="view"
                                             data-id="${escapeHtml(product.id)}"
                                         >
-                                            View
+                                            <i class="fa-regular fa-eye"></i>
                                         </button>
 
                                         <button
@@ -853,7 +838,7 @@
                                             data-action="edit"
                                             data-id="${escapeHtml(product.id)}"
                                         >
-                                            Edit
+                                            <i class="fa-solid fa-pen"></i>
                                         </button>
 
                                         <button
@@ -862,7 +847,7 @@
                                             data-action="delete"
                                             data-id="${escapeHtml(product.id)}"
                                         >
-                                            Delete
+                                           <i class="fa-solid fa-trash-can"></i>
                                         </button>
                                     </div>
                                 </td>
@@ -870,7 +855,7 @@
                         `;
                     }).join("");
 
-                // Hide broken product images.
+              
                 productsTableBody
                     .querySelectorAll(".product-image[src]")
                     .forEach(function (image) {
