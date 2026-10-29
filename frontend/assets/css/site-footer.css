@@ -29,3 +29,5 @@
   .site-footer-help { max-width: 420px; }
   .site-footer-bottom { align-items: flex-start; flex-direction: column; margin-top: 32px; }
 }
+
+.site-footer nav { display: block; }
