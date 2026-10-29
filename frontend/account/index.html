@@ -6,62 +6,47 @@
   <title>My account | LUMIÈRE</title>
   <link rel="stylesheet" href="../assets/css/fonts.css">
   <link rel="stylesheet" href="../assets/css/index.css">
-  <link rel="stylesheet" href="../assets/css/auth.css?v=20261029-account2">
-  <script src="../assets/js/auth.js?v=20261029-mergefix2"></script>
+  <link rel="stylesheet" href="../assets/css/auth.css?v=20261029-sizing">
+  <script src="../assets/js/auth.js?v=20261029-complete"></script>
   <link rel="stylesheet" href="../assets/css/site-footer.css?v=20261029-landing">
-  <link rel="icon" type="image/svg+xml" href="../../assets/lumiere-icon-light.svg">
+<link rel="icon" type="image/svg+xml" href="../../assets/lumiere-icon-light.svg">
+<link rel="stylesheet" href="../assets/css/sticky-header.css?v=20261029-sticky">
+<link rel="stylesheet" href="../assets/css/shopping-ai.css?v=20261029-complete">
 </head>
 <body id="top">
-  <a class="auth-skip" href="#main">Skip to content</a>
-  <header class="account-header">
-    <a class="auth-wordmark" href="../Landing.html" aria-label="LUMIÈRE home">
-      <img src="../../assets/lumiere-icon-light.svg" width="40" height="40" alt="">
-      <strong>LUMIÈRE</strong>
-    </a>
-    <button id="account-logout" class="auth-link" type="button">Log out</button>
-  </header>
-  <main class="account-main" id="main">
-    <div class="account-heading">
-      <p class="account-intro">YOUR ACCOUNT</p>
-      <h1 id="account-name">Welcome</h1>
-      <p>Manage your details and sign-in preferences.</p>
-    </div>
-    <div class="account-grid">
-      <section class="account-details" aria-labelledby="profile-title">
-        <div class="account-card-heading">
-          <div>
-            <p class="account-section-label">PERSONAL DETAILS</p>
-            <h2 id="profile-title">Your profile</h2>
-          </div>
-        </div>
-        <dl class="account-profile-data">
-          <dt>Email address</dt>
-          <dd id="account-email"></dd>
-          <dt>Account type</dt>
-          <dd id="account-role"></dd>
-        </dl>
-        <div class="account-actions">
-          <a class="auth-primary" href="profile.html">Manage personal information</a>
-          <a id="admin-link" class="auth-primary account-admin-link" href="../admin/ai-assistant.html" hidden>Open administration</a>
-        </div>
-      </section>
-      <section class="account-details" aria-labelledby="google-title">
-        <div class="account-card-heading">
-          <div>
-            <p class="account-section-label">SIGN-IN PREFERENCES</p>
-            <h2 id="google-title">Google sign-in</h2>
-          </div>
-        </div>
-        <p class="account-card-copy">Link your Google account to sign in faster next time.</p>
-        <div id="google-button" class="google-button"></div>
-        <p id="google-status" class="field-hint" aria-live="polite"></p>
-      </section>
-    </div>
+  <header class="account-header"><a class="auth-wordmark" href="../Landing.html">LUMIÈRE</a><button id="account-logout" class="auth-link" type="button">Log out</button></header>
+  <main class="account-main">
+    <p class="account-intro">Your account</p>
+    <h1 id="account-name">Welcome</h1>
+    <p>Keep your sign-in details in one place.</p>
+    <section class="account-details" aria-labelledby="profile-title">
+      <h2 id="profile-title">Profile</h2>
+      <dl><dt>Email</dt><dd id="account-email"></dd><dt>Account type</dt><dd id="account-role"></dd></dl>
+      <a id="admin-link" class="auth-primary" href="../admin/ai-assistant.html" hidden>Open administration</a>
+    </section>
+    <section class="account-details" aria-labelledby="google-title">
+      <h2 id="google-title">Google sign-in</h2>
+      <p>Link your Google account to use it the next time you sign in.</p>
+      <div id="google-button" class="google-button"></div>
+      <p id="google-status" class="field-hint" aria-live="polite"></p>
+    </section>
+    <section class="account-details" aria-labelledby="shopping-preferences-title">
+      <h2 id="shopping-preferences-title">Your shopping preferences</h2>
+      <p class="shopping-help">Optional. Save your sizes, style and usual budget so the assistant can personalize suggestions. Your choices override these whenever you ask for something different.</p>
+      <form id="shopping-preferences-form" class="shopping-form">
+        <div class="shopping-row"><div><label for="preferred-clothing">Clothing size</label><select id="preferred-clothing" name="clothing_size"><option value="">No preference</option><option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option></select></div><div><label for="preferred-shoe">Shoe size (EU)</label><input id="preferred-shoe" name="shoe_size" type="number" min="20" max="55" step="1" placeholder="Optional"></div></div>
+        <div class="shopping-row"><div><label for="preferred-style">Usual style</label><select id="preferred-style" name="style"><option value="">No preference</option><option value="casual">Casual</option><option value="formal">Formal</option><option value="sporty">Sporty</option></select></div><div><label for="preferred-budget">Usual budget (JOD)</label><input id="preferred-budget" name="budget" type="number" min="0" max="10000" step="0.01" placeholder="Optional"></div></div>
+        <label class="shopping-consent"><input name="consent" type="checkbox" required><span>I agree to save these preferences in my account and use them for shopping suggestions. I can remove them at any time.</span></label>
+        <div class="shopping-actions"><button type="submit">Save preferences</button><button id="delete-preferences" type="button" class="secondary">Remove saved preferences</button><button id="reload-preferences" type="button" class="secondary">Reload</button></div>
+        <p id="preferences-status" class="shopping-status" role="status"></p>
+      </form>
+    </section>
   </main>
   <footer class="site-footer" id="site-footer" aria-label="Site footer"></footer>
-  <script src="../assets/js/site-footer.js?v=20261029-landing"></script>
+  <script src="../assets/js/site-footer.js?v=20261029-box"></script>
   <script src="../assets/vendor/sweetalert2.all.min.js"></script>
   <script src="../assets/js/alerts.js?v=20261029-session2"></script>
   <script src="../assets/js/login.js?v=20261029-template"></script>
+<script src="../assets/js/shopping-preferences.js?v=20261029-complete"></script>
 </body>
 </html>

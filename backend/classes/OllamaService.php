@@ -12,7 +12,7 @@ class OllamaService {
             throw new RuntimeException('AI service configuration is invalid.');
         }
     }
-    public function chat(string $systemPrompt, string $message, array $history = [], ?callable $onToken = null): string {
+    public function chat(string $systemPrompt, string $message, array $history = [], ?callable $onToken = null, ?array $format = null): string {
         $messages = [['role' => 'system', 'content' => $systemPrompt]];
         foreach ($history as $previousMessage) {
             $messages[] = $previousMessage;
@@ -26,6 +26,7 @@ class OllamaService {
             'options' => ['temperature' => 0.1, 'num_predict' => 600, 'num_ctx' => 16384],
             'keep_alive' => '5m'
         ];
+        if ($format !== null) { $payload['format'] = $format; $payload['options']['num_ctx'] = 8192; $payload['options']['num_predict'] = 450; }
         $connection = curl_init($this->url);
         curl_setopt_array($connection, [
             CURLOPT_POST => true,
