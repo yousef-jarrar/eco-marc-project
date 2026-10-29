@@ -6,12 +6,12 @@ class Cart
 {
     private $db;
 
-public function __construct()
-{
-    $database = new Database();
+    public function __construct()
+    {
+        $database = new Database();
 
-    $this->db = $database->connect();
-}
+        $this->db = $database->connect();
+    }
 
     private function getActiveCartId(int $user_id): int
     {
@@ -33,7 +33,9 @@ public function __construct()
 
     public function getCard(int $user_id): array
     {
-        $sql = "SELECT c.id AS cart_id, ci.id AS cart_item_id, ci.variant_id, ci.quantity, p.id AS product_id, p.name AS product_name, p.price, pv.size, pv.color, pv.quantity AS stock
+        $sql = "SELECT c.id AS cart_id, ci.id AS cart_item_id, ci.variant_id, ci.quantity,
+                       p.id AS product_id, p.name AS product_name, p.price,
+                       pv.size, pv.color, pv.quantity AS stock
                 FROM carts c
                 JOIN cart_items ci ON ci.cart_id = c.id
                 JOIN product_variants pv ON pv.id = ci.variant_id
@@ -137,7 +139,7 @@ public function __construct()
                 "Quantity must be greater than zero."
             );
         }
-error_log("updateQuantity user=$user_id item=$cart_item_id qty=$quantity");
+
         $this->db->beginTransaction();
 
         try {
@@ -283,30 +285,40 @@ error_log("updateQuantity user=$user_id item=$cart_item_id qty=$quantity");
         }
     }
 
+    /**
+     * The products table has no discount_id column, so there is no
+     * discount: discount_amount is always 0. checkout() uses the same rule,
+     * so the cart page and the saved order always show the same total.
+     */
     public function getCartTotal(int $user_id): array
     {
-        $sql = "SELECT
-                    COALESCE(SUM(p.price * ci.quantity), 0) AS subtotal,
-                    COALESCE(
-                        SUM(
-                            p.price * ci.quantity * COALESCE(d.percentage, 0) / 100
-                        ),
-                        0
-                    ) AS discount_amount
+        $sql = "SELECT COALESCE(SUM(p.price * ci.quantity), 0) AS subtotal
                 FROM carts c
-                LEFT JOIN cart_items ci ON ci.cart_id = c.id
-                LEFT JOIN product_variants pv ON pv.id = ci.variant_id
-                LEFT JOIN products p ON p.id = pv.product_id
-                LEFT JOIN discounts d ON d.id = p.discount_id
+                JOIN cart_items ci ON ci.cart_id = c.id
+                JOIN product_variants pv ON pv.id = ci.variant_id
+                JOIN products p ON p.id = pv.product_id
                 WHERE c.user_id = ? AND c.status = 'active'";
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$user_id]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        $subtotal = (float) $result["subtotal"];
-        $discount_amount = (float) $result["discount_amount"];
+        $subtotal = (float) $stmt->fetchColumn();
+        $discount_amount = 0.0;
 
+        $delivery_fee = $this->calculateDeliveryFee($subtotal);
+
+        $total = max(0, $subtotal - $discount_amount + $delivery_fee);
+
+        return [
+            "subtotal" => round($subtotal, 2),
+            "discount_amount" => round($discount_amount, 2),
+            "delivery_fee" => round($delivery_fee, 2),
+            "total" => round($total, 2)
+        ];
+    }
+
+    private function calculateDeliveryFee(float $subtotal): float
+    {
         $sql = "SELECT delivery_fee, free_delivery_at FROM settings WHERE id = 1 LIMIT 1";
         $stmt = $this->db->query($sql);
         $settings = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -318,18 +330,10 @@ error_log("updateQuantity user=$user_id item=$cart_item_id qty=$quantity");
             $free_delivery_at !== null &&
             $subtotal >= (float) $free_delivery_at
         ) {
-            $delivery_fee = 0.0;
+            return 0.0;
         }
 
-        // Subtract discounts and add delivery.
-        $total = max(0, $subtotal - $discount_amount + $delivery_fee);
-
-        return [
-            "subtotal" => round($subtotal, 2),
-            "discount_amount" => round($discount_amount, 2),
-            "delivery_fee" => round($delivery_fee, 2),
-            "total" => round($total, 2)
-        ];
+        return $delivery_fee;
     }
 
     public function checkout(
@@ -366,7 +370,8 @@ error_log("updateQuantity user=$user_id item=$cart_item_id qty=$quantity");
 
             $cart_id = (int) $cart["id"];
 
-            $sql = "SELECT ci.id, ci.quantity, pv.id AS variant_id, pv.quantity AS stock, p.is_active
+            $sql = "SELECT ci.id, ci.quantity, pv.id AS variant_id,
+                           pv.quantity AS stock, p.is_active
                     FROM cart_items ci
                     JOIN product_variants pv ON pv.id = ci.variant_id
                     JOIN products p ON p.id = pv.product_id
@@ -397,10 +402,28 @@ error_log("updateQuantity user=$user_id item=$cart_item_id qty=$quantity");
                 }
             }
 
-            $sql = "SELECT COALESCE(
-                        SUM(p.price * ci.quantity),
-                        0
-                    ) AS subtotal
+            // Take the stock. The WHERE quantity >= ? makes this safe
+            // even if two customers check out at the same time.
+            $sql = "UPDATE product_variants
+                    SET quantity = quantity - ?
+                    WHERE id = ? AND quantity >= ?";
+            $stockStmt = $this->db->prepare($sql);
+
+            foreach ($items as $item) {
+                $stockStmt->execute([
+                    $item["quantity"],
+                    $item["variant_id"],
+                    $item["quantity"]
+                ]);
+
+                if ($stockStmt->rowCount() !== 1) {
+                    throw new InvalidArgumentException(
+                        "One or more items no longer have enough stock."
+                    );
+                }
+            }
+
+            $sql = "SELECT COALESCE(SUM(p.price * ci.quantity), 0) AS subtotal
                     FROM cart_items ci
                     JOIN product_variants pv ON pv.id = ci.variant_id
                     JOIN products p ON p.id = pv.product_id
@@ -410,21 +433,8 @@ error_log("updateQuantity user=$user_id item=$cart_item_id qty=$quantity");
             $stmt->execute([$cart_id]);
             $subtotal = (float) $stmt->fetchColumn();
 
-            $sql = "SELECT delivery_fee, free_delivery_at FROM settings WHERE id = 1 LIMIT 1";
-            $stmt = $this->db->query($sql);
-            $settings = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            $delivery_fee = $settings ? (float) $settings["delivery_fee"] : 0.0;
-            $free_delivery_at = $settings["free_delivery_at"] ?? null;
-
-            if (
-                $free_delivery_at !== null &&
-                $subtotal >= (float) $free_delivery_at
-            ) {
-                $delivery_fee = 0.0;
-            }
-
             $discount_amount = 0.0;
+            $delivery_fee = $this->calculateDeliveryFee($subtotal);
 
             $total = max(
                 0,
@@ -489,31 +499,124 @@ error_log("updateQuantity user=$user_id item=$cart_item_id qty=$quantity");
         }
     }
 
-
+    /**
+     * Customer cancels ONE of their own pending orders.
+     */
     public function updateStatus(
         int $user_id,
+        int $order_id,
         string $status
     ): bool {
-        if (!in_array($status, ["pending", "cancelled"], true)) {
+        if ($status !== "cancelled") {
             throw new InvalidArgumentException(
                 "This status change is not allowed here."
             );
         }
 
-        if ($status === "pending") {
-            throw new InvalidArgumentException(
-                "Use checkout() to submit your cart."
-            );
+        $this->db->beginTransaction();
+
+        try {
+            $sql = "SELECT id FROM carts
+                    WHERE id = ? AND user_id = ? AND status = 'pending'
+                    FOR UPDATE";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([$order_id, $user_id]);
+
+            if (!$stmt->fetch(PDO::FETCH_ASSOC)) {
+                throw new InvalidArgumentException(
+                    "Order not found or can no longer be cancelled."
+                );
+            }
+
+            $this->restoreStock($order_id);
+
+            $sql = "UPDATE carts SET status = 'cancelled' WHERE id = ?";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([$order_id]);
+
+            $this->db->commit();
+
+            return true;
+        } catch (Throwable $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Admin changes the status of any order (order details page).
+     */
+    public function updateOrderStatus(int $order_id, string $status): bool
+    {
+        $allowed = [
+            "pending", "confirmed", "processing",
+            "shipped", "delivered", "cancelled"
+        ];
+
+        if (!in_array($status, $allowed, true)) {
+            throw new InvalidArgumentException("Invalid status.");
         }
 
-        $sql = "UPDATE carts
-                SET status = 'cancelled'
-                WHERE user_id = ? AND status = 'pending'";
+        $this->db->beginTransaction();
+
+        try {
+            $sql = "SELECT status FROM carts
+                    WHERE id = ? AND status <> 'active'
+                    FOR UPDATE";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([$order_id]);
+            $order = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$order) {
+                throw new InvalidArgumentException("Order not found.");
+            }
+
+            $old_status = $order["status"];
+
+            if ($old_status === $status) {
+                $this->db->commit();
+
+                return true;
+            }
+
+            if ($old_status === "cancelled") {
+                throw new InvalidArgumentException(
+                    "A cancelled order cannot be changed."
+                );
+            }
+
+            if ($status === "cancelled") {
+                $this->restoreStock($order_id);
+            }
+
+            $sql = "UPDATE carts SET status = ? WHERE id = ?";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([$status, $order_id]);
+
+            $this->db->commit();
+
+            return true;
+        } catch (Throwable $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+
+            throw $e;
+        }
+    }
+
+    private function restoreStock(int $cart_id): void
+    {
+        $sql = "UPDATE product_variants pv
+                JOIN cart_items ci ON ci.variant_id = pv.id
+                SET pv.quantity = pv.quantity + ci.quantity
+                WHERE ci.cart_id = ?";
 
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([$user_id]);
-
-        return $stmt->rowCount() > 0;
+        $stmt->execute([$cart_id]);
     }
 
     public function clearCart(int $user_id): bool
@@ -528,35 +631,133 @@ error_log("updateQuantity user=$user_id item=$cart_item_id qty=$quantity");
         return $stmt->execute([$user_id]);
     }
 
-    public function getLatestOrders(int $limit = 10): array
-{
-    $limit = max(1, min($limit, 100));
+    /**
+     * The schema has no placed_at column, so carts.created_at is used
+     * as the order date (aliased to placed_at for the front end).
+     */
+    public function getLatestOrders(
+        string $username = "",
+        ?string $start_date = null,
+        ?string $end_date = null,
+        int $page = 1,
+        int $limit = 10
+    ): array {
+        $limit  = max(1, min($limit, 100));
+        $page   = max(1, $page);
+        $offset = ($page - 1) * $limit;
 
-    $sql = "
-        SELECT
-            c.id AS order_id,
-            c.user_id,
-            CONCAT(u.first_name, ' ', u.last_name) AS customer_name,
-            u.email AS customer_email,
-            c.status,
-            cd.subtotal,
-            cd.discount_amount,
-            cd.delivery_fee,
-            cd.total,
-            cd.shipping_address,
-            cd.placed_at
-        FROM carts c
-        INNER JOIN users u ON u.id = c.user_id
-        INNER JOIN cart_details cd ON cd.cart_id = c.id
-        WHERE c.status <> 'active'
-        ORDER BY cd.placed_at DESC, c.id DESC
-        LIMIT :limit
-    ";
+        $where  = ["c.status <> 'active'"];
+        $params = [];
 
-    $stmt = $this->db->prepare($sql);
-    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-    $stmt->execute();
+        if ($username !== "") {
+            $where[] = "CONCAT(u.first_name, ' ', u.last_name) LIKE :username";
+            $params[":username"] = "%" . $username . "%";
+        }
 
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
+        if ($start_date !== null) {
+            $where[] = "c.created_at >= :start_date";
+            $params[":start_date"] = $start_date;
+        }
+
+        if ($end_date !== null) {
+            // < next day, so the whole end date is included
+            $where[] = "c.created_at < DATE_ADD(:end_date, INTERVAL 1 DAY)";
+            $params[":end_date"] = $end_date;
+        }
+
+        $sql = "
+            SELECT
+                c.id AS order_id,
+                c.user_id,
+                CONCAT(u.first_name, ' ', u.last_name) AS customer_name,
+                u.email AS customer_email,
+                c.status,
+                cd.subtotal,
+                cd.discount_amount,
+                cd.delivery_fee,
+                cd.total,
+                cd.shipping_address,
+                c.created_at AS placed_at
+            FROM carts c
+            INNER JOIN users u ON u.id = c.user_id
+            INNER JOIN cart_details cd ON cd.cart_id = c.id
+            WHERE " . implode(" AND ", $where) . "
+            ORDER BY c.created_at DESC, c.id DESC
+            LIMIT :limit OFFSET :offset
+        ";
+
+        $stmt = $this->db->prepare($sql);
+
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+        $stmt->bindValue(":limit", $limit, PDO::PARAM_INT);
+        $stmt->bindValue(":offset", $offset, PDO::PARAM_INT);
+
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getOrderDetails(int $order_id): ?array
+    {
+        // Order information
+        $sql = "
+            SELECT
+                c.id AS order_id,
+                c.user_id,
+                CONCAT(u.first_name, ' ', u.last_name) AS customer_name,
+                u.email AS customer_email,
+                c.status,
+                cd.subtotal,
+                cd.discount_amount,
+                cd.delivery_fee,
+                cd.total,
+                cd.shipping_address,
+                c.created_at AS placed_at
+            FROM carts c
+            INNER JOIN users u ON u.id = c.user_id
+            INNER JOIN cart_details cd ON cd.cart_id = c.id
+            WHERE c.id = ?
+              AND c.status <> 'active'
+            LIMIT 1
+        ";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$order_id]);
+
+        $order = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$order) {
+            return null;
+        }
+
+        // Items, with the product's primary image from product_images
+        $sql = "
+            SELECT
+                ci.quantity,
+                p.id AS product_id,
+                p.name AS product_name,
+                p.price,
+                (SELECT pi.image_url
+                 FROM product_images pi
+                 WHERE pi.product_id = p.id
+                 ORDER BY pi.is_primary DESC, pi.id ASC
+                 LIMIT 1) AS product_image,
+                pv.id AS variant_id,
+                pv.size,
+                pv.color
+            FROM cart_items ci
+            INNER JOIN product_variants pv ON pv.id = ci.variant_id
+            INNER JOIN products p ON p.id = pv.product_id
+            WHERE ci.cart_id = ?
+        ";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$order_id]);
+
+        $order["items"] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return $order;
+    }
 }

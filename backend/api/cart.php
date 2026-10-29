@@ -3,314 +3,239 @@
 header("Content-Type: application/json; charset=utf-8");
 
 require_once __DIR__ . "/../classes/Cart.php";
+function fail(int $code, string $message): void
+{
+    http_response_code($code);
+    echo json_encode([
+        "success" => false,
+        "message" => $message
+    ]);
+    exit;
+}
+
+function ok($data): void
+{
+    echo json_encode([
+        "success" => true,
+        "data" => $data
+    ]);
+    exit;
+}
+
+function intField(array $body, string $key): ?int
+{
+    $value = filter_var($body[$key] ?? null, FILTER_VALIDATE_INT);
+
+    return ($value !== false && $value > 0) ? $value : null;
+}
+
+function validDate($date): bool
+{
+    return is_string($date)
+        && preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)
+        && checkdate(
+            (int) substr($date, 5, 2),
+            (int) substr($date, 8, 2),
+            (int) substr($date, 0, 4)
+        );
+}
+
+function getLatest(Cart $cart, array $body): array
+{
+    $username   = trim($body["username"] ?? "");
+    $start_date = $body["start_date"] ?? null;
+    $end_date   = $body["end_date"] ?? null;
+
+    $page = filter_var($body["page"] ?? 1, FILTER_VALIDATE_INT);
+
+    if ($page === false || $page < 1) {
+        fail(400, "Invalid page number");
+    }
+
+    foreach (["start_date" => $start_date, "end_date" => $end_date] as $field => $date) {
+        if ($date !== null && $date !== "" && !validDate($date)) {
+            fail(400, "Invalid $field. Use YYYY-MM-DD.");
+        }
+    }
+
+    if ($start_date && $end_date && $start_date > $end_date) {
+        fail(400, "Start date must be before or equal to end date");
+    }
+
+    return $cart->getLatestOrders(
+        $username,
+        $start_date ?: null,
+        $end_date ?: null,
+        $page
+    );
+}
+
+function getDetails(Cart $cart, array $body): array
+{
+    $order_id = intField($body, "order_id");
+
+    if (!$order_id) {
+        fail(400, "Invalid order ID");
+    }
+
+    $data = $cart->getOrderDetails($order_id);
+
+    if ($data === null) {
+        fail(404, "Order not found");
+    }
+
+    return $data;
+}
+
+// ---------- main ----------
 
 try {
-    $cart = new Cart();
+    $cart   = new Cart();
     $method = $_SERVER["REQUEST_METHOD"];
-    $body = json_decode(file_get_contents("php://input"), true);
 
-    if (!is_array($body)) {
-        $body = [];
+    // GET has no body: read from the query string
+    if ($method === "GET") {
+        $body = $_GET;
+    } else {
+        $body = json_decode(file_get_contents("php://input"), true);
+
+        if (!is_array($body)) {
+            $body = [];
+        }
     }
 
     $action = $body["action"] ?? "";
 
+    if (!in_array($method, ["GET", "POST", "PATCH", "DELETE"], true)) {
+        header("Allow: GET, POST, PATCH, DELETE");
+        fail(405, "Method not allowed");
+    }
+
+    $user_id = intField($body, "user_id");
+
+    if (!$user_id) {
+        fail(400, "Invalid user ID");
+    }
+
     switch ($method) {
         case "GET":
-            $user_id = filter_var(
-                $body["user_id"] ?? null,
-                FILTER_VALIDATE_INT
-            );
-
-            if (!$user_id || $user_id <= 0) {
-                http_response_code(400);
-                echo json_encode([
-                    "success" => false,
-                    "message" => "Invalid user ID"
-                ]);
-                break;
-            }
-
             if ($action === "items") {
-                $data = $cart->getCard($user_id);
-            } elseif ($action === "total") {
-                $data = $cart->getCartTotal($user_id);
-            } elseif ($action === "latest") {
-                $limit = filter_var(
-                    $body["limit"] ?? 10,
-                    FILTER_VALIDATE_INT
-                );
-
-                $data = $cart->getLatestOrders($limit);
-            } else {
-                http_response_code(400);
-                echo json_encode([
-                    "success" => false,
-                    "message" => "Invalid action"
-                ]);
-                break;
+                ok($cart->getCard($user_id));
             }
 
-            echo json_encode([
-                "success" => true,
-                "data" => $data
-            ]);
+            if ($action === "total") {
+                ok($cart->getCartTotal($user_id));
+            }
+
+            if ($action === "latest") {
+                ok(getLatest($cart, $body));
+            }
+
+            if ($action === "details") {
+                ok(getDetails($cart, $body));
+            }
+
+            fail(400, "Invalid action");
             break;
 
         case "POST":
-            $user_id = filter_var(
-                $body["user_id"] ?? null,
-                FILTER_VALIDATE_INT
-            );
+            if ($action === "details") {
+                ok(getDetails($cart, $body));
+            }
 
-            if (!$user_id || $user_id <= 0) {
-                http_response_code(400);
-                echo json_encode([
-                    "success" => false,
-                    "message" => "Invalid user ID"
-                ]);
-                break;
+            if ($action === "latest") {
+                ok(getLatest($cart, $body));
             }
 
             if ($action === "add") {
-                $variant_id = filter_var(
-                    $body["variant_id"] ?? null,
-                    FILTER_VALIDATE_INT
-                );
+                $variant_id = intField($body, "variant_id");
+                $quantity   = intField($body, "quantity");
 
-                $quantity = filter_var(
-                    $body["quantity"] ?? null,
-                    FILTER_VALIDATE_INT
-                );
-
-                if (!$variant_id || $variant_id <= 0) {
-                    http_response_code(400);
-                    echo json_encode([
-                        "success" => false,
-                        "message" => "Invalid variant ID"
-                    ]);
-                    break;
+                if (!$variant_id) {
+                    fail(400, "Invalid variant ID");
                 }
 
-                if (!$quantity || $quantity <= 0) {
-                    http_response_code(400);
-                    echo json_encode([
-                        "success" => false,
-                        "message" => "Invalid quantity"
-                    ]);
-                    break;
+                if (!$quantity) {
+                    fail(400, "Invalid quantity");
                 }
 
-                $data = $cart->addItme(
-                    $user_id,
-                    $variant_id,
-                    $quantity
-                );
-            } elseif ($action === "checkout") {
-                $shipping_address = trim(
-                    $body["shipping_address"] ?? ""
-                );
-
-                if ($shipping_address === "") {
-                    http_response_code(400);
-                    echo json_encode([
-                        "success" => false,
-                        "message" => "Shipping address is required"
-                    ]);
-                    break;
-                }
-
-                $data = $cart->checkout(
-                    $user_id,
-                    $shipping_address
-                );
-            } else {
-                http_response_code(400);
-                echo json_encode([
-                    "success" => false,
-                    "message" => "Invalid action"
-                ]);
-                break;
+                ok($cart->addItme($user_id, $variant_id, $quantity));
             }
 
-            echo json_encode([
-                "success" => true,
-                "data" => $data
-            ]);
+            if ($action === "checkout") {
+                $shipping_address = trim($body["shipping_address"] ?? "");
+
+                if ($shipping_address === "") {
+                    fail(400, "Shipping address is required");
+                }
+
+                ok($cart->checkout($user_id, $shipping_address));
+            }
+
+            fail(400, "Invalid action");
             break;
 
         case "PATCH":
-            $user_id = filter_var(
-                $body["user_id"] ?? null,
-                FILTER_VALIDATE_INT
-            );
-
-            if (!$user_id || $user_id <= 0) {
-                http_response_code(400);
-                echo json_encode([
-                    "success" => false,
-                    "message" => "Invalid user ID"
-                ]);
-                break;
-            }
-
             if ($action === "quantity") {
-                $cart_item_id = filter_var(
-                    $body["cart_item_id"] ?? null,
-                    FILTER_VALIDATE_INT
-                );
+                $cart_item_id = intField($body, "cart_item_id");
+                $quantity     = intField($body, "quantity");
 
-                $quantity = filter_var(
-                    $body["quantity"] ?? null,
-                    FILTER_VALIDATE_INT
-                );
-
-                if (
-                    !$cart_item_id ||
-                    $cart_item_id <= 0 ||
-                    !$quantity ||
-                    $quantity <= 0
-                ) {
-                    http_response_code(400);
-                    echo json_encode([
-                        "success" => false,
-                        "message" => "Invalid cart item ID or quantity"
-                    ]);
-                    break;
+                if (!$cart_item_id || !$quantity) {
+                    fail(400, "Invalid cart item ID or quantity");
                 }
 
-                $data = $cart->updateQuantity(
-                    $user_id,
-                    $cart_item_id,
-                    $quantity
-                );
-            } elseif ($action === "variant") {
-                $cart_item_id = filter_var(
-                    $body["cart_item_id"] ?? null,
-                    FILTER_VALIDATE_INT
-                );
-
-                $new_variant_id = filter_var(
-                    $body["new_variant_id"] ?? null,
-                    FILTER_VALIDATE_INT
-                );
-
-                if (
-                    !$cart_item_id ||
-                    $cart_item_id <= 0 ||
-                    !$new_variant_id ||
-                    $new_variant_id <= 0
-                ) {
-                    http_response_code(400);
-                    echo json_encode([
-                        "success" => false,
-                        "message" => "Invalid cart item ID or variant ID"
-                    ]);
-                    break;
-                }
-
-                $data = $cart->updateVariant(
-                    $user_id,
-                    $cart_item_id,
-                    $new_variant_id
-                );
-            } elseif ($action === "status") {
-                $status = $body["status"] ?? "";
-
-                if (!in_array($status, ["cancelled"], true)) {
-                    http_response_code(400);
-                    echo json_encode([
-                        "success" => false,
-                        "message" => "Invalid status"
-                    ]);
-                    break;
-                }
-
-                $data = $cart->updateStatus(
-                    $user_id,
-                    $status
-                );
-            } else {
-                http_response_code(400);
-                echo json_encode([
-                    "success" => false,
-                    "message" => "Invalid action"
-                ]);
-                break;
+                ok($cart->updateQuantity($user_id, $cart_item_id, $quantity));
             }
 
-            echo json_encode([
-                "success" => true,
-                "data" => $data
-            ]);
+            if ($action === "variant") {
+                $cart_item_id   = intField($body, "cart_item_id");
+                $new_variant_id = intField($body, "new_variant_id");
+
+                if (!$cart_item_id || !$new_variant_id) {
+                    fail(400, "Invalid cart item ID or variant ID");
+                }
+
+                ok($cart->updateVariant($user_id, $cart_item_id, $new_variant_id));
+            }
+
+    if ($action === "status") {
+        $order_id = intField($body, "order_id");
+        $status   = $body["status"] ?? "";
+
+        if (!$order_id) {
+            fail(400, "Invalid order ID");
+        }
+
+        ok($cart->updateStatus($user_id, $order_id, $status));
+    }
+
+            fail(400, "Invalid action");
             break;
 
         case "DELETE":
-            $user_id = filter_var(
-                $body["user_id"] ?? null,
-                FILTER_VALIDATE_INT
-            );
-
-            if (!$user_id || $user_id <= 0) {
-                http_response_code(400);
-                echo json_encode([
-                    "success" => false,
-                    "message" => "Invalid user ID"
-                ]);
-                break;
-            }
-
             if ($action === "remove") {
-                $product_id = filter_var(
-                    $body["product_id"] ?? null,
-                    FILTER_VALIDATE_INT
-                );
+                $product_id = intField($body, "product_id");
 
-                if (!$product_id || $product_id <= 0) {
-                    http_response_code(400);
-                    echo json_encode([
-                        "success" => false,
-                        "message" => "Invalid product ID"
-                    ]);
-                    break;
+                if (!$product_id) {
+                    fail(400, "Invalid product ID");
                 }
 
-                $data = $cart->removeItme(
-                    $product_id,
-                    $user_id
-                );
-            } elseif ($action === "clear") {
-                $data = $cart->clearCart($user_id);
-            } else {
-                http_response_code(400);
-                echo json_encode([
-                    "success" => false,
-                    "message" => "Invalid action"
-                ]);
-                break;
+                ok($cart->removeItme($product_id, $user_id));
             }
 
-            echo json_encode([
-                "success" => true,
-                "data" => $data
-            ]);
-            break;
+            if ($action === "clear") {
+                ok($cart->clearCart($user_id));
+            }
 
-        default:
-            header("Allow: GET, POST, PATCH, DELETE");
-            http_response_code(405);
-            echo json_encode([
-                "success" => false,
-                "message" => "Method not allowed"
-            ]);
+            fail(400, "Invalid action");
             break;
     }
-} catch (Throwable $e) {
-    error_log($e->getMessage());
 
-    http_response_code(500);
-    echo json_encode([
-        "success" => false,
-        "message" => "Internal server error"
-    ]);
+} catch (InvalidArgumentException $e) {
+    // Messages like "cart is empty" or "exceeds stock" are safe to show
+    fail(422, $e->getMessage());
+
+}  catch (Throwable $e) {
+    error_log($e->getMessage());
+    fail(500, "DEBUG: " . $e->getMessage());
 }
