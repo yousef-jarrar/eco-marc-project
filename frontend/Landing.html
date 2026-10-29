@@ -34,13 +34,13 @@ h1,h2,h3{font-family:var(--display);font-weight:400;line-height:1.05;letter-spac
 .btn.gold:hover{background:#fff}
 .lead{font-size:clamp(1rem,1.3vw,1.2rem);color:var(--muted);max-width:46ch}
 
-/* intro */
+ 
 .intro{position:fixed;inset:0;z-index:300;display:grid;place-items:center;background:var(--ink);transition:transform .9s var(--ease) .1s}
 .intro.done{transform:translateY(-100%)}
 .intro svg{width:84px;height:84px;color:#fff;animation:pop 1.2s var(--ease) both}
 @keyframes pop{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:none}}
 
-/* header: always-visible navbar */
+ 
 header.top{position:fixed;inset:0 0 auto;z-index:100;background:rgba(247,247,245,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 header .wrap{display:flex;align-items:center;gap:24px;height:78px}
 .brand{display:flex;align-items:center;gap:12px;font:800 1.35rem var(--head);letter-spacing:.14em}
@@ -60,7 +60,7 @@ header .wrap{display:flex;align-items:center;gap:24px;height:78px}
 .burger{display:none}
 section[id]{scroll-margin-top:78px}
 
-/* cart drawer */
+ 
 .scrim{position:fixed;inset:0;z-index:150;background:rgba(0,0,0,.4);opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s}
 .scrim.open{opacity:1;visibility:visible}
 .drawer{position:fixed;top:0;right:0;bottom:0;z-index:160;width:min(420px,100%);background:#fff;display:flex;flex-direction:column;transform:translateX(100%);visibility:hidden;transition:transform .4s var(--ease),visibility .4s}
@@ -85,7 +85,7 @@ section[id]{scroll-margin-top:78px}
 .dfoot .btn{width:100%;justify-content:center}
 .dfoot small{display:block;margin-top:10px;color:var(--muted);text-align:center}
 
-/* hero */
+ 
 .hero{min-height:100svh;padding-top:78px;display:grid;align-items:center}
 .hero .wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(24px,5vw,80px);align-items:center;width:100%;padding-block:48px}
 .hero p.kick{font:600 .9rem var(--head);color:var(--gold-deep);margin-bottom:22px}
@@ -95,7 +95,7 @@ section[id]{scroll-margin-top:78px}
 .hero .shot img{width:100%;height:100%;object-fit:cover;object-position:50% 20%}
 .hero .shot .spark{position:absolute;right:7%;top:6%;width:56px;color:var(--gold)}
 
-/* approach */
+ 
 .approach{background:var(--ink);color:#fff;padding-block:clamp(72px,10vw,140px)}
 .approach h2{font-size:clamp(2.2rem,4.6vw,4rem);margin-bottom:48px}
 .marquee{overflow:hidden;border-block:1px solid #333;padding-block:20px;margin-bottom:72px}
@@ -115,7 +115,7 @@ section[id]{scroll-margin-top:78px}
 .panel-text p{color:#bdb6aa;max-width:44ch;margin-bottom:30px}
 .count{font:600 .85rem var(--head);color:var(--gold);margin-bottom:14px}
 
-/* categories */
+ 
 .cats{padding-block:clamp(72px,10vw,140px)}
 .cats .head{display:grid;grid-template-columns:1.2fr .8fr;gap:48px;align-items:end;margin-bottom:64px}
 .cats h2{font-size:clamp(2rem,4.4vw,3.8rem)}
@@ -131,7 +131,7 @@ section[id]{scroll-margin-top:78px}
 .cat-preview img{width:100%;height:100%;object-fit:cover;transition:opacity .35s}
 .cat-preview img.contain{object-fit:contain;padding:8%}
 
-/* ordinary */
+ 
 .ordinary{background:var(--sand);padding-block:clamp(80px,12vw,180px);text-align:center;overflow:hidden}
 .ordinary .w{position:relative;display:inline-block;font:400 clamp(4.5rem,19vw,17rem)/1 var(--display);color:var(--ink-2);letter-spacing:-.03em}
 .ordinary .w::after{content:"";position:absolute;left:-2%;top:54%;height:.045em;width:104%;background:var(--gold-deep);transform:scaleX(0);transform-origin:left;transition:transform 1.2s var(--ease) .3s}
@@ -140,7 +140,7 @@ section[id]{scroll-margin-top:78px}
 .ordinary.in h2{opacity:1;transform:none}
 .ordinary p{margin:22px auto 0;max-width:48ch;color:var(--muted)}
 
-/* shop */
+ 
 .shop{padding-block:clamp(72px,10vw,140px)}
 .shop .head{display:flex;justify-content:space-between;align-items:end;gap:24px;flex-wrap:wrap;margin-bottom:48px}
 .shop h2{font-size:clamp(2rem,4.4vw,3.8rem);margin-bottom:12px}
@@ -159,13 +159,13 @@ section[id]{scroll-margin-top:78px}
 .card s{color:#999}
 .card .off{color:var(--gold-deep);font-weight:600}
 
-/* facts */
+ 
 .facts{border-block:1px solid var(--line);padding-block:48px}
 .facts ul{list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:32px}
 .facts b{display:block;font:400 1.7rem var(--display);margin-bottom:4px}
 .facts span{color:var(--muted);font-size:.9rem}
 
-/* cta + footer */
+ 
 .cta{background:var(--ink);color:#fff;text-align:center;padding-block:clamp(80px,12vw,170px)}
 .cta p{font:600 1rem var(--head);color:#bdb6aa;margin-bottom:10px}
 .cta h2{font-size:clamp(3rem,9vw,8rem);margin-bottom:44px}
@@ -191,7 +191,7 @@ footer .brand svg{color:#fff;width:30px;height:30px}
   *{animation:none!important;transition:none!important}
   .ordinary .w::after{transform:scaleX(1)}.ordinary h2{opacity:1;transform:none}
 }
-/* ================= MOTION LAYER (delete this block + #motion-js to remove all animation) ================= */
+ 
 ::selection{background:var(--gold);color:#fff}
 @keyframes up{to{transform:none}}
 @keyframes fadeup{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
@@ -203,7 +203,7 @@ footer .brand svg{color:#fff;width:30px;height:30px}
 @keyframes bump{40%{transform:scale(1.7)}}
 @keyframes ring{0%{box-shadow:0 0 0 0 rgba(184,149,105,.55)}100%{box-shadow:0 0 0 22px rgba(184,149,105,0)}}
 
-/* intro */
+ 
 .intro{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;border-radius:0 0 50% 50%/0 0 9vh 9vh;transition:transform 1.1s cubic-bezier(.76,0,.24,1)}
 .intro .wm{display:flex;overflow:hidden;font:800 1.15rem var(--head);letter-spacing:.32em;color:#fff;padding-left:.32em}
 .intro .wm span{display:inline-block;transform:translateY(120%);animation:up .9s var(--ease) forwards;animation-delay:calc(.45s + var(--i)*70ms)}
@@ -211,7 +211,7 @@ footer .brand svg{color:#fff;width:30px;height:30px}
 .intro .bar i{display:block;height:100%;background:var(--gold);transform-origin:left;animation:tfill 2s cubic-bezier(.6,0,.3,1) forwards}
 .intro .n{font:600 .75rem var(--head);color:#8d877d;letter-spacing:.15em}
 
-/* header polish */
+ 
 header .wrap{transition:height .4s var(--ease)}
 .top.sm .wrap{height:64px}
 .top.sm{background:rgba(247,247,245,.96);box-shadow:0 6px 30px rgba(0,0,0,.05)}
@@ -219,14 +219,14 @@ header .wrap{transition:height .4s var(--ease)}
 .btn,.cart-btn{transition:translate .35s var(--ease),background .25s}
 .cart-btn b.bump{animation:bump .5s var(--ease)}
 
-/* cursor */
+ 
 .cur,.ring{position:fixed;left:0;top:0;pointer-events:none;z-index:400;border-radius:50%;opacity:0;transition:opacity .3s,width .35s var(--ease),height .35s var(--ease),background .3s}
 .cur{width:6px;height:6px;background:var(--gold)}
 .ring{width:38px;height:38px;border:1px solid var(--gold)}
 .ring.hot{width:70px;height:70px;background:rgba(184,149,105,.16)}
 .cur.show,.ring.show{opacity:1}
 
-/* split text + reveals (only when motion allowed: html.mo) */
+ 
 .m{display:inline-block;overflow:hidden;vertical-align:top;padding:.06em 0 .14em;margin:-.06em 0 -.14em}
 .mi{display:inline-block}
 .mo .mi{transform:translateY(112%)}
@@ -236,7 +236,7 @@ header .wrap{transition:height .4s var(--ease)}
 .mo .rv-clip{clip-path:inset(0 0 100% 0);transition:clip-path 1.5s var(--ease)}
 .mo .rv-clip.in{clip-path:inset(0)}
 
-/* hero entrance */
+ 
 .mo .hero .kick,.mo .hero .lead,.mo .hero .btn{opacity:0}
 .mo body.ready .hero .kick{animation:fadeup 1.1s var(--ease) .1s both}
 .mo body.ready .hero .lead{animation:fadeup 1.1s var(--ease) .95s both}
@@ -250,20 +250,20 @@ header .wrap{transition:height .4s var(--ease)}
 .mo .hero .spark{opacity:0;rotate:-120deg}
 .mo body.ready .hero .spark{opacity:1;rotate:0deg;transition:opacity 1s 1.1s,rotate 1.8s var(--ease) 1.1s}
 
-/* dust + glow */
+ 
 .hero,.approach,.cta{position:relative;overflow:hidden}
 .hero .wrap,.approach .wrap,.cta .wrap{position:relative}
 .dust{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .approach::before,.cta::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(560px circle at var(--mx,50%) var(--my,40%),rgba(184,149,105,.17),transparent 60%)}
 
-/* marquee */
+ 
 .marquee{margin-bottom:0;border-bottom:0}
 .marquee.alt{margin-bottom:72px;border-top:0;border-bottom:1px solid #333}
 .marquee.alt .track{animation-direction:reverse;animation-duration:46s;color:transparent;-webkit-text-stroke:1px #8d6f47}
 .marquee.alt .track span::after{color:var(--gold);-webkit-text-stroke:0}
 .marquee:hover .track{animation-play-state:paused}
 
-/* approach */
+ 
 .panel-img img{transform:scale(1.14);transition:opacity .9s,transform 1.9s var(--ease)}
 .panel-img img.on{transform:none}
 .tabs button{position:relative}
@@ -274,7 +274,7 @@ header .wrap{transition:height .4s var(--ease)}
 .panel-text.swap h3{animation:swap .8s var(--ease) .08s both}
 .panel-text.swap #ptext{animation:swap .8s var(--ease) .16s both}
 
-/* categories */
+ 
 .cat h3{position:relative;justify-self:start}
 .cat h3::after{content:"";position:absolute;left:0;bottom:-6px;height:1px;width:100%;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .6s var(--ease)}
 .cat:hover h3::after,.cat:focus-visible h3::after{transform:scaleX(1)}
@@ -282,20 +282,20 @@ header .wrap{transition:height .4s var(--ease)}
 .cat i{transition:translate .4s var(--ease)}
 #catimg.wipe{animation:wipe .9s var(--ease)}
 
-/* ordinary */
+ 
 .ordinary .w .l{display:inline-block}
 .mo .ordinary .w .l{opacity:0;transform:translateY(70%) rotate(7deg)}
 .mo .ordinary.in .w .l{opacity:1;transform:none;transition:opacity 1s,transform 1.2s var(--ease);transition-delay:calc(var(--i)*80ms)}
 .ordinary .w::after{transition-delay:1.1s}
 .ordinary h2{transition-delay:1.9s}
 
-/* products */
+ 
 .card .ph{position:relative;transition:transform .45s var(--ease);will-change:transform}
 .card .ph::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .3s;background:radial-gradient(circle at var(--gx,50%) var(--gy,50%),rgba(255,255,255,.4),transparent 55%)}
 .card:hover .ph::after{opacity:1}
 .fly{position:fixed;z-index:170;object-fit:cover;border-radius:6px;pointer-events:none;box-shadow:0 20px 40px rgba(0,0,0,.25);transition:transform .85s cubic-bezier(.55,0,.2,1),opacity .85s}
 
-/* CTA */
+ 
 .cta h2 .mi{background:linear-gradient(100deg,#fff 30%,#ecd9b9 44%,#b89569 50%,#ecd9b9 56%,#fff 70%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shimmer 6s linear infinite}
 .btn.gold{animation:ring 2.4s ease-out infinite}
 
@@ -445,10 +445,10 @@ header .wrap{transition:height .4s var(--ease)}
 </footer>
 
 <script>
-/* ===== Settings: change these to match your setup ===== */
-const API = "/xampp/php-project/backend/api/";   // same as AdminConfig.apiBase
-const SHOP_URL = "#shop";           // link to your store page when it exists
-const LOGIN_URL = "login.html";     // user pages you'll build later
+ 
+const API = "/xampp/php-project/backend/api/";    
+const SHOP_URL = "#shop";            
+const LOGIN_URL = "login.html";      
 const REGISTER_URL = "register.html";
 const CHECKOUT_URL = "checkout.html";
 const TEE = "../assets/products/440_YTE-WS-WHI-slideshow_3-original.jpg";
@@ -471,7 +471,7 @@ const PANELS = [
   ["Finish","Details that hold up","Stitching, buttons, hems and trims are checked piece by piece, because the small things are what people notice."]
 ];
 
-/* ===== helpers ===== */
+ 
 const $ = s => document.querySelector(s);
 const el = (t,c,txt) => { const e=document.createElement(t); if(c)e.className=c; if(txt!=null)e.textContent=txt; return e; };
 const jod = v => Number(v||0).toLocaleString("en-JO",{minimumFractionDigits:2,maximumFractionDigits:2})+" JOD";
@@ -482,10 +482,10 @@ async function getJSON(url){
   finally{ clearTimeout(t); }
 }
 
-/* ===== intro + menu ===== */
+ 
 const intro=$("#intro");
 
-/* ===== navbar ===== */
+ 
 document.querySelectorAll("[data-login]").forEach(a=>a.href=LOGIN_URL);
 document.querySelectorAll("[data-reg]").forEach(a=>a.href=REGISTER_URL);
 $("#checkout").href=CHECKOUT_URL;
@@ -496,7 +496,7 @@ links.querySelectorAll("a").forEach(a=>a.addEventListener("click",closeMenu));
 const spy=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)links.querySelectorAll("a[href^='#']").forEach(a=>a.classList.toggle("active",a.getAttribute("href")==="#"+e.target.id))}),{rootMargin:"-45% 0px -50% 0px"});
 ["top","collections","shop","contact"].forEach(id=>{const s=document.getElementById(id);if(s)spy.observe(s)});
 
-/* ===== cart (saved in this browser until user accounts exist) ===== */
+ 
 let cart=[];
 try{cart=JSON.parse(localStorage.getItem("lumiere-cart")||"[]")}catch(e){cart=[]}
 const saveCart=()=>{try{localStorage.setItem("lumiere-cart",JSON.stringify(cart))}catch(e){}};
@@ -540,7 +540,7 @@ $("#cartBtn").onclick=()=>setDrawer(true);$("#dclose").onclick=()=>setDrawer(fal
 addEventListener("keydown",e=>{if(e.key==="Escape"&&$("#drawer").classList.contains("open"))setDrawer(false)});
 renderCart();
 
-/* ===== approach tabs ===== */
+ 
 const tabs=[...document.querySelectorAll(".tabs button")],pimgs=[...document.querySelectorAll("#pimg img")];
 function showPanel(i){
   tabs.forEach((b,n)=>b.setAttribute("aria-selected",n===i));
@@ -549,7 +549,7 @@ function showPanel(i){
 }
 tabs.forEach((b,i)=>b.onclick=()=>showPanel(i)); showPanel(0);
 
-/* ===== categories ===== */
+ 
 function renderCats(list){
   const box=$("#catlist"); box.replaceChildren();
   const m=$("#marquee"); m.replaceChildren();
@@ -574,7 +574,7 @@ getJSON(API+"categories.php").then(rows=>{
   })));
 }).catch(()=>{});
 
-/* ===== products ===== */
+ 
 function renderProducts(list){
   const g=$("#grid"); g.replaceChildren();
   list.forEach(p=>{
@@ -602,7 +602,7 @@ getJSON(API+"Products.php").then(rows=>{
   })));
 }).catch(()=>{});
 
-/* ===== "Ordinary" strike-through on scroll ===== */
+ 
 new IntersectionObserver((e,o)=>{if(e[0].isIntersecting){e[0].target.classList.add("in");o.disconnect()}},{threshold:.55}).observe($("#ord"));
 </script>
 <script id="motion-js">
@@ -612,7 +612,7 @@ const FINE=matchMedia("(hover:hover) and (pointer:fine)").matches&&!RM;
 const $$=s=>[...document.querySelectorAll(s)];
 const lerp=(a,b,t)=>a+(b-a)*t;
 
-/* split headings into masked words */
+ 
 function splitWords(e){
   let n=0;
   e.setAttribute("aria-label",e.textContent.trim());
@@ -629,7 +629,7 @@ function splitWords(e){
   })})(e);
 }
 
-/* reveal on scroll */
+ 
 const io=new IntersectionObserver(es=>es.forEach(x=>{
   if(!x.isIntersecting)return;
   const t=x.target;t.classList.add("in");io.unobserve(t);
@@ -650,12 +650,12 @@ $$(".facts li").forEach((e,i)=>rv(e,"rv",i));
 watch($("#catlist"),(c,i)=>rv(c,"rv",i));
 watch($("#grid"),(c,i)=>{if(!c.dataset.rv){rv(c,"rv",i);tilt(c)}});
 
-/* hero + ordinary text */
+ 
 const h1=$(".hero h1");splitWords(h1);
 const ow=$(".ordinary .w");ow.setAttribute("aria-label",ow.textContent);
 ow.replaceChildren(...[...ow.textContent].map((ch,i)=>{const s=document.createElement("span");s.className="l";s.setAttribute("aria-hidden","true");s.style.setProperty("--i",i);s.textContent=ch;return s}));
 
-/* intro */
+ 
 const intro=$("#intro");
 function ready(){document.body.classList.add("ready");h1.classList.add("in")}
 if(RM){intro.remove();ready()}
@@ -675,7 +675,7 @@ else{
   })(t0);
 }
 
-/* progress bar + header + parallax */
+ 
 const header=$("header.top"),prog=document.createElement("div");prog.className="prog";header.append(prog);
 const heroImg=$(".hero .shot img"),catImg=$("#catimg"),ord=$("#ord");
 const par=[[heroImg,.07],[catImg,.05]];
@@ -692,22 +692,22 @@ function frame(){
 addEventListener("scroll",()=>{if(!tick){tick=true;requestAnimationFrame(()=>{frame();tick=false})}},{passive:true});
 frame();
 
-/* second marquee row (outlined, reversed) */
+ 
 const m1=$("#marquee"),row=document.createElement("div"),t2=document.createElement("div");
 row.className="marquee alt";row.setAttribute("aria-hidden","true");t2.className="track";row.append(t2);m1.parentNode.after(row);
 const sync=()=>t2.replaceChildren(...[...m1.children].map(c=>c.cloneNode(true)));sync();new MutationObserver(sync).observe(m1,{childList:true});
 
-/* approach: autoplay tabs + text swap */
+ 
 const _sp=window.showPanel;let cur=0;
 window.showPanel=i=>{_sp(i);cur=i;const pt=$(".panel-text");pt.classList.remove("swap");void pt.offsetWidth;pt.classList.add("swap")};
 $(".tabs").addEventListener("animationend",e=>{if(e.animationName==="tfill")window.showPanel((cur+1)%3)});
 
-/* categories: image wipe on change */
+ 
 let lastCat=null;
 function catChange(e){const c=e.target.closest&&e.target.closest(".cat");if(!c||c===lastCat)return;lastCat=c;catImg.classList.remove("wipe");void catImg.offsetWidth;catImg.classList.add("wipe")}
 $("#catlist").addEventListener("mouseover",catChange);$("#catlist").addEventListener("focusin",catChange);
 
-/* product cards: 3D tilt */
+ 
 function tilt(c){
   if(!FINE)return;
   const p=c.querySelector(".ph");
@@ -716,7 +716,7 @@ function tilt(c){
   c.addEventListener("pointerleave",()=>{p.style.transform=""});
 }
 
-/* add to cart: product flies into the bag, then the drawer opens */
+ 
 const _sd=window.setDrawer;
 window.setDrawer=o=>{if(o&&window.__fly){window.__fly=0;setTimeout(()=>_sd(true),780)}else _sd(o)};
 $("#grid").addEventListener("click",e=>{
@@ -732,7 +732,7 @@ $("#grid").addEventListener("click",e=>{
 },true);
 new MutationObserver(()=>{const b=$("#cbadge");b.classList.remove("bump");void b.offsetWidth;b.classList.add("bump")}).observe($("#cbadge"),{childList:true,characterData:true,subtree:true});
 
-/* gold dust + cursor glow */
+ 
 function dust(host,alpha){
   if(RM)return;
   const c=document.createElement("canvas");c.className="dust";c.setAttribute("aria-hidden","true");host.prepend(c);
@@ -749,7 +749,7 @@ function dust(host,alpha){
 dust($(".hero"),.55);dust($(".approach"),.7);dust($(".cta"),.8);
 if(FINE)$$(".approach,.cta").forEach(s=>s.addEventListener("pointermove",e=>{const r=s.getBoundingClientRect();s.style.setProperty("--mx",(e.clientX-r.left)+"px");s.style.setProperty("--my",(e.clientY-r.top)+"px")}));
 
-/* custom cursor + magnetic buttons */
+ 
 if(FINE){
   const d=document.createElement("div"),rg=document.createElement("div");d.className="cur";rg.className="ring";document.body.append(d,rg);
   let x=-100,y=-100,rx=-100,ry=-100;

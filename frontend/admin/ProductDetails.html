@@ -1,15 +1,19 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="auth-checking">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Product details | Eco Marc Admin</title>
+  <title>Product details | Lumeire Admin</title>
   <link rel="stylesheet" href="../assets/vendor/bootstrap.min.css">
   <link rel="stylesheet" href="../assets/vendor/fontawesome.min.css">
   <link rel="stylesheet" href="../assets/css/index.css">
   <link rel="stylesheet" href="../assets/css/global.css">
   <link rel="stylesheet" href="../assets/css/admin.css">
   <link rel="stylesheet" href="../assets/css/ProductDetails.css">
+  <style>html.auth-checking body { visibility: hidden; }</style>
+    
+  <script src="../assets/js/auth.js?v=20261029-mergefix"></script>
+<link rel="icon" type="image/svg+xml" href="../../assets/lumiere-icon-light.svg">
 </head>
 <body data-page="products" class="product-details-page">
   <a class="sr-only" href="#main">Skip to content</a>
@@ -17,7 +21,7 @@
   <aside class="admin-sidebar" id="admin-sidebar"><div id="sidebar-content"></div></aside>
 
   <div class="admin-shell">
-    <header class="admin-topbar"><span class="topbar-path">Eco Marc / Products / Product details</span></header>
+    <header class="admin-topbar"><span class="topbar-path">Lumeire / Products / Product details</span></header>
     <main class="admin-main product-page" id="main">
 <div class="page-heading">
         <div>
@@ -96,10 +100,14 @@
     </main>
   </div>
 
+  
+  
+  
+  
   <script src="../assets/vendor/sweetalert2.all.min.js"></script>
-  <script src="../assets/js/admin-api.js"></script>
-  <script src="../assets/js/alerts.js"></script>
-  <script src="../assets/js/admin-layout.js"></script>
-  <script type="module" src="../assets/js/ProductDetails.js"></script>
+<script src="../assets/js/admin-api.js?v=20261029-scriptfix"></script>
+<script src="../assets/js/alerts.js?v=20261029-scriptfix"></script>
+<script src="../assets/js/admin-layout.js?v=20261029-scriptfix"></script>
+<script type="module" src="../assets/js/ProductDetails.js?v=20261029-session2"></script>
 </body>
 </html>

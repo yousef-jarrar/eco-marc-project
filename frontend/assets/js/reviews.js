@@ -16,7 +16,7 @@ function setReviewText(id, value) {
   document.getElementById(id).textContent = value;
 }
 
-// البحث والتصفية يتمان على البيانات التي رجعت من السيرفر.
+ 
 function getFilteredReviews() {
   const searchText = searchInput.value.trim().toLowerCase();
   const filteredReviews = [];
@@ -99,7 +99,7 @@ function createReviewRow(review) {
 
   const customerName = [review.first_name, review.last_name].join(" ").trim();
 
-  // النصوص القادمة من قاعدة البيانات تمر على escapeHTML.
+   
   row.innerHTML = `
     <td>
       <div class="review-product">${escapeHTML(review.product_name)}</div>
@@ -260,7 +260,7 @@ async function handleReviewAction(event) {
   const reviewId = Number(row.dataset.reviewId);
   const action = button.dataset.action;
 
-  // نمنع الضغط على أكثر من عملية أثناء التأكيد أو الحفظ.
+   
   setReviewsLoading(true);
 
   if (action === "delete" || action === "hidden") {

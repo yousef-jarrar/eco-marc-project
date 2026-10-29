@@ -5,7 +5,7 @@ CREATE DATABASE IF NOT EXISTS ecommerce
 
 USE ecommerce;
 
--- 1. USERS
+ 
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     first_name VARCHAR(100) NOT NULL,
@@ -20,14 +20,16 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
--- 2. CATEGORIES
+ 
 CREATE TABLE categories (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
-    image_url VARCHAR(500) NULL
+    image_url VARCHAR(500) NULL,
+    public_id VARCHAR(255) NULL,
+    status ENUM('active', 'inactive') NOT NULL DEFAULT 'active'
 ) ENGINE=InnoDB;
 
--- 3. DISCOUNTS
+ 
 CREATE TABLE discounts (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -36,7 +38,7 @@ CREATE TABLE discounts (
         CHECK (percentage BETWEEN 0 AND 100)
 ) ENGINE=InnoDB;
 
--- 4. PRODUCTS
+ 
 CREATE TABLE products (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -59,7 +61,7 @@ CREATE TABLE products (
         ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
--- 5. PRODUCT VARIANTS
+ 
 CREATE TABLE product_variants (
     id INT AUTO_INCREMENT PRIMARY KEY,
     product_id INT NOT NULL,
@@ -90,7 +92,7 @@ CREATE TABLE product_variants (
         ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
--- 6. PRODUCT IMAGES
+ 
 CREATE TABLE product_images (
     id INT AUTO_INCREMENT PRIMARY KEY,
     product_id INT NOT NULL,
@@ -106,8 +108,8 @@ CREATE TABLE product_images (
         ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
--- 7. CARTS
--- Only one active cart per user.
+ 
+ 
 CREATE TABLE carts (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -138,8 +140,8 @@ CREATE TABLE carts (
         ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
--- 8. CART ITEMS
--- Each item references a specific size/color variant.
+ 
+ 
 CREATE TABLE cart_items (
     id INT AUTO_INCREMENT PRIMARY KEY,
     cart_id INT NOT NULL,
@@ -165,7 +167,7 @@ CREATE TABLE cart_items (
         ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
--- 9. CART DETAILS
+ 
 CREATE TABLE cart_details (
     cart_id INT PRIMARY KEY,
     subtotal DECIMAL(10,2) NOT NULL,
@@ -193,7 +195,7 @@ CREATE TABLE cart_details (
         ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
--- 10. REVIEWS
+ 
 CREATE TABLE reviews (
     id INT AUTO_INCREMENT PRIMARY KEY,
     product_id INT NOT NULL,
@@ -225,7 +227,7 @@ CREATE TABLE reviews (
         ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
--- 11. WISHLIST
+ 
 CREATE TABLE wishlist (
     user_id INT NOT NULL,
     product_id INT NOT NULL,
@@ -245,7 +247,7 @@ CREATE TABLE wishlist (
         ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
--- 12. SETTINGS
+ 
 CREATE TABLE settings (
     id INT PRIMARY KEY DEFAULT 1,
     delivery_fee DECIMAL(10,2) NOT NULL DEFAULT 0,
@@ -261,11 +263,11 @@ CREATE TABLE settings (
         CHECK (free_delivery_at IS NULL OR free_delivery_at >= 0)
 ) ENGINE=InnoDB;
 
--- Default settings row
+ 
 INSERT INTO settings (id, delivery_fee, free_delivery_at)
 VALUES (1, 3.00, 50.00);
 
--- 13. PRODUCT EMBEDDINGS
+ 
 CREATE TABLE product_embeddings (
     id INT AUTO_INCREMENT PRIMARY KEY,
     product_image_id INT NOT NULL UNIQUE,

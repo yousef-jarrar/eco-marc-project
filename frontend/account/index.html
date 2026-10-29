@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en" class="auth-checking">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>My account | LUMIÈRE</title>
+  <link rel="stylesheet" href="../assets/vendor/bootstrap.min.css">
+  <link rel="stylesheet" href="../assets/css/fonts.css">
+  <link rel="stylesheet" href="../assets/css/index.css">
+  <link rel="stylesheet" href="../assets/css/auth.css?v=20261029-sizing">
+  <script src="../assets/js/auth.js?v=20261029-mergefix"></script>
+  <link rel="stylesheet" href="../assets/css/site-footer.css?v=20261029-cleanfooter">
+<link rel="icon" type="image/svg+xml" href="../../assets/lumiere-icon-light.svg">
+</head>
+<body id="top">
+  <header class="account-header"><a class="auth-wordmark" href="index.html">LUMIÈRE</a><button id="account-logout" class="auth-link" type="button">Log out</button></header>
+  <main class="account-main">
+    <p class="account-intro">Your account</p>
+    <h1 id="account-name">Welcome</h1>
+    <p>Keep your sign-in details in one place.</p>
+    <section class="account-details" aria-labelledby="profile-title">
+      <h2 id="profile-title">Profile</h2>
+      <dl><dt>Email</dt><dd id="account-email"></dd><dt>Account type</dt><dd id="account-role"></dd></dl>
+      <a id="admin-link" class="auth-primary" href="../admin/ai-assistant.html" hidden>Open administration</a>
+    </section>
+    <section class="account-details" aria-labelledby="google-title">
+      <h2 id="google-title">Google sign-in</h2>
+      <p>Link your Google account to use it the next time you sign in.</p>
+      <div id="google-button" class="google-button"></div>
+      <p id="google-status" class="field-hint" aria-live="polite"></p>
+    </section>
+  </main>
+  <footer class="site-footer" id="site-footer" aria-label="Site footer"></footer>
+  <script src="../assets/js/site-footer.js?v=20261029-cleanfooter"></script>
+  <script src="../assets/vendor/sweetalert2.all.min.js"></script>
+  <script src="../assets/js/alerts.js?v=20261029-session2"></script>
+  <script src="../assets/js/login.js?v=20261029-template"></script>
+</body>
+</html>

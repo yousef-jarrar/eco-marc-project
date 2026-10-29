@@ -1,0 +1,13 @@
+
+<FilesMatch "^\.env(?:\..*)?$">
+    Require all denied
+</FilesMatch>
+
+
+<FilesMatch "\.(key|p12|pfx)$">
+    Require all denied
+</FilesMatch>
+
+<If "%{REQUEST_URI} =~ m#(^|/)\.(git|svn|hg)(/|$)#">
+    Require all denied
+</If>

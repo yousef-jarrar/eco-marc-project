@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="auth-checking">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -9,7 +9,11 @@
   <link rel="stylesheet" href="../assets/css/index.css">
   <link rel="stylesheet" href="../assets/css/global.css">
   <link rel="stylesheet" href="../assets/css/admin.css">
-  <link rel="stylesheet" href="../assets/css/admin-categories.css">
+  <link rel="stylesheet" href="../assets/css/admin-categories.css?v=20261029-actions">
+  <style>html.auth-checking body { visibility: hidden; }</style>
+    
+  <script src="../assets/js/auth.js?v=20261029-mergefix"></script>
+<link rel="icon" type="image/svg+xml" href="../../assets/lumiere-icon-light.svg">
 </head>
 <body data-page="categories" class="categories-page">
   <a class="sr-only" href="#main">Skip to content</a>
@@ -66,10 +70,14 @@
     </main>
   </div>
 
+  
+  
+  
+  
   <script src="../assets/vendor/sweetalert2.all.min.js"></script>
-  <script src="../assets/js/admin-api.js"></script>
+  <script src="../assets/js/admin-api.js?v=20261029-mergefix"></script>
   <script src="../assets/js/alerts.js"></script>
   <script src="../assets/js/admin-layout.js"></script>
-  <script type="module" src="../assets/js/categories.js?v=20261029-category-hide"></script>
+  <script type="module" src="../assets/js/categories.js?v=20261029-mergefix"></script>
 </body>
 </html>

@@ -2,8 +2,8 @@ import {
     getAllCategories,
     getCategoryProducts,
     createCategory,
-    updateCategory
-} from "./services/categories-services.js";
+    updateCategory,
+} from "./services/categories-services.js?v=20261029-mergefix";
 
 const tableBody = document.getElementById("categoriesTableBody");
 const searchInput = document.getElementById("searchCategory");
@@ -16,6 +16,12 @@ const hiddenCategoryIds = new Set(
 );
 let categories = [];
 let changingCategory = false;
+
+function setCategoryBusy(busy) {
+    changingCategory = busy;
+    addCategoryButton.disabled = busy;
+    for (const button of tableBody.querySelectorAll("button")) button.disabled = busy;
+}
 
 async function loadCategories() {
     try {
@@ -72,13 +78,13 @@ function displayCategories(data) {
         });
 
         const statusCell = document.createElement("td");
-        const statusBadge=document.createElement("span");
-        statusBadge.className = "status " + category.status;
-
-       statusBadge.textContent =
-       category.status === "active" ? "Active" : "Inactive";
-       statusCell.appendChild(statusBadge);
-       
+        const status = String(category.status || "").toLowerCase();
+        if (status === "active" || status === "inactive") {
+            const badge = document.createElement("span");
+            badge.className = "category-status category-status--" + status;
+            badge.textContent = status === "active" ? "Active" : "Inactive";
+            statusCell.appendChild(badge);
+        } else statusCell.textContent = "—";
         const actionsCell = document.createElement("td");
         const actions = document.createElement("div");
         actions.className = "category-actions";
@@ -86,6 +92,9 @@ function displayCategories(data) {
         const editButton = document.createElement("button");
         editButton.type = "button";
         editButton.textContent = "Edit";
+        editButton.className = "category-edit-button";
+        editButton.disabled = changingCategory;
+        editButton.setAttribute("aria-label", "Edit " + category.name);
         editButton.addEventListener("click", function () { openCategoryForm(category); });
 
         const statusButton = document.createElement("button");
@@ -101,7 +110,10 @@ function displayCategories(data) {
         const deleteButton = document.createElement("button");
         deleteButton.type = "button";
         deleteButton.textContent = "Delete";
-        deleteButton.addEventListener("click", function () { removeCategory(category.id); });
+        deleteButton.className = "category-delete-button";
+        deleteButton.disabled = changingCategory;
+        deleteButton.setAttribute("aria-label", "Delete " + category.name);
+        deleteButton.addEventListener("click", function () { removeCategory(category); });
 
         actions.appendChild(editButton);
         actions.appendChild(statusButton);
@@ -126,75 +138,101 @@ function showFilteredCategories() {
     displayCategories(filtered);
 }
 
-// الإضافة والتعديل يستخدمان نفس نموذج SweetAlert.
+ 
 async function openCategoryForm(category = null) {
     if (changingCategory) return;
-    changingCategory = true;
-    let title = "Add category";
-    let name = "";
-    let image = "";
-    let status = "active";
-    if (category) {
-        title = "Edit category";
-        name = category.name;
-        image = category.image_url || "";
-        status = category.status;
-    }
-
+    setCategoryBusy(true);
+    let previewUrl = null;
+    const image = category ? category.image_url || "" : "";
+    const title = category ? "Edit category" : "Add category";
     const fields = `
         <div class="category-alert-form">
             <label for="categoryName">Category name</label>
-            <input id="categoryName" type="text" maxlength="100" required value="${escapeHTML(name)}">
-            <label for="categoryImage">Image URL</label>
-            <input id="categoryImage" type="url" placeholder="https://example.com/image.jpg" value="${escapeHTML(image)}">
-
+            <input id="categoryName" type="text" maxlength="100" required value="${escapeHTML(category ? category.name : "")}">
+            <div class="category-image-editor">
+                <div class="category-preview-wrap">
+                    <img id="categoryImagePreview" class="category-image-preview" alt="Category image preview" hidden>
+                    <span id="categoryImageEmpty">No image selected</span>
+                </div>
+                <p id="categoryImageStatus" class="category-image-status" aria-live="polite"></p>
+                <label for="categoryImageFile">${category ? "Replace image" : "Upload image"}</label>
+                <input id="categoryImageFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif">
+                <small>JPG, PNG, WEBP or GIF. Maximum 5MB.</small>
+                <input id="categoryImage" type="hidden" value="${escapeHTML(image)}">
+                <label id="categoryRemoveControl" class="category-remove-image" hidden><input id="categoryRemoveImage" type="checkbox"> Remove image when saving</label>
+                <button id="categoryImageRestore" class="category-image-restore" type="button" hidden>Keep current image</button>
+            </div>
         </div>
     `;
-
     try {
-        const result = await Alerts.form(title, fields, async function () {
-            const nameInput = document.getElementById("categoryName");
-            const imageInput = document.getElementById("categoryImage");
-            const categoryName = nameInput.value.trim();
-            const imageUrl = imageInput.value.trim();
-            
-
-            if (categoryName === "") {
-                Alerts.validation("Enter the category name.");
-                return false;
+        const dialog = Alerts.form(title, fields, async function () {
+            const name = document.getElementById("categoryName").value.trim();
+            const file = document.getElementById("categoryImageFile").files[0] || null;
+            const remove = document.getElementById("categoryRemoveImage").checked;
+            if (!name) { Alerts.validation("Enter the category name."); return false; }
+            if (file && (!['image/jpeg','image/png','image/webp','image/gif'].includes(file.type) || file.size > 5 * 1024 * 1024)) {
+                Alerts.validation("Use a JPG, PNG, WEBP or GIF image of 5MB or less."); return false;
             }
-            if (imageUrl !== "" && (!imageInput.checkValidity() || !/^https?:\/\//i.test(imageUrl))) {
-                Alerts.validation("Enter an HTTP or HTTPS image URL, or leave it empty.");
-                return false;
-            }
-
             try {
-                if (category) return await updateCategory(category.id, categoryName, imageUrl, status);
-                return await createCategory(categoryName, imageUrl, "active");
+                if (category) {
+                    return await updateCategory(
+                        category.id,
+                        name,
+                        remove ? "" : image,
+                        file,
+                        category.status || "active"
+                    );
+                }
+                return await createCategory(name, "", file);
             } catch (error) {
-                // يبقى النموذج مفتوحاً حتى لا نفقد ما كتبه المستخدم.
                 Alerts.validation(error.message);
                 return false;
             }
         });
-
+        const fileInput = document.getElementById("categoryImageFile");
+        const remove = document.getElementById("categoryRemoveImage");
+        const preview = document.getElementById("categoryImagePreview");
+        const restore = document.getElementById("categoryImageRestore");
+        const status = document.getElementById("categoryImageStatus");
+        function showPreview() {
+            if (previewUrl) { URL.revokeObjectURL(previewUrl); previewUrl = null; }
+            const file = fileInput.files[0];
+            let url = remove.checked ? "" : image;
+            if (file && !remove.checked && /^image\//.test(file.type)) {
+                previewUrl = URL.createObjectURL(file); url = previewUrl;
+            }
+            preview.hidden = !url;
+            document.getElementById("categoryImageEmpty").hidden = Boolean(url);
+            if (url) preview.src = url; else preview.removeAttribute("src");
+            status.textContent = remove.checked ? "The image will be removed when you save." : file ? "New image selected. Save to replace the current image." : image ? "Current image. Leave unchanged to keep it." : "An image is optional.";
+            document.getElementById("categoryRemoveControl").hidden = !image && !file && !remove.checked;
+            restore.hidden = !image || (!file && !remove.checked);
+        }
+        fileInput.addEventListener("change", function () { remove.checked = false; showPreview(); });
+        remove.addEventListener("change", function () { if (remove.checked) fileInput.value = ""; showPreview(); });
+        restore.addEventListener("click", function () { fileInput.value = ""; remove.checked = false; showPreview(); });
+        preview.addEventListener("error", function () {
+            preview.hidden = true;
+            document.getElementById("categoryImageEmpty").hidden = false;
+            document.getElementById("categoryImageEmpty").textContent = "Preview unavailable";
+        });
+        showPreview();
+        const result = await dialog;
         if (result.isConfirmed) {
-            Alerts.toast("Category saved");
+            Alerts.toast(category ? "Category updated" : "Category added");
             await loadCategories();
         }
     } finally {
-        changingCategory = false;
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        setCategoryBusy(false);
     }
 }
 
 async function changeCategoryStatus(category) {
-
     if (changingCategory) return;
-
-    changingCategory = true;
-
+    setCategoryBusy(true);
     try {
-        const newStatus = category.status === "active"
+        const newStatus = String(category.status).toLowerCase() === "active"
             ? "inactive"
             : "active";
 
@@ -213,6 +251,7 @@ async function changeCategoryStatus(category) {
             category.id,
             category.name,
             category.image_url || "",
+            null,
             newStatus
         );
 
@@ -228,25 +267,21 @@ async function changeCategoryStatus(category) {
         );
 
     } finally {
-        changingCategory = false;
+        setCategoryBusy(false);
     }
 }
 
-
-async function removeCategory(id) {
+async function removeCategory(category) {
     if (changingCategory) return;
-    changingCategory = true;
+    setCategoryBusy(true);
     try {
-        const category = categories.find(item => String(item.id) === String(id));
-        if (!category) return;
-
         const confirmed = await Alerts.confirm(
             "Hide this category from the page?",
-            `${category.name} will be hidden on this browser only. Its database record and products will not change.`
+            `${category.name} will be hidden on this browser only. Its database record and products will remain unchanged.`
         );
         if (!confirmed.isConfirmed) return;
 
-        hiddenCategoryIds.add(String(id));
+        hiddenCategoryIds.add(String(category.id));
         localStorage.setItem(
             hiddenCategoriesStorageKey,
             Array.from(hiddenCategoryIds).join(",")
@@ -254,14 +289,13 @@ async function removeCategory(id) {
         showFilteredCategories();
         Alerts.toast("Category hidden on this browser");
     } catch (error) {
-        hiddenCategoryIds.delete(String(id));
         Alerts.show(
             "Category could not be hidden",
             error.message || "Browser storage is unavailable. The database was not changed.",
             "error"
         );
     } finally {
-        changingCategory = false;
+        setCategoryBusy(false);
     }
 }
 

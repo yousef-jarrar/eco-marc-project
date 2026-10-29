@@ -4,14 +4,33 @@ header("Content-Type: application/json; charset=UTF-8");
 
 require_once __DIR__ . "/../classes/Products.php";
 
+require_once __DIR__ . "/../middleware/admin.php";
+require_once __DIR__ . "/../middleware/csrf.php";
+
+require_once __DIR__ . "/../classes/CloudinaryImages.php";
+$imageStorage = null;
+$uploadedImages = [];
+$products = null;
+
+function releaseNewProductImages($products, $storage, array $images): void {
+    if (!($products instanceof Product) || !($storage instanceof CloudinaryImages)) return;
+    $publicIds = array_column($images, 'public_id');
+    $storage->cleanup($products, $publicIds);
+}
+
 try {
+    if ($_SERVER["REQUEST_METHOD"] !== "GET") {
+        requireAdmin();
+
+        requireCsrf();
+    }
     $products = new Product();
 
     $method = $_SERVER["REQUEST_METHOD"];
 
     $id = isset($_GET["id"]) ? (int) $_GET["id"] : 0;
 
-    // GET: Get products or one product
+     
     if ($method === "GET") {
 
         if (isset($_GET["category_id"])) {
@@ -49,7 +68,7 @@ try {
         exit;
     }
 
-    // POST: Create or update product
+     
     if ($method === "POST") {
 
         $id = isset($_POST["id"]) ? (int) $_POST["id"] : 0;
@@ -65,7 +84,7 @@ try {
             ? (int) $_POST["is_active"]
             : 1;
 
-        // Validate product details
+         
         if (
             $name === "" ||
             $price === "" ||
@@ -90,7 +109,7 @@ try {
             exit;
         }
 
-        // Validate discount
+         
         if ($discountId === "") {
             $discountId = null;
         } else {
@@ -103,21 +122,21 @@ try {
             }
         }
 
-        // Validate status
+         
         if (!in_array($isActive, [0, 1], true)) {
             http_response_code(400);
             echo json_encode(["message" => "Invalid product status"]);
             exit;
         }
 
-        // Check product when editing
+         
         if ($id > 0 && !$products->productExists($id)) {
             http_response_code(404);
             echo json_encode(["message" => "Product not found"]);
             exit;
         }
 
-        // Read variants from the form
+         
         $variants = json_decode($_POST["variants"] ?? "[]", true);
 
         if (!is_array($variants) || count($variants) === 0) {
@@ -147,8 +166,8 @@ try {
         $totalVariantQuantity = 0;
 
         foreach ($variants as $variant) {
-            $size = $variant["size"] ?? "";
-            $color = $variant["color"] ?? "";
+            $size = trim((string) ($variant["size"] ?? ""));
+            $color = strtolower(trim((string) ($variant["color"] ?? "")));
             $variantQuantity = $variant["quantity"] ?? "";
 
             if (
@@ -193,7 +212,7 @@ try {
             ];
         }
 
-        // The sum of variant quantities must equal the product quantity
+         
         $productQuantity = (int) $quantity;
 
         if ($totalVariantQuantity !== $productQuantity) {
@@ -210,126 +229,53 @@ try {
             exit;
         }
 
-        // Prepare image upload directory
-        $imagePaths = [];
-
-        $uploadDirectory = dirname(__DIR__, 2)
-            . DIRECTORY_SEPARATOR . "assets"
-            . DIRECTORY_SEPARATOR . "products";
-
-        if (!is_dir($uploadDirectory)) {
-            mkdir($uploadDirectory, 0777, true);
-        }
-
-        if (
-            !is_dir($uploadDirectory) ||
-            !is_writable($uploadDirectory)
-        ) {
-            http_response_code(500);
-
-            echo json_encode([
-                "message" => "Product images folder is not writable"
-            ]);
-
-            exit;
-        }
-
-        // Process uploaded images
-        if (isset($_FILES["images"])) {
-            $files = $_FILES["images"];
-
-            for ($i = 0; $i < count($files["name"]); $i++) {
-
-                if ($files["error"][$i] === UPLOAD_ERR_NO_FILE) {
-                    continue;
+        $keepImages = null;
+        if ($id > 0 && isset($_POST["existing_images"])) {
+            $keepImages = json_decode($_POST["existing_images"], true);
+            if (!is_array($keepImages) || count($keepImages) > 100) {
+                throw new InvalidArgumentException("Send a valid list of existing product images.");
+            }
+            $storedImages = array_column($products->getProduct($id)["images"], "image_url");
+            foreach ($keepImages as $image) {
+                if (!is_string($image) || !in_array($image, $storedImages, true)) {
+                    throw new InvalidArgumentException("One of the images does not belong to this product.");
                 }
-
-                if ($files["error"][$i] !== UPLOAD_ERR_OK) {
-                    http_response_code(400);
-
-                    echo json_encode([
-                        "message" => "An image could not be uploaded"
-                    ]);
-
-                    exit;
-                }
-
-                if ($files["size"][$i] > 5 * 1024 * 1024) {
-                    http_response_code(400);
-
-                    echo json_encode([
-                        "message" => "Each image must be 5MB or less"
-                    ]);
-
-                    exit;
-                }
-
-                $imageInfo = getimagesize($files["tmp_name"][$i]);
-
-                if ($imageInfo === false) {
-                    http_response_code(400);
-
-                    echo json_encode([
-                        "message" => "Uploaded file is not a valid image"
-                    ]);
-
-                    exit;
-                }
-
-                $mime = $imageInfo["mime"];
-
-                $extensions = [
-                    "image/jpeg" => "jpg",
-                    "image/png" => "png",
-                    "image/webp" => "webp",
-                    "image/gif" => "gif"
-                ];
-
-                if (!isset($extensions[$mime])) {
-                    http_response_code(400);
-
-                    echo json_encode([
-                        "message" => "Only JPG, PNG, WEBP and GIF images are allowed"
-                    ]);
-
-                    exit;
-                }
-
-                $fileName = uniqid("product_", true)
-                    . "." . $extensions[$mime];
-
-                $destination = $uploadDirectory
-                    . DIRECTORY_SEPARATOR . $fileName;
-
-                if (!move_uploaded_file(
-                    $files["tmp_name"][$i],
-                    $destination
-                )) {
-                    http_response_code(500);
-
-                    echo json_encode([
-                        "message" => "Could not save product image"
-                    ]);
-
-                    exit;
-                }
-
-                $imagePaths[] = "assets/products/" . $fileName;
             }
         }
 
-        // A new product must have at least one image
-        if ($id === 0 && count($imagePaths) === 0) {
-            http_response_code(400);
-
-            echo json_encode([
-                "message" => "Upload at least one product image"
-            ]);
-
-            exit;
+         
+        $imagePaths = [];
+        $imageFiles = [];
+        if (isset($_FILES['images'])) {
+            $files = $_FILES['images'];
+            if (!is_array($files['name'] ?? null) || count($files['name']) > 5) {
+                throw new InvalidArgumentException('Upload up to 5 images at a time.');
+            }
+            for ($i = 0; $i < count($files['name']); $i++) {
+                $error = $files['error'][$i] ?? UPLOAD_ERR_NO_FILE;
+                if ($error === UPLOAD_ERR_NO_FILE) continue;
+                if ($error !== UPLOAD_ERR_OK) throw new InvalidArgumentException('An image could not be uploaded.');
+                $temporaryFile = $files['tmp_name'][$i] ?? '';
+                if (!is_string($temporaryFile) || !is_uploaded_file($temporaryFile)) throw new InvalidArgumentException('Invalid image upload.');
+                if (filesize($temporaryFile) > 5 * 1024 * 1024) throw new InvalidArgumentException('Each image must be 5MB or less.');
+                $info = @getimagesize($temporaryFile);
+                if (!$info || !in_array($info['mime'], ['image/jpeg','image/png','image/webp','image/gif'], true)) {
+                    throw new InvalidArgumentException('Only valid JPG, PNG, WEBP and GIF images are allowed.');
+                }
+                $imageFiles[] = $temporaryFile;
+            }
+        }
+        if ($id === 0 && !$imageFiles) throw new InvalidArgumentException('Upload at least one product image.');
+        if ($imageFiles) {
+            $imageStorage = new CloudinaryImages();
+            foreach ($imageFiles as $temporaryFile) {
+                $image = $imageStorage->upload($temporaryFile);
+                $uploadedImages[] = $image;
+                $imagePaths[] = $image;
+            }
         }
 
-        // Data sent to the Product class
+         
         $data = [
             "name" => $name,
             "description" => $description,
@@ -340,14 +286,21 @@ try {
             "is_active" => $isActive
         ];
 
-        // Update product
+         
         if ($id > 0) {
             $products->updateProduct(
                 $id,
                 $data,
                 $imagePaths,
-                $cleanVariants
+                $cleanVariants,
+                $keepImages
             );
+
+
+             
+            $uploadedImages = [];
+            try { (new CloudinaryImages())->cleanup($products, $products->removedImageIds()); }
+            catch (Throwable $error) { error_log('Lumeire: Cloudinary image deletion could not finish.'); }
 
             echo json_encode([
                 "message" => "Product updated successfully",
@@ -357,12 +310,18 @@ try {
             exit;
         }
 
-        // Create product
+         
         $newId = $products->createProduct(
             $data,
             $imagePaths,
             $cleanVariants
         );
+
+
+             
+            $uploadedImages = [];
+            try { (new CloudinaryImages())->cleanup($products, $products->removedImageIds()); }
+            catch (Throwable $error) { error_log('Lumeire: Cloudinary image deletion could not finish.'); }
 
         http_response_code(201);
 
@@ -374,7 +333,7 @@ try {
         exit;
     }
 
-    // DELETE: Soft delete product
+     
     if ($method === "DELETE") {
 
         if ($id <= 0 || !$products->productExists($id)) {
@@ -398,19 +357,21 @@ try {
         "message" => "Method not allowed"
     ]);
 
-} catch (PDOException $e) {
-    http_response_code(500);
-
-    echo json_encode([
-        "message" => "Database error",
-        "error" => $e->getMessage()
-    ]);
-
+} catch (CloudinaryUploadException $e) {
+    if ($e->publicId !== '') $uploadedImages[] = ['public_id' => $e->publicId];
+    releaseNewProductImages($products, $imageStorage, $uploadedImages);
+    http_response_code(502);
+    echo json_encode(['message' => $e->getMessage()]);
+} catch (DomainException $e) {
+    releaseNewProductImages($products, $imageStorage, $uploadedImages);
+    http_response_code(409);
+    echo json_encode(['message' => $e->getMessage()]);
+} catch (InvalidArgumentException $e) {
+    releaseNewProductImages($products, $imageStorage, $uploadedImages);
+    http_response_code(400);
+    echo json_encode(['message' => $e->getMessage()]);
 } catch (Throwable $e) {
+    releaseNewProductImages($products, $imageStorage, $uploadedImages);
     http_response_code(500);
-
-    echo json_encode([
-        "message" => "Server error",
-        "error" => $e->getMessage()
-    ]);
+    echo json_encode(['message' => 'Could not save the product. Please try again.']);
 }

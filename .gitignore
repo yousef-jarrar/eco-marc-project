@@ -1,0 +1,13 @@
+
+.env
+.env.*
+**/.env
+**/.env.*
+
+
+!.env.example
+!backend/.env.example
+backups/
+*.key
+*.p12
+*.pfx

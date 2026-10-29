@@ -188,7 +188,7 @@
     color: var(--color-text-inverse);
     border: none;
 }
-/* الجدول والنموذج داخل توزيع الإدارة المشترك */
+ 
 .categories-table { min-width: 550px; }
 #categoryDialog { width: min(450px, calc(100% - 32px)); max-height: calc(100dvh - 48px); overflow: auto; }
 .categories-page .page-heading > div { min-width: 0; }
@@ -197,7 +197,26 @@
   #categoryDialog { padding: 24px; }
 }
 
-/* نموذج التصنيف داخل SweetAlert2 */
+ 
 .category-alert-form { text-align: left; }
 .category-alert-form label { margin-top: 16px; }
 .category-alert-form input { width: 100%; font-size: 14px; }
+
+.category-alert-form small { display: block; margin-top: 6px; color: var(--color-text-secondary); font-size: 12px; }
+.category-alert-form .category-image-preview { width: 100%; max-height: 170px; object-fit: contain; margin-top: 16px; background: var(--color-surface); }
+.category-alert-form .category-remove-image { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.category-alert-form .category-remove-image input { width: 16px; height: 16px; margin: 0; }
+.category-alert-form input[type="file"] { max-width: 100%; padding: 8px; border: 1px solid var(--color-input-border); }
+
+ 
+.category-image-editor { margin-top: 20px; padding: 16px; border: 1px solid var(--color-border); }
+.category-preview-wrap { min-height: 140px; display: flex; justify-content: center; align-items: center; background: var(--color-surface); color: var(--color-text-secondary); font-size: 13px; }
+.category-preview-wrap .category-image-preview { margin: 0; max-height: 160px; }
+.category-image-status { font-size: 12px; color: var(--color-text-secondary); margin: 10px 0 0; }
+.category-alert-form .category-image-restore { margin-top: 10px; padding: 8px 12px; min-height: 36px; background: #fff; color: var(--color-text); border: 1px solid var(--color-border); font-size: 12px; }
+.category-actions .category-delete-button { background: #fff; color: var(--color-danger); border: 1px solid var(--color-border); }
+.category-actions .category-delete-button:hover { background: var(--color-danger-light); }
+.category-actions button:disabled { opacity: .5; cursor: wait; }
+.category-status { display: inline-block; padding: 4px 9px; border-radius: 3px; font-size: 12px; }
+.category-status--active { color: var(--color-success); background: var(--color-success-light); }
+.category-status--inactive { color: var(--color-text-secondary); background: var(--color-surface-alt); }

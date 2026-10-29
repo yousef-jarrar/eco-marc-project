@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sign in | LUMIÈRE</title>
+  <link rel="stylesheet" href="../assets/vendor/bootstrap.min.css">
+  <link rel="stylesheet" href="../assets/css/fonts.css">
+  <link rel="stylesheet" href="../assets/css/index.css">
+  <link rel="stylesheet" href="../assets/css/auth.css?v=20261029-sizing">
+  <script src="../assets/js/auth.js?v=20261029-mergefix"></script>
+  <link rel="stylesheet" href="../assets/css/site-footer.css?v=20261029-cleanfooter">
+<link rel="icon" type="image/svg+xml" href="../../assets/lumiere-icon-light.svg">
+</head>
+<body id="top" data-auth-mode="login">
+  <a class="auth-skip" href="#login-form">Skip to form</a>
+  <header class="auth-header">
+    <a class="auth-wordmark" href="login.html" aria-label="LUMIÈRE sign in"><img src="../../assets/lumiere-icon-light.svg" width="40" height="40" alt=""><strong>LUMIÈRE</strong></a>
+    <nav aria-label="Account navigation"><a href="login.html" aria-current="page">Sign in</a><a href="register.html" >Create an account</a></nav>
+  </header>
+  <main class="auth-shell">
+    <section class="auth-image" aria-label="The LUMIÈRE collection">
+      <img src="../assets/images/auth-collection.jpg" alt="A considered collection of clothing in warm, natural tones" fetchpriority="high">
+      <div class="auth-image-copy"><span>Your everyday, elevated.</span><h2>Good style starts<br>with being you.</h2><p>Find Your Style, Your Way.</p></div>
+    </section>
+    <section class="auth-content" aria-labelledby="form-title">
+      <div class="auth-form-wrap">
+        <h1 id="form-title">Welcome back.</h1>
+        <p id="form-description">Your saved pieces and next favorites are waiting.</p>
+        <form id="login-form">
+          <div id="name-fields" class="name-fields" hidden>
+            <div><label for="first-name">First name</label><input id="first-name" name="given-name" autocomplete="given-name" maxlength="100" ></div>
+            <div><label for="last-name">Last name</label><input id="last-name" name="family-name" autocomplete="family-name" maxlength="100" ></div>
+          </div>
+          <div class="auth-field"><label for="email">Email address</label><input id="email" name="email" type="email" autocomplete="username" maxlength="255" required></div>
+          <div class="auth-field"><label for="password">Password</label>
+            <div class="password-field"><input id="password" name="password" type="password" autocomplete="current-password"  maxlength="72"  required><button id="toggle-password" type="button" aria-label="Show password" aria-pressed="false">Show</button></div>
+            <p id="password-hint" class="field-hint" hidden>Use a unique password of at least 12 characters (maximum 72 bytes).</p>
+          </div>
+          <div class="auth-field" id="confirm-password-field" hidden><label for="confirm-password">Confirm password</label><input id="confirm-password" name="confirm-password" type="password" autocomplete="new-password" maxlength="72" ></div>
+          <button id="submit-login" class="auth-primary" type="submit" disabled>Sign in</button>
+        </form>
+        <div class="auth-divider"><span>or continue with</span></div>
+        <div id="google-button" class="google-button"></div>
+        <p id="google-status" class="field-hint" aria-live="polite"></p>
+        <p class="auth-switch"><span id="switch-copy">New here?</span> <a id="switch-mode" href="register.html">Create an account</a></p>
+        <p id="session-status" class="field-hint" role="status">Checking your session…</p>
+        <button id="retry-session" class="auth-link" type="button" hidden>Reload and try again</button>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer" id="site-footer" aria-label="Site footer"></footer>
+  <script src="../assets/js/site-footer.js?v=20261029-cleanfooter"></script>
+  <script src="../assets/vendor/sweetalert2.all.min.js"></script>
+  <script src="../assets/js/alerts.js?v=20261029-session2"></script>
+  <script src="../assets/js/login.js?v=20261029-template"></script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-const API_URL = "http://localhost/eco-marc-project-main/backend/api/cart.php";
+const API_URL = new URL("../../backend/api/cart.php", location.href).href;
 
 const form = document.getElementById("order-filters");
 const usernameInput = document.getElementById("username");
@@ -22,8 +22,7 @@ const retryButton = document.getElementById("retry-button");
 let currentPage = 1;
 const limit = 10;
 
-// Temporary test user ID. Replace with the logged-in admin's ID.
-const userId = 1;
+ 
 
 function showState(state, message = "") {
     loadingMessage.hidden = state !== "loading";
@@ -51,11 +50,11 @@ async function loadOrders() {
     ordersCount.textContent = "";
 
     try {
-        const response = await fetch(API_URL, {
+        const response = await EcoAuth.fetch(API_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                user_id: userId,
+
                 action: "latest",
                 username: usernameInput.value.trim(),
                 start_date: startDate || null,
@@ -88,7 +87,7 @@ async function loadOrders() {
         if (orders.length === 0) {
             showState("empty");
             if (currentPage > 1) {
-                // keep Previous reachable after paging past the last page
+                 
                 ordersContent.hidden = false;
                 tableBody.replaceChildren();
             }
@@ -114,7 +113,7 @@ function renderOrders(orders) {
             order.order_id,
             order.customer_name,
             order.placed_at,
-            null, // status badge
+            null,  
             money(order.subtotal),
             money(order.discount_amount),
             money(order.delivery_fee),
