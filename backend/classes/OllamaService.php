@@ -1,9 +1,17 @@
 <?php
 
 class OllamaService {
-    private string $url = 'http://127.0.0.1:11434/api/chat';
-    private string $model = 'llama3.2:3b';
+    private string $url;
+    private string $model;
 
+    public function __construct() {
+        require_once __DIR__ . '/../config/env.php';
+        $this->url = requiredEnv('OLLAMA_URL');
+        $this->model = requiredEnv('OLLAMA_MODEL');
+        if (!filter_var($this->url, FILTER_VALIDATE_URL) || !in_array(parse_url($this->url, PHP_URL_SCHEME), ['http', 'https'], true)) {
+            throw new RuntimeException('AI service configuration is invalid.');
+        }
+    }
     public function chat(string $systemPrompt, string $message, array $history = [], ?callable $onToken = null): string {
         $messages = [['role' => 'system', 'content' => $systemPrompt]];
         foreach ($history as $previousMessage) {

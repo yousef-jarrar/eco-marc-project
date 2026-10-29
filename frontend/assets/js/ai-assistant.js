@@ -75,7 +75,7 @@ function addMessage(role, message, failed = false) {
 
   const label = document.createElement("div");
   label.className = "message-label";
-  label.textContent = "Eco Marc Business Assistant";
+  label.textContent = "Lumeire Business Assistant";
   if (role === "user") label.textContent = "You";
 
   const text = document.createElement("div");

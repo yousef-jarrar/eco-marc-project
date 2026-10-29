@@ -87,7 +87,7 @@ function createMenuItem(item) {
 function loadAdminMenu() {
   const content = document.getElementById("sidebar-content");
   content.innerHTML = `
-    <a class="wordmark" href="ai-assistant.html" aria-label="Eco Marc administration">
+    <a class="wordmark" href="ai-assistant.html" aria-label="Lumeire administration">
       <strong class="wordmark-full"> <span><img src="../../assets/lumiere-icon-light.svg" alt="LUMIÈRE" width="35"></span>LUMIÈRE</strong>
       <strong class="wordmark-small">e<span>.</span></strong>
     </a>
@@ -98,9 +98,8 @@ function loadAdminMenu() {
       <span class="nav-item is-disabled" aria-disabled="true" title="The storefront is not available yet">
         ${fa("arrow-up-right-from-square")}<span class="nav-label">View store</span>
       </span>
-      <span class="nav-item is-disabled" aria-disabled="true" title="Logout will be connected with account authentication">
-        ${fa("arrow-right-from-bracket")}<span class="nav-label">Log out</span>
-      </span>
+      <a class="nav-item" href="../account/index.html">${fa("user")}<span class="nav-label">My account</span></a>
+      <button class="nav-item" id="admin-logout" type="button">${fa("arrow-right-from-bracket")}<span class="nav-label">Log out</span></button>
     </div>
     <button class="sidebar-close icon-button" id="close-sidebar" aria-label="Close menu">${fa("xmark")}</button>
   `;
@@ -114,7 +113,7 @@ function loadAdminMenu() {
     <button class="nav-item" id="collapse-sidebar" aria-label="Collapse menu" aria-expanded="true">
       ${fa("angles-left")}<span class="nav-label">Collapse menu</span>
     </button>
-    <div class="sidebar-note">Eco Marc administration</div>
+    <div class="sidebar-note">Lumeire administration</div>
   `;
   document.getElementById("admin-sidebar").appendChild(footer);
 }
@@ -122,7 +121,7 @@ function loadAdminMenu() {
 function loadAdminTopbar() {
   const topbar = document.querySelector(".admin-topbar");
   const oldPath = topbar.querySelector(".topbar-path");
-  let path = "Eco Marc";
+  let path = "Lumeire";
   if (oldPath) path = oldPath.textContent;
 
   topbar.innerHTML = `
@@ -139,7 +138,7 @@ function loadAdminTopbar() {
     <div class="topbar-actions">
       <button class="icon-button" id="inventory-notifications" aria-label="Inventory notifications" title="Inventory notifications">${fa("bell")}</button>
       <div class="admin-identity">
-        <span class="avatar" aria-label="Eco Marc">L</span>
+        <span class="avatar" aria-label="Lumeire">L</span>
         <div class="admin-identity-text"><strong>LUMIÈRE Admin</strong><span>Store administration</span></div>
       </div>
     </div>
@@ -281,3 +280,12 @@ document.addEventListener("keydown", function (event) {
     else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
   }
 });
+
+// اسم المستخدم من الجلسة الفعلية.
+document.getElementById("admin-logout").addEventListener("click", EcoAuth.logout);
+EcoAuth.ready.then(function (session) {
+  if (!session.user) return;
+  const name = session.user.first_name + " " + session.user.last_name;
+  document.querySelector(".admin-identity-text strong").textContent = name;
+  document.querySelector(".admin-identity .avatar").textContent = session.user.first_name.slice(0, 1).toUpperCase();
+}).catch(function () { });

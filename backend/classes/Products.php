@@ -1,15 +1,20 @@
 <?php
 
-require_once __DIR__ . "/../config/db.php";
 
 class Product
 {
     private $connect;
+    private array $removedImages = [];
 
-    public function __construct()
+    public function __construct(?PDO $connection = null)
     {
-        $db = new Database();
-        $this->connect = $db->connect();
+        if ($connection !== null) {
+            $this->connect = $connection;
+        } else {
+            require_once __DIR__ . "/../config/db.php";
+            $db = new Database();
+            $this->connect = $db->connect();
+        }
     }
 
     // Get all active products
@@ -67,7 +72,7 @@ class Product
     // Add images and variants without changing product quantity
     private function addProductDetails($product)
     {
-        $sql = "SELECT id, image_url, is_primary
+        $sql = "SELECT id, image_url, public_id, is_primary
                 FROM product_images
                 WHERE product_id = ?
                 ORDER BY is_primary DESC, id ASC";
@@ -142,6 +147,9 @@ class Product
     // Create product
     public function createProduct($data, $imagePaths, $variants)
     {
+        $this->removedImages = [];
+        $this->connect->beginTransaction();
+        try {
         $sql = "INSERT INTO products
                     (name, description, price, quantity,
                      category_id, discount_id, is_active)
@@ -179,97 +187,131 @@ class Product
 
         // Save multiple images
         $sql = "INSERT INTO product_images
-                    (product_id, image_url, is_primary)
-                VALUES (?, ?, ?)";
+                    (product_id, image_url, public_id, is_primary)
+                VALUES (?, ?, ?, ?)";
 
         $stmt = $this->connect->prepare($sql);
 
         foreach ($imagePaths as $index => $imagePath) {
             $stmt->execute([
                 $productId,
-                $imagePath,
+                is_array($imagePath) ? $imagePath['image_url'] : $imagePath,
+                is_array($imagePath) ? $imagePath['public_id'] : null,
                 $index === 0 ? 1 : 0
             ]);
         }
 
+        $this->connect->commit();
         return $productId;
+        } catch (Throwable $error) {
+            if ($this->connect->inTransaction()) $this->connect->rollBack();
+            throw $error;
+        }
     }
 
     // Update product
-    public function updateProduct($id, $data, $imagePaths, $variants)
+    // نحافظ على أرقام المقاسات والألوان المرتبطة بطلبات سابقة.
+    public function updateProduct($id, $data, $imagePaths, $variants, ?array $keepImages = null)
     {
-        $sql = "UPDATE products
-                SET name = ?,
-                    description = ?,
-                    price = ?,
-                    quantity = ?,
-                    category_id = ?,
-                    discount_id = ?,
-                    is_active = ?
-                WHERE id = ?";
-
-        $stmt = $this->connect->prepare($sql);
-
-        $stmt->execute([
-            $data["name"],
-            $data["description"],
-            $data["price"],
-            $data["quantity"],
-            $data["category_id"],
-            $data["discount_id"],
-            $data["is_active"],
-            $id
-        ]);
-
-        // Replace existing variants
-        $stmt = $this->connect->prepare(
-            "DELETE FROM product_variants WHERE product_id = ?"
-        );
-
-        $stmt->execute([$id]);
-
-        $sql = "INSERT INTO product_variants
-                    (product_id, size, color, quantity)
-                VALUES (?, ?, ?, ?)";
-
-        $stmt = $this->connect->prepare($sql);
-
-        foreach ($variants as $variant) {
-            $stmt->execute([
-                $id,
-                $variant["size"],
-                $variant["color"],
-                $variant["quantity"]
+        $this->removedImages = [];
+        $removedImages = [];
+        $this->connect->beginTransaction();
+        try {
+            $statement = $this->connect->prepare("UPDATE products SET name = ?, description = ?,
+                price = ?, quantity = ?, category_id = ?, discount_id = ?, is_active = ? WHERE id = ?");
+            $statement->execute([
+                $data['name'], $data['description'], $data['price'], $data['quantity'],
+                $data['category_id'], $data['discount_id'], $data['is_active'], $id
             ]);
-        }
 
-        // Add new images without removing existing images
-        if (!empty($imagePaths)) {
-            $stmt = $this->connect->prepare(
-                "SELECT COUNT(*) FROM product_images WHERE product_id = ?"
-            );
+            $statement = $this->connect->prepare('SELECT id, size, color FROM product_variants WHERE product_id = ?');
+            $statement->execute([$id]);
+            $oldVariants = $statement->fetchAll(PDO::FETCH_ASSOC);
+            $keptIds = [];
 
-            $stmt->execute([$id]);
-            $hasImages = (int) $stmt->fetchColumn() > 0;
+            foreach ($variants as $variant) {
+                $matchingId = null;
+                foreach ($oldVariants as $oldVariant) {
+                    if ($oldVariant['size'] === $variant['size'] &&
+                        strtolower($oldVariant['color']) === strtolower($variant['color'])) {
+                        $matchingId = (int) $oldVariant['id'];
+                        break;
+                    }
+                }
 
-            $sql = "INSERT INTO product_images
-                        (product_id, image_url, is_primary)
-                    VALUES (?, ?, ?)";
-
-            $stmt = $this->connect->prepare($sql);
-
-            foreach ($imagePaths as $index => $imagePath) {
-                $isPrimary = (!$hasImages && $index === 0) ? 1 : 0;
-
-                $stmt->execute([
-                    $id,
-                    $imagePath,
-                    $isPrimary
-                ]);
+                if ($matchingId !== null) {
+                    $statement = $this->connect->prepare('UPDATE product_variants SET quantity = ?, color = ? WHERE id = ? AND product_id = ?');
+                    $statement->execute([$variant['quantity'], $variant['color'], $matchingId, $id]);
+                    $keptIds[] = $matchingId;
+                } else {
+                    $statement = $this->connect->prepare('INSERT INTO product_variants (product_id, size, color, quantity) VALUES (?, ?, ?, ?)');
+                    $statement->execute([$id, $variant['size'], $variant['color'], $variant['quantity']]);
+                }
             }
-        }
 
-        return true;
+            foreach ($oldVariants as $oldVariant) {
+                if (in_array((int) $oldVariant['id'], $keptIds, true)) continue;
+
+                $statement = $this->connect->prepare('SELECT COUNT(*) FROM cart_items WHERE variant_id = ?');
+                $statement->execute([$oldVariant['id']]);
+                if ((int) $statement->fetchColumn() > 0) {
+                    throw new DomainException('This size/color is used by an existing cart or order. Keep it and set its quantity to zero instead.');
+                }
+
+                $statement = $this->connect->prepare('DELETE FROM product_variants WHERE id = ? AND product_id = ?');
+                $statement->execute([$oldVariant['id'], $id]);
+            }
+
+            $statement = $this->connect->prepare('SELECT id, image_url, public_id FROM product_images WHERE product_id = ?');
+            $statement->execute([$id]);
+            $oldImages = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+            if ($keepImages !== null) {
+                $allowedImages = array_column($oldImages, 'image_url');
+                foreach ($keepImages as $image) {
+                    if (!is_string($image) || !in_array($image, $allowedImages, true)) {
+                        throw new InvalidArgumentException('One of the existing images does not belong to this product.');
+                    }
+                }
+                foreach ($oldImages as $image) {
+                    if (!in_array($image['image_url'], $keepImages, true)) {
+                        if (!empty($image['public_id'])) $removedImages[] = $image['public_id'];
+                        $statement = $this->connect->prepare('DELETE FROM product_images WHERE id = ? AND product_id = ?');
+                        $statement->execute([$image['id'], $id]);
+                    }
+                }
+            }
+
+            foreach ($imagePaths as $imagePath) {
+                $statement = $this->connect->prepare('INSERT INTO product_images (product_id, image_url, public_id, is_primary) VALUES (?, ?, ?, 0)');
+                $statement->execute([$id, is_array($imagePath) ? $imagePath['image_url'] : $imagePath,
+                    is_array($imagePath) ? $imagePath['public_id'] : null]);
+            }
+
+            $statement = $this->connect->prepare('SELECT id FROM product_images WHERE product_id = ? ORDER BY is_primary DESC, id ASC LIMIT 1');
+            $statement->execute([$id]);
+            $primaryImageId = $statement->fetchColumn();
+            if ($primaryImageId !== false) {
+                $statement = $this->connect->prepare('UPDATE product_images SET is_primary = CASE WHEN id = ? THEN 1 ELSE 0 END WHERE product_id = ?');
+                $statement->execute([$primaryImageId, $id]);
+            }
+
+            $this->connect->commit();
+            $this->removedImages = $removedImages;
+            return true;
+        } catch (Throwable $error) {
+            if ($this->connect->inTransaction()) $this->connect->rollBack();
+            throw $error;
+        }
+    }
+
+
+    public function removedImageIds(): array { return $this->removedImages; }
+
+    public function imageUsesPublicId(string $publicId): bool {
+        $statement = $this->connect->prepare('SELECT (SELECT COUNT(*) FROM product_images WHERE public_id = ?) + (SELECT COUNT(*) FROM categories WHERE public_id = ?)');
+        $statement->execute([$publicId, $publicId]);
+        return (int)$statement->fetchColumn() > 0;
     }
 
     // Delete product (soft delete)

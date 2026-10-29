@@ -1,5 +1,11 @@
 
-"use strict";
+      
+
+        async function getJson(url, options = {}) {
+            const response = await EcoAuth.fetch(url, options);
+            const responseText = await response.text();
+
+            let data;
 
 // --------------------------------------------------
 // API
@@ -679,12 +685,41 @@ function renderProducts() {
             }
         ).join("");
 
-        productsTableBody
-            .querySelectorAll(".product-image[src]")
-            .forEach(function (image) {
-                image.addEventListener("error", function () {
-                    image.style.display = "none";
-                });
+            const firstItem = filteredProducts.length
+                ? start + 1
+                : 0;
+
+            const lastItem = Math.min(
+                start + pageSize,
+                filteredProducts.length
+            );
+
+            document.getElementById("paginationInfo").textContent =
+                `Showing ${firstItem}-${lastItem} of ${filteredProducts.length} products`;
+
+            document.getElementById("prevPageBtn").disabled =
+                currentPage <= 1;
+
+            document.getElementById("nextPageBtn").disabled =
+                currentPage >= totalPages;
+        }
+
+        // --------------------------------------------------
+        // Variants
+        // --------------------------------------------------
+
+        function readVariants() {
+            const rows =
+                variantsContainer.querySelectorAll(".variant-row");
+
+            return Array.from(rows).map(function (row) {
+                return {
+                    size: row.querySelector(".variant-size").value,
+                    color: row.querySelector(".variant-color").value.trim().toLowerCase(),
+                    quantity: Number(
+                        row.querySelector(".variant-quantity").value
+                    )
+                };
             });
     }
 
@@ -756,145 +791,184 @@ function updateTotalVariantQuantity() {
         } else {
             summary.classList.add("mismatch");
         }
-    }
-}
 
-function addVariantRow(variant = {}) {
-    const row = document.createElement("div");
-    row.className = "variant-row";
+        function updateTotalVariantQuantity() {
+            const variants = readVariants();
 
-    const size = String(variant.size ?? "");
-    const color = String(variant.color ?? "");
-    const quantity = Number(variant.quantity ?? 0);
+            const totalVariants = variants.reduce(
+                function (total, variant) {
+                    return total + (
+                        Number(variant.quantity) || 0
+                    );
+                },
+                0
+            );
 
-    const allSizes = [...getAllVariantSizes()];
+            const quantityInput =
+                document.getElementById("productQuantity");
 
-    const allColors = [...getAllVariantColors()];
+            const productQuantity =
+                quantityInput.value.trim() === ""
+                    ? 0
+                    : Number(quantityInput.value);
 
-    // Preserve existing values when editing older products.
-    if (
-        size &&
-        !allSizes.some(function (item) {
-            return item.toLowerCase() === size.toLowerCase();
-        })
-    ) {
-        allSizes.push(size);
-    }
+            const summary =
+                document.getElementById("stockSummary");
 
-    if (
-        color &&
-        !allColors.some(function (item) {
-            return item.toLowerCase() === color.toLowerCase();
-        })
-    ) {
-        allColors.push(color);
-    }
+            document.getElementById(
+                "totalVariantQuantity"
+            ).textContent = `${totalVariants} / ${productQuantity}`;
 
-    allSizes.sort(function (a, b) {
-        return a.localeCompare(b, undefined, {
-            numeric: true
-        });
-    });
+            summary.classList.remove("match", "mismatch");
 
-    allColors.sort(function (a, b) {
-        return a.localeCompare(b);
-    });
+            if (quantityInput.value.trim() !== "") {
+                if (
+                    Number.isInteger(productQuantity) &&
+                    productQuantity >= 0 &&
+                    totalVariants === productQuantity
+                ) {
+                    summary.classList.add("match");
+                } else {
+                    summary.classList.add("mismatch");
+                }
+            }
+        }
 
-    const sizeOptions = allSizes.map(function (option) {
-        return `
-            <option
-                value="${escapeHtml(option)}"
-                ${String(option).toLowerCase() === size.toLowerCase()
-                    ? "selected"
-                    : ""}
-            >
-                ${escapeHtml(option)}
-            </option>
-        `;
-    }).join("");
+        function addVariantRow(variant = {}) {
+            const row = document.createElement("div");
 
-    const colorOptions = allColors.map(function (option) {
-        return `
-            <option
-                value="${escapeHtml(option)}"
-                ${String(option).toLowerCase() === color.toLowerCase()
-                    ? "selected"
-                    : ""}
-            >
-                ${escapeHtml(option)}
-            </option>
-        `;
-    }).join("");
+            row.className = "variant-row";
 
-    row.innerHTML = `
-        <div class="form-group">
-            <label>Size *</label>
+            const sizeOptions = [
+                "XS", "S", "M", "L", "XL", "XXL",
+                "36", "37", "38", "39", "40", "41",
+                "42", "43", "44", "45", "46", "ONE_SIZE"
+            ];
 
-            <select class="field variant-size" required>
-                <option value="">Select size</option>
-                ${sizeOptions}
-            </select>
-        </div>
+            const size = String(variant.size ?? "");
+            const color = String(variant.color ?? "");
 
-        <div class="form-group">
-            <label>Color *</label>
+            const quantity =
+                Number(variant.quantity ?? 0);
 
-            <select class="field variant-color" required>
-                <option value="">Select color</option>
-                ${colorOptions}
-            </select>
-        </div>
+            const allSizes = [...new Set([
+                ...sizeOptions,
+                ...(size ? [size] : [])
+            ])];
 
-        <div class="form-group">
-            <label>Quantity *</label>
+            const optionsHtml = allSizes.map(function (option) {
+                return `
+                    <option
+                        value="${escapeHtml(option)}"
+                        ${option === size ? "selected" : ""}
+                    >
+                        ${escapeHtml(option)}
+                    </option>
+                `;
+            }).join("");
 
-            <input
-                type="number"
-                class="field variant-quantity"
-                value="${quantity}"
-                min="0"
-                step="1"
-                required
-            >
-        </div>
+            row.innerHTML = `
+                <div class="form-group">
+                    <label>Size *</label>
 
-        <button
-            type="button"
-            class="remove-variant"
-            title="Remove variant"
-            aria-label="Remove variant"
-        >
-            &times;
-        </button>
-    `;
+                    <select class="field variant-size" required>
+                        <option value="">Select size</option>
+                        ${optionsHtml}
+                    </select>
+                </div>
 
-    variantsContainer.appendChild(row);
+                <div class="form-group">
+                    <label>Color *</label>
 
-    row.querySelector(".variant-quantity").addEventListener(
-        "input",
-        updateTotalVariantQuantity
-    );
+                    <input
+                        type="text"
+                        class="field variant-color"
+                        value="${escapeHtml(color)}"
+                        placeholder="e.g. Black"
+                        required
+                    >
+                </div>
 
-    row.querySelector(".variant-size").addEventListener(
-        "change",
-        updateTotalVariantQuantity
-    );
+                <div class="form-group">
+                    <label>Quantity *</label>
 
-    row.querySelector(".variant-color").addEventListener(
-        "change",
-        updateTotalVariantQuantity
-    );
+                    <input
+                        type="number"
+                        class="field variant-quantity"
+                        value="${quantity}"
+                        min="0"
+                        step="1"
+                        required
+                    >
+                </div>
 
-    row.querySelector(".remove-variant").addEventListener(
-        "click",
-        function () {
-            row.remove();
+                <button
+                    type="button"
+                    class="remove-variant"
+                    title="Remove variant"
+                    aria-label="Remove variant"
+                >
+                    &times;
+                </button>
+            `;
+
+            variantsContainer.appendChild(row);
+
+            row.querySelector(".variant-quantity").addEventListener(
+                "input",
+                updateTotalVariantQuantity
+            );
+
+            row.querySelector(".variant-size").addEventListener(
+                "change",
+                updateTotalVariantQuantity
+            );
+
+            row.querySelector(".variant-color").addEventListener(
+                "input",
+                updateTotalVariantQuantity
+            );
+
+            row.querySelector(".remove-variant").addEventListener(
+                "click",
+                function () {
+                    row.remove();
+                    updateTotalVariantQuantity();
+                }
+            );
+
             updateTotalVariantQuantity();
         }
     );
 
-    updateTotalVariantQuantity();
-}
+        function validateVariants(variants) {
+            if (variants.length === 0) {
+                return "Please add at least one product variant.";
+            }
+
+            const combinations = new Set();
+            const allowedColors = ["black", "white", "gray", "red", "blue", "navy", "green", "yellow", "orange", "pink", "purple", "brown", "beige", "other"];
+
+            for (const variant of variants) {
+                if (!variant.size || !variant.color.trim()) {
+                    return "Please select a size and enter a color for every variant.";
+                }
+
+                if (!allowedColors.includes(variant.color)) {
+                    return "Use one of these colors: " + allowedColors.join(", ") + ".";
+                }
+
+                if (
+                    !Number.isInteger(variant.quantity) ||
+                    variant.quantity < 0
+                ) {
+                    return "Variant quantities must be whole numbers greater than or equal to zero.";
+                }
+
+                const combination =
+                    variant.size.toLowerCase().trim() +
+                    "|" +
+                    variant.color.toLowerCase().trim();
 
 function validateVariants(variants) {
     if (variants.length === 0) {
@@ -1105,9 +1179,22 @@ function renderImagePreview() {
     preview.innerHTML = existingHtml + selectedHtml;
 }
 
-// --------------------------------------------------
-// Save Product
-// --------------------------------------------------
+            if (!document.getElementById("productId").value && selectedImages.length === 0) {
+                showMessage(formMessage, "Upload at least one product image.", "error");
+                return;
+            }
+            if (selectedImages.length > 5) {
+                showMessage(formMessage, "Upload up to 5 images at a time.", "error");
+                return;
+            }
+            for (const file of selectedImages) {
+                if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type) || file.size > 5 * 1024 * 1024) {
+                    showMessage(formMessage, "Use JPG, PNG, WEBP or GIF images, each 5MB or less.", "error");
+                    return;
+                }
+            }
+
+            const formData = new FormData(productForm);
 
 async function saveProduct(event) {
     event.preventDefault();
