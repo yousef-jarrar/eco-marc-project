@@ -94,9 +94,7 @@ function loadAdminMenu() {
     <nav id="admin-navigation" aria-label="Admin navigation"></nav>
     <div class="sidebar-workspace">
       <p class="nav-caption">Your workspace</p>
-      <span class="nav-item is-disabled" aria-disabled="true" title="The storefront is not available yet">
-        ${fa("arrow-up-right-from-square")}<span class="nav-label">View store</span>
-      </span>
+      <a class="nav-item" href="../Landing.html">${fa("arrow-up-right-from-square")}<span class="nav-label">View store</span></a>
       <a class="nav-item" href="../account/index.html">${fa("user")}<span class="nav-label">My account</span></a>
       <button class="nav-item" id="admin-logout" type="button">${fa("arrow-right-from-bracket")}<span class="nav-label">Log out</span></button>
     </div>
