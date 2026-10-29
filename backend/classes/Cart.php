@@ -528,16 +528,9 @@ error_log("updateQuantity user=$user_id item=$cart_item_id qty=$quantity");
         return $stmt->execute([$user_id]);
     }
 
-
-public function getLatestOrders(
-    string $username = "",
-    ?string $start_date = null,
-    ?string $end_date = null,
-    int $page = 1
-): array {
-    $limit = 10;
-    $page = max(1, $page);
-    $offset = ($page - 1) * $limit;
+    public function getLatestOrders(int $limit = 10): array
+{
+    $limit = max(1, min($limit, 100));
 
     $sql = "
         SELECT
@@ -556,41 +549,14 @@ public function getLatestOrders(
         INNER JOIN users u ON u.id = c.user_id
         INNER JOIN cart_details cd ON cd.cart_id = c.id
         WHERE c.status <> 'active'
+        ORDER BY cd.placed_at DESC, c.id DESC
+        LIMIT :limit
     ";
 
-    $params = [];
-
-    if (trim($username) !== "") {
-        $sql .= "
-            AND (
-                CONCAT(u.first_name, ' ', u.last_name) LIKE ?
-                OR u.email LIKE ?
-            )
-        ";
-
-        $search = "%" . trim($username) . "%";
-        $params[] = $search;
-        $params[] = $search;
-    }
-
-    if ($start_date !== null && $start_date !== "") {
-        $sql .= " AND cd.placed_at >= ?";
-        $params[] = $start_date . " 00:00:00";
-    }
-
-    if ($end_date !== null && $end_date !== "") {
-        $sql .= " AND cd.placed_at < DATE_ADD(?, INTERVAL 1 DAY)";
-        $params[] = $end_date;
-    }
-
-    $sql .= "
-        ORDER BY cd.placed_at DESC, c.id DESC
-        LIMIT 10 OFFSET " . $offset;
-
     $stmt = $this->db->prepare($sql);
-    $stmt->execute($params);
+    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+    $stmt->execute();
 
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
-
 }
