@@ -49,17 +49,30 @@ a { color: inherit; }
 .field-hint { font-size: 12px; color: var(--color-text-secondary); margin: 8px 0 0; line-height: 1.6; }
 .auth-form-wrap > #google-status, .auth-form-wrap > #session-status { text-align: center; margin-bottom: 0; }
 .auth-form-wrap > #google-status:empty, .auth-form-wrap > #session-status:empty { display: none; }
-.account-header { padding: 30px 6%; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; gap: 15px; align-items: center; }
-.account-main { max-width: 760px; margin: 70px auto; padding: 0 24px; }
-.account-main h1 { font-family: var(--font-display); font-weight: 400; font-size: clamp(32px, 5vw, 46px); overflow-wrap: anywhere; }
-.account-main > p, .account-details > p { color: var(--color-text-secondary); }
-.account-details { padding: 32px 0; border-top: 1px solid var(--color-border); margin-top: 32px; }
-.account-details h2 { font-family: var(--font-heading); font-size: 19px; margin-bottom: 24px; }
-.account-details dl { display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 18px; font-size: 14px; }
-.account-details dt { font-weight: 400; color: var(--color-text-secondary); }
-.account-details dd { margin: 0; overflow-wrap: anywhere; }
-.account-details .auth-primary { width: fit-content; margin-top: 24px; }
-.account-details .google-button { justify-content: flex-start; }
+.account-header { min-height: 76px; padding: 14px 5%; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; gap: 15px; align-items: center; }
+.account-header .auth-wordmark { align-items: center; gap: 12px; }
+.account-header .auth-wordmark strong { font: inherit; }
+.account-header .auth-wordmark img { width: 40px; height: 40px; flex-shrink: 0; }
+.account-main { max-width: 1040px; margin: 42px auto 56px; padding: 0 24px; }
+.account-heading { margin-bottom: 26px; }
+.account-intro, .account-section-label { margin: 0 0 6px; color: var(--color-accent-hover); font: 600 11px/1.5 var(--font-heading); letter-spacing: .12em; }
+.account-main h1 { font-family: var(--font-heading); font-weight: 500; font-size: clamp(32px, 5vw, 46px); line-height: 1.12; letter-spacing: -.05em; margin: 0 0 7px; overflow-wrap: anywhere; }
+.account-heading > p:last-child, .account-card-copy { margin: 0; color: var(--color-text-secondary); }
+.account-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: start; }
+.account-details { min-width: 0; padding: 24px; border: var(--border-default); background: #fff; }
+.account-card-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.account-section-label { font-size: 10px; }
+.account-details h2 { margin: 0; font: 600 19px/1.35 var(--font-heading); letter-spacing: -.035em; }
+.account-profile-data { display: grid; grid-template-columns: minmax(95px, .75fr) minmax(0, 1.5fr); gap: 10px 14px; margin: 0; font-size: 13px; }
+.account-profile-data dt { color: var(--color-text-secondary); }
+.account-profile-data dd { min-width: 0; margin: 0; overflow-wrap: anywhere; }
+.account-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 20px; }
+.account-details .auth-primary { width: fit-content; min-height: 42px; margin: 0; padding: 10px 16px; font-size: 12px; }
+.account-details .account-admin-link { color: var(--color-text); border-color: var(--color-border-strong); background: #fff; }
+.account-details .account-admin-link:hover { border-color: var(--color-primary); color: #fff; background: var(--color-primary); }
+.account-card-copy { margin: -4px 0 16px; font-size: 13px; }
+.account-details .google-button { justify-content: flex-start; min-height: 40px; }
+.account-details #google-status { min-height: 18px; }
 @media (max-width: 1024px) {
   .auth-image { padding: 40px; }
   .auth-form-wrap { padding: 32px; }
@@ -75,7 +88,10 @@ a { color: inherit; }
   .auth-form-wrap h1 { font-size: 30px; }
   .name-fields { grid-template-columns: 1fr; gap: 20px; }
   .account-header .auth-wordmark { font-size: 20px; }
-  .account-main { margin-top: 42px; }
+  .account-header .auth-wordmark img { width: 30px; height: 30px; }
+  .account-main { margin-top: 34px; }
+  .account-grid { grid-template-columns: 1fr; gap: 14px; }
+  .account-details { padding: 21px; }
 }
 @media (max-width: 359px) {
   .auth-header { padding: 18px 16px; gap: 12px; }

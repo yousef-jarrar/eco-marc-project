@@ -4,31 +4,59 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>My account | LUMIÈRE</title>
-  <link rel="stylesheet" href="../assets/vendor/bootstrap.min.css">
   <link rel="stylesheet" href="../assets/css/fonts.css">
   <link rel="stylesheet" href="../assets/css/index.css">
-  <link rel="stylesheet" href="../assets/css/auth.css?v=20261029-sizing">
+  <link rel="stylesheet" href="../assets/css/auth.css?v=20261029-account2">
   <script src="../assets/js/auth.js?v=20261029-mergefix2"></script>
   <link rel="stylesheet" href="../assets/css/site-footer.css?v=20261029-landing">
-<link rel="icon" type="image/svg+xml" href="../../assets/lumiere-icon-light.svg">
+  <link rel="icon" type="image/svg+xml" href="../../assets/lumiere-icon-light.svg">
 </head>
 <body id="top">
-  <header class="account-header"><a class="auth-wordmark" href="../Landing.html">LUMIÈRE</a><button id="account-logout" class="auth-link" type="button">Log out</button></header>
-  <main class="account-main">
-    <p class="account-intro">Your account</p>
-    <h1 id="account-name">Welcome</h1>
-    <p>Keep your sign-in details in one place.</p>
-    <section class="account-details" aria-labelledby="profile-title">
-      <h2 id="profile-title">Profile</h2>
-      <dl><dt>Email</dt><dd id="account-email"></dd><dt>Account type</dt><dd id="account-role"></dd></dl>
-      <a id="admin-link" class="auth-primary" href="../admin/ai-assistant.html" hidden>Open administration</a>
-    </section>
-    <section class="account-details" aria-labelledby="google-title">
-      <h2 id="google-title">Google sign-in</h2>
-      <p>Link your Google account to use it the next time you sign in.</p>
-      <div id="google-button" class="google-button"></div>
-      <p id="google-status" class="field-hint" aria-live="polite"></p>
-    </section>
+  <a class="auth-skip" href="#main">Skip to content</a>
+  <header class="account-header">
+    <a class="auth-wordmark" href="../Landing.html" aria-label="LUMIÈRE home">
+      <img src="../../assets/lumiere-icon-light.svg" width="40" height="40" alt="">
+      <strong>LUMIÈRE</strong>
+    </a>
+    <button id="account-logout" class="auth-link" type="button">Log out</button>
+  </header>
+  <main class="account-main" id="main">
+    <div class="account-heading">
+      <p class="account-intro">YOUR ACCOUNT</p>
+      <h1 id="account-name">Welcome</h1>
+      <p>Manage your details and sign-in preferences.</p>
+    </div>
+    <div class="account-grid">
+      <section class="account-details" aria-labelledby="profile-title">
+        <div class="account-card-heading">
+          <div>
+            <p class="account-section-label">PERSONAL DETAILS</p>
+            <h2 id="profile-title">Your profile</h2>
+          </div>
+        </div>
+        <dl class="account-profile-data">
+          <dt>Email address</dt>
+          <dd id="account-email"></dd>
+          <dt>Account type</dt>
+          <dd id="account-role"></dd>
+        </dl>
+        <div class="account-actions">
+          <a class="auth-primary" href="profile.html">Manage personal information</a>
+          <a id="admin-link" class="auth-primary account-admin-link" href="../admin/ai-assistant.html" hidden>Open administration</a>
+        </div>
+      </section>
+      <section class="account-details" aria-labelledby="google-title">
+        <div class="account-card-heading">
+          <div>
+            <p class="account-section-label">SIGN-IN PREFERENCES</p>
+            <h2 id="google-title">Google sign-in</h2>
+          </div>
+        </div>
+        <p class="account-card-copy">Link your Google account to sign in faster next time.</p>
+        <div id="google-button" class="google-button"></div>
+        <p id="google-status" class="field-hint" aria-live="polite"></p>
+      </section>
+    </div>
   </main>
   <footer class="site-footer" id="site-footer" aria-label="Site footer"></footer>
   <script src="../assets/js/site-footer.js?v=20261029-landing"></script>
