@@ -1,10 +1,6 @@
 // إعدادات الاتصال بالباك إند.
 const AdminConfig = {
-<<<<<<< HEAD
   apiBase: "../../backend/api/",
-=======
-  apiBase: "/eco-marc-project/backend/api/",
->>>>>>> 6237a1b14440715356ed58424447593c3cfd3ed4
   timeout: 120000,
   csrfStorageKey: "eco-marc-admin-csrf"
 };
@@ -35,14 +31,12 @@ async function sendRequest(endpoint, options = {}) {
     headers["Content-Type"] = "application/json";
   }
 
-// TEMPORARY: CSRF paused for local testing. Restore before deployment.
-//   if (method !== "GET") {
-//     const token = getCsrfToken();
-//     if (token === "") {
-//       throw new Error("Your session could not be verified. Sign in again, then retry.");
-//     }
-//     headers["X-CSRF-Token"] = token;
-//   }
+  if (method !== "GET") {
+    const token = getCsrfToken();
+    if (token) {
+      headers["X-CSRF-Token"] = token;
+    }
+  }
 
   const controller = new AbortController();
 
@@ -73,6 +67,11 @@ async function sendRequest(endpoint, options = {}) {
 
   try {
     const response = await fetch(AdminConfig.apiBase + endpoint, settings);
+    const csrfToken = response.headers.get("X-CSRF-Token");
+    if (csrfToken) {
+      sessionStorage.setItem(AdminConfig.csrfStorageKey, csrfToken);
+    }
+
     // رد المساعد يصل على أجزاء، أما باقي الطلبات فترجع JSON عادي.
     if (options.onEvent && response.ok && (response.headers.get("Content-Type") || "").includes("application/x-ndjson")) {
       return await readAssistantStream(response, options.onEvent);
@@ -179,6 +178,40 @@ async function getReviewStatistics() {
   return result.data;
 }
 
+async function getCustomers(search = "") {
+  let endpoint = "Customer.php";
+  if (search) {
+    endpoint += "?search=" + encodeURIComponent(search);
+  }
+  const result = await sendRequest(endpoint);
+  if (!Array.isArray(result.data)) {
+    throw new Error("The customers response must contain a data array.");
+  }
+  return result.data;
+}
+
+async function getCustomer(id) {
+  const result = await sendRequest("Customer.php?id=" + encodeURIComponent(id));
+  if (!result.data || typeof result.data !== "object") {
+    throw new Error("The customer response is missing data.");
+  }
+  return result.data;
+}
+
+async function createCustomer(data) {
+  return sendRequest("Customer.php", {
+    method: "POST",
+    body: data
+  });
+}
+
+async function updateCustomer(id, data) {
+  return sendRequest("Customer.php?id=" + encodeURIComponent(id), {
+    method: "PUT",
+    body: data
+  });
+}
+
 async function updateReviewStatus(id, status) {
   return sendRequest("reviews.php", {
     method: "PATCH",
@@ -200,6 +233,10 @@ const AdminAPI = {
   overview: getOverview,
   ask: sendAIMessage,
   askDetails: sendDetailedAIMessage,
+  customers: getCustomers,
+  customer: getCustomer,
+  createCustomer: createCustomer,
+  updateCustomer: updateCustomer,
   reviews: getReviews,
   reviewStats: getReviewStatistics,
   setReviewStatus: updateReviewStatus,

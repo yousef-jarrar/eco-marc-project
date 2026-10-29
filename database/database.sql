@@ -16,6 +16,7 @@ CREATE TABLE users (
     address TEXT NULL,
     google_id VARCHAR(255) NULL UNIQUE,
     role ENUM('admin', 'customer') NOT NULL DEFAULT 'customer',
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 

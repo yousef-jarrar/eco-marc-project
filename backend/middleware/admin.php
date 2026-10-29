@@ -21,4 +21,10 @@ function requireAdmin(): void {
         ]);
         exit;
     }
+
+    if (!isset($_SESSION["csrf_token"]) || !is_string($_SESSION["csrf_token"])) {
+        $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
+    }
+
+    header("X-CSRF-Token: " . $_SESSION["csrf_token"]);
 }
