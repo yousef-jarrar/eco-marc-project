@@ -1,6 +1,6 @@
 // إعدادات الاتصال بالباك إند.
 const AdminConfig = {
-  apiBase: "/xampp/php-project/backend/api/",
+  apiBase: "/eco-marc-project/backend/api/",
   timeout: 120000,
   csrfStorageKey: "eco-marc-admin-csrf"
 };
