@@ -1,180 +1,53 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eco Marc | Product Details</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-
+    <title>LUMIÈRE | Product Details</title>
+    <link rel="stylesheet" href="../assets/vendor/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/vendor/fontawesome.min.css">
+    <link rel="stylesheet" href="../assets/css/index.css">
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/ProductDetails.css">
     <style>
-        :root {
-            --dark: #10131F;
-            --panel: #1B2032;
-            --lime: #D7FF64;
-            --purple: #8B5CF6;
-            --white: #F7F8FC;
-            --muted: #9AA2B7;
-            --border: #30364A;
-        }
 
-        * { box-sizing: border-box; }
-
-        body {
-            margin: 0;
-            padding: 30px;
-            background: var(--dark);
-            color: var(--white);
-            font-family: Inter, sans-serif;
-        }
-
-        .page { max-width: 1100px; margin: auto; }
-
-        .top {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        h1, h2 { font-family: "Space Grotesk", sans-serif; }
-        h1 { font-size: 30px; margin: 0 0 8px; }
-        h2 { font-size: 17px; }
-
-        .muted { color: var(--muted); font-size: 13px; }
-
-        button {
-            border: 0;
-            border-radius: 9px;
-            padding: 12px 15px;
-            background: var(--lime);
-            color: var(--dark);
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .product-grid {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(300px, 1fr);
-            gap: 22px;
-        }
-
-        .panel {
-            background: var(--panel);
-            border: 1px solid var(--border);
-            border-radius: 15px;
-            padding: 23px;
-            min-width: 0;
-        }
-
-        .main-image {
-            width: 100%;
-            height: 390px;
-            object-fit: contain;
-            background: #252B3E;
-            border-radius: 12px;
-        }
-
-        .gallery {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 12px;
-        }
-
-        .gallery img {
-            width: 75px;
-            height: 75px;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 2px solid transparent;
-            cursor: pointer;
-        }
-
-        .gallery img.selected { border-color: var(--lime); }
-
-        .product-title { font-size: 26px; margin: 0 0 12px; }
-        .price { font-size: 24px; font-weight: 700; color: var(--lime); margin: 18px 0; }
-        .description { line-height: 1.8; color: #D5DAE7; white-space: pre-wrap; }
-
-        .details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-            margin: 25px 0;
-        }
-
-        .detail {
-            background: #252B3E;
-            padding: 14px;
-            border-radius: 10px;
-        }
-
-        .detail span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 8px; }
-        .detail strong { font-size: 14px; overflow-wrap: anywhere; }
-
-        .status {
-            display: inline-block;
-            border-radius: 30px;
-            padding: 7px 11px;
-            background: rgba(34,160,107,.15);
-            color: #73E2B0;
-            font-size: 12px;
-        }
-
-        .status.inactive {
-            background: rgba(217,72,95,.15);
-            color: #FF8798;
-        }
-
-        .variants-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-        .variants-table th, .variants-table td {
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-            padding: 13px 8px;
-            font-size: 13px;
-        }
-        .variants-table th { color: var(--muted); font-weight: 500; }
-
-        .message { color: #FF8798; padding: 20px 0; }
-
-        @media (max-width: 750px) {
-            body { padding: 15px; }
-            .product-grid { grid-template-columns: 1fr; }
-            .main-image { height: 300px; }
-            .top { align-items: flex-start; flex-direction: column; }
-        }
     </style>
 </head>
 
 <body>
-<div class="page">
-    <div class="top">
+    <header class="admin-topbar">
+                <span class="topbar-path">LUMIÈRE /Products/ Product Details </span>
+            </header>
+<main class="admin-main product-page">
+    
+    <div class="page-heading">
         <div>
             <h1>Product Details</h1>
-            <div class="muted">View product information, images and available variants.</div>
+            <p class="muted">View product information, images and available variants.</p>
         </div>
-        <button onclick="window.location.href='products.html'">
+        <button class="secondary" onclick="window.location.href='products.html'">
             <i class="fa-solid fa-arrow-left"></i> Back to Products
         </button>
     </div>
 
-    <div id="message" class="message">Loading product...</div>
+    <div id="message" class="loading">Loading product...</div>
 
     <div id="detailsContent" style="display:none">
         <div class="product-grid">
-            <section class="panel">
+            <section class="panel image-panel">
                 <img id="mainImage" class="main-image" alt="Product image">
                 <div id="gallery" class="gallery"></div>
             </section>
 
             <section class="panel">
-                <div class="muted" id="productId"></div>
+                <div class="muted tiny" id="productId"></div>
                 <h2 class="product-title" id="productName"></h2>
-                <div id="productStatus"></div>
-                <div class="price" id="productPrice"></div>
+
+                <div class="price-row">
+                    <div class="price" id="productPrice"></div>
+                    <div id="productStatus"></div>
+                </div>
 
                 <div class="details">
                     <div class="detail">
@@ -200,12 +73,16 @@
             </section>
         </div>
 
-        <section class="panel" style="margin-top:22px">
-            <h2>Product Variants</h2>
-            <div class="muted">Sizes, colors and available quantities.</div>
+        <section class="panel variants-panel">
+            <div class="panel-heading">
+                <div>
+                    <h2>Product Variants</h2>
+                    <p class="muted">Sizes, colors and available quantities.</p>
+                </div>
+            </div>
 
-            <div style="overflow-x:auto">
-                <table class="variants-table">
+            <div class="table-scroll">
+                <table>
                     <thead>
                         <tr>
                             <th>Size</th>
@@ -218,7 +95,7 @@
             </div>
         </section>
     </div>
-</div>
+</main>
 
 <script>
 const API_PRODUCTS = "../../backend/api/products.php";
@@ -249,6 +126,7 @@ async function loadProductDetails() {
 
     if (!id || !/^\d+$/.test(id) || Number(id) <= 0) {
         message.textContent = "Invalid product ID.";
+        message.className = "error-banner";
         return;
     }
 
@@ -279,10 +157,6 @@ async function loadProductDetails() {
 
         document.getElementById("productDescription").textContent =
             product.description || "No description provided.";
-
-        const isActive = Number(product.is_active) === 1;
-        const status = document.getElementById("productStatus");
-        status.innerHTML = `<span class="status ${isActive ? "" : "inactive"}">${isActive ? "Active" : "Inactive"}</span>`;
 
         const images = Array.isArray(product.images) ? product.images : [];
         const mainImage = document.getElementById("mainImage");
@@ -327,6 +201,7 @@ async function loadProductDetails() {
         }
     } catch (error) {
         message.textContent = error.message;
+        message.className = "error-banner";
     }
 }
 
