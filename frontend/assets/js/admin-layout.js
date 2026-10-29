@@ -50,7 +50,7 @@ function displayDate(value) {
 const adminPages = [
   { name: "Overview", page: "index", file: "index.html", icon: "chart-pie", available: false },
   { name: "Categories", page: "categories", file: "categories.html", icon: "layer-group", available: true },
-  { name: "Products", page: "products", file: "products.html", icon: "box", available: false },
+  { name: "Products", page: "products", file: "Products.html", icon: "box", available: true },
   { name: "Orders", page: "orders", file: "orders.html", icon: "bag-shopping", available: false },
   { name: "Customers", page: "customers", file: "Customer.html", icon: "users", available: true },
   { name: "Reviews", page: "reviews", file: "reviews.html", icon: "star", available: true },
