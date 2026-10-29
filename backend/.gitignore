@@ -6,7 +6,7 @@
 **/.env
 **/.env.*
 
-# Share placeholders only, never real environment files
+
 !.env.example
 !backend/.env.example
 backups/

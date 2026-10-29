@@ -93,7 +93,7 @@ function updateCharacterCount() {
   document.getElementById("character-count").textContent = Array.from(questionInput.value).length + " / 1000";
 }
 
-// نرسل آخر عدة رسائل فقط، ولا نرسل رسائل النظام أو الأخطاء.
+ 
 function getConversationHistory() {
   const history = conversation.slice(-8);
   let length = 0;
@@ -221,7 +221,7 @@ async function sendQuestion(question) {
         messagesBox.scrollTop = messagesBox.scrollHeight;
       }
     });
-    // الرد النهائي يستبدل أي جزء غير مكتمل إذا توقفت خدمة AI.
+     
     answerText.textContent = result.answer;
     showAnswerDetails(answerArticle, result);
     conversation.push({ role: "user", content: question });

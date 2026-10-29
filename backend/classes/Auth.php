@@ -36,7 +36,7 @@ class Auth {
     }
 
     public function startLogin(array $user): array {
-        // نغيّر رقم الجلسة بعد الدخول ونصدر CSRF جديداً.
+         
         session_regenerate_id(true);
         $_SESSION = [
             'user_id' => (int)$user['id'],
@@ -64,7 +64,7 @@ class Auth {
     }
 
     public function recordAttempt(string $key): void {
-        // نافذة زمنية محفوظة في MySQL حتى لا يكفي حذف الكوكيز لتجاوز الحد.
+         
         $query = $this->db->prepare('INSERT INTO auth_login_attempts (attempt_key, attempts, window_started)
             VALUES (?, 1, NOW()) ON DUPLICATE KEY UPDATE
             attempts = IF(window_started < DATE_SUB(NOW(), INTERVAL 15 MINUTE), 1, attempts + 1),
@@ -77,7 +77,7 @@ class Auth {
         $query = $this->db->prepare('SELECT * FROM users WHERE email = ?');
         $query->execute([strtolower(trim($email))]);
         $user = $query->fetch(PDO::FETCH_ASSOC);
-        // hash ثابت وهمي لتقليل فرق الوقت عندما لا يوجد الحساب.
+         
         $hash = $user['password_hash'] ?? '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi';
         if (!password_verify($password, $hash) || !$user || empty($user['password_hash'])) {
             throw new RuntimeException('Email or password is incorrect.', 401);

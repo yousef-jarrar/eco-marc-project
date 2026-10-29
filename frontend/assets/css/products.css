@@ -672,7 +672,7 @@ body.products-page #productModal.modal.open {
               color var(--duration-fast);
 }
  
-/* View: blue */
+ 
 .actions .action-btn[data-action="view"] {
   color: var(--color-info);
 }
@@ -682,7 +682,7 @@ body.products-page #productModal.modal.open {
   color: var(--color-info);
 }
  
-/* Edit: gold */
+ 
 .actions .action-btn[data-action="edit"] {
   color: var( --color-success);
 }
@@ -692,7 +692,7 @@ body.products-page #productModal.modal.open {
   color: var(--color-success);
 }
  
-/* Delete: red */
+ 
 .actions .action-btn[data-action="delete"] {
   color: var(--color-danger);
 }
@@ -806,7 +806,7 @@ body.products-page #productModal.modal {
     padding: 24px 0 28px;
 }
 
-/* الحقول */
+ 
 .products-page #productModal .form-group label {
     color: #303630;
     font-size: 13px;
@@ -831,14 +831,14 @@ body.products-page #productModal.modal {
     box-shadow: 0 0 0 3px rgba(108, 143, 112, 0.18);
 }
 
-/* منطقة رفع الصور */
+ 
 .products-page #productModal input[type="file"].field {
     border: 1.5px dashed #b9c4b5;
     background: #fafbf9;
     cursor: pointer;
 }
 
-/* عنوان الـ Variants */
+ 
 .products-page #productModal .section-title {
     margin: 32px 0 6px;
     padding-top: 22px;
@@ -846,7 +846,7 @@ body.products-page #productModal.modal {
     color: #263d2c;
 }
 
-/* ملخص الكمية */
+ 
 .products-page #productModal .stock-summary {
     border-radius: 10px;
     font-weight: 500;
@@ -857,7 +857,7 @@ body.products-page #productModal.modal {
     font-size: 15px;
 }
 
-/* صفوف الـ Variants */
+ 
 .products-page #variantsContainer .variant-row {
     background: #f7f8f6;
     border: 1px solid #e1e5df;
@@ -874,7 +874,7 @@ body.products-page #productModal.modal {
     color: #fff;
 }
 
-/* أزرار الفورم تحت */
+ 
 .products-page #productModal .form-actions {
     margin-top: 26px;
     padding-top: 20px;

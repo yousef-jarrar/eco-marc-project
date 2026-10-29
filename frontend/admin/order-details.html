@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="auth-checking">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -84,7 +84,7 @@
             flex-wrap: wrap;
         }
 
-        /* ---------- status badge ---------- */
+         
 
         .status {
             display: inline-flex;
@@ -117,7 +117,7 @@
             color: var(--danger);
         }
 
-        /* ---------- two column layout ---------- */
+         
 
         .order-layout {
             display: grid;
@@ -155,7 +155,7 @@
             font-size: 13px;
         }
 
-        /* ---------- info blocks ---------- */
+         
 
         .info-block {
             margin-bottom: 18px;
@@ -183,7 +183,7 @@
             white-space: pre-wrap;
         }
 
-        /* ---------- items table ---------- */
+         
 
         .table-wrap {
             width: 100%;
@@ -238,7 +238,7 @@
             font-size: 12px;
         }
 
-        /* ---------- payment rows ---------- */
+         
 
         .total-row {
             display: flex;
@@ -263,7 +263,7 @@
             font-weight: 700;
         }
 
-        /* ---------- status editor ---------- */
+         
 
         .status-select {
             width: 100%;
@@ -297,7 +297,7 @@
             color: var(--success);
         }
 
-        /* ---------- buttons and messages ---------- */
+         
 
         .retry-button {
             margin-top: 12px;
@@ -344,7 +344,7 @@
             display: none !important;
         }
 
-        /* ---------- responsive ---------- */
+         
 
         @media (max-width: 1000px) {
             .order-layout {
@@ -372,6 +372,9 @@
             }
         }
     </style>
+<style>html.auth-checking body { visibility: hidden; }</style>
+<script src="../assets/js/auth.js?v=20261029-scriptfix"></script>
+<link rel="icon" type="image/svg+xml" href="../../assets/lumiere-icon-light.svg">
 </head>
 
 <body>
@@ -408,7 +411,7 @@
             </div>
 
             <div class="order-layout">
-                <!-- LEFT: all items -->
+                
                 <section class="card order-main">
                     <div class="section-header">
                         <h2>Order Items</h2>
@@ -431,7 +434,7 @@
                     </div>
                 </section>
 
-                <!-- RIGHT: details -->
+                
                 <aside class="order-side">
                     <section class="card">
                         <div class="section-header">
@@ -530,6 +533,8 @@
         </div>
     </main>
 
-    <script src="../assets/js/order-details.js"></script>
+    <script src="../assets/vendor/sweetalert2.all.min.js"></script>
+<script src="../assets/js/alerts.js?v=20261029-pages"></script>
+<script src="../assets/js/order-details.js?v=20261029-pages"></script>
 </body>
 </html>

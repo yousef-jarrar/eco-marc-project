@@ -38,7 +38,7 @@ class OllamaService {
         $buffer = '';
         $streamError = null;
         if ($stream) {
-            // Ollama يرجع سطر JSON لكل جزء من الرد.
+             
             curl_setopt($connection, CURLOPT_WRITEFUNCTION, function ($handle, string $chunk) use (&$buffer, &$answer, &$streamError, $onToken): int {
                 $buffer .= $chunk;
                 while (($position = strpos($buffer, "\n")) !== false) {

@@ -1,4 +1,4 @@
-// جميع رسائل SweetAlert2 في مكان واحد.
+ 
 const Alerts = {
   show: function (title, text = "", icon = "info") {
     return Swal.fire({
@@ -32,7 +32,7 @@ const Alerts = {
     });
   },
 
-  // نموذج مشترك؛ التحقق والحفظ يحددهما كود الصفحة.
+   
   form: function (title, html, save) {
     return Swal.fire({
       title: title,

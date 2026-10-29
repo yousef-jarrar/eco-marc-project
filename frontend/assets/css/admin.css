@@ -95,7 +95,7 @@
 .chart-wrap canvas { max-width: 100%; }
 .last-updated { color: var(--color-text-secondary); font-size: 11px; }
 
-/* طي القائمة على الكمبيوتر */
+ 
 @media(min-width:851px) {
   body.sidebar-is-collapsed .admin-sidebar { width: var(--sidebar-collapsed-width); padding-inline: 10px; }
   body.sidebar-is-collapsed .admin-shell { margin-left: var(--sidebar-collapsed-width); }

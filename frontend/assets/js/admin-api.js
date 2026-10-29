@@ -1,16 +1,13 @@
-// إعدادات الاتصال بالباك إند.
+ 
 const AdminConfig = {
-  apiBase: "/xampp/php-project/backend/api/",
+  apiBase: new URL("../../backend/api/", document.baseURI).href,
   timeout: 120000
-  apiBase: "../../backend/api/",
-  timeout: 120000,
-  csrfStorageKey: "eco-marc-admin-csrf"
 };
 function getCsrfToken() {
   return EcoAuth.token();
 }
 
-// كل طلبات الصفحات تمر من هذه الدالة.
+ 
 async function sendRequest(endpoint, options = {}) {
   let method = "GET";
   if (options.method) {
@@ -30,7 +27,7 @@ async function sendRequest(endpoint, options = {}) {
     controller.abort();
   }
 
-  // زر الإلغاء في صفحة المساعد يستخدم نفس الطلب.
+   
   if (options.signal) {
     options.signal.addEventListener("abort", cancelRequest, { once: true });
     if (options.signal.aborted) {
@@ -53,7 +50,7 @@ async function sendRequest(endpoint, options = {}) {
 
   try {
     const response = await EcoAuth.fetch(AdminConfig.apiBase + endpoint, settings);
-    // رد المساعد يصل على أجزاء، أما باقي الطلبات فترجع JSON عادي.
+     
     if (options.onEvent && response.ok && (response.headers.get("Content-Type") || "").includes("application/x-ndjson")) {
       return await readAssistantStream(response, options.onEvent);
     }
@@ -172,7 +169,7 @@ async function deleteReview(id) {
   });
 }
 
-// أسماء الخدمات التي تستعملها الصفحات.
+ 
 const AdminAPI = {
   token: getCsrfToken,
   request: sendRequest,
@@ -186,7 +183,7 @@ const AdminAPI = {
   deleteReview: deleteReview
 };
 
-// قراءة سطور JSON مع الحفاظ على الحروف العربية بين الأجزاء.
+ 
 async function readAssistantStream(response, onEvent) {
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
