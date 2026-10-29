@@ -153,6 +153,23 @@ class AdminAI {
         return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getRevenueByCategory(array $period): array {
+        $statement = $this->conn->prepare("SELECT c.id, c.name,
+                COALESCE(SUM(ci.quantity * p.price), 0) AS revenue
+            FROM cart_items ci
+            JOIN carts cart ON cart.id = ci.cart_id
+            JOIN cart_details cd ON cd.cart_id = cart.id
+            JOIN product_variants pv ON pv.id = ci.variant_id
+            JOIN products p ON p.id = pv.product_id
+            JOIN categories c ON c.id = p.category_id
+            WHERE cart.status IN ('confirmed','processing','shipped','delivered')
+              AND cd.placed_at >= ? AND cd.placed_at < ?
+            GROUP BY c.id, c.name
+            ORDER BY revenue DESC, c.id ASC");
+        $statement->execute([$period['from'], $period['end_exclusive']]);
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     // مخزون المنتجات المذكورة أو الأكثر مبيعاً يساعد في أسئلة المتابعة.
     public function getProductStock(array $productIds, string $question): array {
         $catalog = $this->conn->query('SELECT id, name FROM products WHERE is_active = 1')->fetchAll(PDO::FETCH_ASSOC);
@@ -196,14 +213,17 @@ class AdminAI {
             'total_revenue' => $summary['revenue'],
             'top_selling_products' => $top,
             'orders_by_status' => $this->getOrdersByStatus($period),
+            'revenue_by_category' => $this->getRevenueByCategory($period),
             'lowest_rated_products' => $ratings,
             'daily_revenue' => $this->getDailyRevenue($period),
             'low_stock_products' => $this->getLowStockProducts(),
             'low_stock_count' => $this->getLowStockCount(),
+            'total_products' => (int) $this->conn->query('SELECT COUNT(*) FROM products WHERE is_active = 1')->fetchColumn(),
+            'total_categories' => (int) $this->conn->query('SELECT COUNT(*) FROM categories')->fetchColumn(),
             'product_stock' => $this->getProductStock($ids, $question),
             'inventory_as_of' => date(DATE_ATOM),
             'revenue_rule' => 'Confirmed, processing, shipped and delivered checkout totals; pending and cancelled excluded. Totals include delivery and discounts.',
-            'limitations' => ['Inventory is current, not historical.', 'Profit and causes of sales changes are not available.', 'Product rankings use current cart item quantities; historical line snapshots are not stored.']
+            'limitations' => ['Inventory is current, not historical.', 'Profit and causes of sales changes are not available.', 'Product rankings use current cart item quantities; historical line snapshots are not stored.', 'Category revenue uses current catalog prices because historical item-price snapshots are not stored.']
         ];
     }
 
