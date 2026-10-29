@@ -713,3 +713,7 @@ body.products-page #productModal.modal.open {
     min-height: var(--touch-target);
   }
 }
+
+/* رسائل SweetAlert تظهر فوق نموذج المنتج */
+.products-page .swal2-container { z-index: 3000; }
+.products-page .content-card { border: var(--border-default); }
