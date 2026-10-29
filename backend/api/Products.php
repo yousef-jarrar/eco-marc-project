@@ -1,422 +1,416 @@
-
 <?php
 
-header("Content-Type: application/json");
+header("Content-Type: application/json; charset=UTF-8");
 
 require_once __DIR__ . "/../classes/Products.php";
 
 try {
-
     $products = new Product();
 
     $method = $_SERVER["REQUEST_METHOD"];
 
-    if (isset($_GET["id"])) {
-        $id = (int) $_GET["id"];
-    } else {
-        $id = 0;
-    }
+    $id = isset($_GET["id"]) ? (int) $_GET["id"] : 0;
 
-    $data = json_decode(file_get_contents("php://input"), true);
+    // GET: Get products or one product
+    if ($method === "GET") {
 
-    switch ($method) {
+        if (isset($_GET["category_id"])) {
+            $categoryId = (int) $_GET["category_id"];
 
-      case "GET":
+            if (
+                $categoryId <= 0 ||
+                !$products->categoryExists($categoryId)
+            ) {
+                http_response_code(400);
+                echo json_encode(["message" => "Invalid category"]);
+                exit;
+            }
 
-    if (isset($_GET["category_id"])) {
-
-        $categoryId = $_GET["category_id"];
-
-        if (!ctype_digit((string) $categoryId) || (int) $categoryId < 1) {
-            http_response_code(400);
-            echo json_encode([
-                "message" => "Invalid category_id"
-            ]);
-            break;
+            echo json_encode(
+                $products->getProductsByCategory($categoryId)
+            );
+            exit;
         }
 
-        if (!$products->categoryExists((int) $categoryId)) {
-            http_response_code(404);
-            echo json_encode([
-                "message" => "Category not found"
-            ]);
-            break;
+        if ($id > 0) {
+            $product = $products->getProduct($id);
+
+            if (!$product) {
+                http_response_code(404);
+                echo json_encode(["message" => "Product not found"]);
+                exit;
+            }
+
+            echo json_encode($product);
+            exit;
         }
-
-        echo json_encode(
-            $products->getProductsByCategory((int) $categoryId)
-        );
-
-    } elseif ($id > 0) {
-
-        $product = $products->getProduct($id);
-
-        if (!$product) {
-            http_response_code(404);
-            echo json_encode([
-                "message" => "Product not found"
-            ]);
-            break;
-        }
-
-        echo json_encode($product);
-
-    } else {
 
         echo json_encode($products->getProducts());
-
+        exit;
     }
 
-    break;
-              case "POST":
+    // POST: Create or update product
+    if ($method === "POST") {
 
-            $name = trim($_POST["name"] ?? "");
-            $price = $_POST["price"] ?? "";
-            $categoryId = $_POST["category_id"] ?? "";
+        $id = isset($_POST["id"]) ? (int) $_POST["id"] : 0;
 
-            $discountId = $_POST["discount_id"] ?? "";
-            $description = $_POST["description"] ?? null;
-            $isActive = $_POST["is_active"] ?? 1;
+        $name = trim($_POST["name"] ?? "");
+        $description = trim($_POST["description"] ?? "");
+        $price = $_POST["price"] ?? "";
+        $quantity = $_POST["quantity"] ?? "";
+        $categoryId = (int) ($_POST["category_id"] ?? 0);
+        $discountId = $_POST["discount_id"] ?? "";
 
-            if (
-                $name === "" ||
-                $price === "" ||
-                !is_numeric($price) ||
-                (float) $price < 0 ||
-                !ctype_digit((string) $categoryId) ||
-                (int) $categoryId < 1
-            ) {
-                http_response_code(400);
+        $isActive = isset($_POST["is_active"])
+            ? (int) $_POST["is_active"]
+            : 1;
 
-                echo json_encode([
-                    "message" => "Name, valid price and category_id are required"
-                ]);
-
-                break;
-            }
-
-            if (!in_array((string) $isActive, ["0", "1"], true)
-                && !in_array($isActive, [0, 1], true)) {
-
-                http_response_code(400);
-
-                echo json_encode([
-                    "message" => "is_active must be 0 or 1"
-                ]);
-
-                break;
-            }
-
-            if (!$products->categoryExists((int) $categoryId)) {
-
-                http_response_code(400);
-
-                echo json_encode([
-                    "message" => "Category not found"
-                ]);
-
-                break;
-            }
-
-            if ($discountId !== "" && $discountId !== null) {
-
-                if (
-                    !ctype_digit((string) $discountId) ||
-                    (int) $discountId < 1 ||
-                    !$products->discountExists((int) $discountId)
-                ) {
-                    http_response_code(400);
-
-                    echo json_encode([
-                        "message" => "Discount not found"
-                    ]);
-
-                    break;
-                }
-
-            } else {
-
-                $discountId = null;
-
-            }
-
-            // Check uploaded image
-            if (
-                !isset($_FILES["image"]) ||
-                $_FILES["image"]["error"] !== UPLOAD_ERR_OK
-            ) {
-                http_response_code(400);
-
-                echo json_encode([
-                    "message" => "Please upload an image using the image field"
-                ]);
-
-                break;
-            }
-
-            $image = $_FILES["image"];
-
-            // Maximum image size: 5 MB
-            if ($image["size"] > 5 * 1024 * 1024) {
-
-                http_response_code(400);
-
-                echo json_encode([
-                    "message" => "Image must be 5 MB or smaller"
-                ]);
-
-                break;
-            }
-
-            // Verify actual image type
-            $imageInfo = @getimagesize($image["tmp_name"]);
-
-            if ($imageInfo === false) {
-
-                http_response_code(400);
-
-                echo json_encode([
-                    "message" => "Uploaded file is not a valid image"
-                ]);
-
-                break;
-            }
-
-            $mime = $imageInfo["mime"];
-
-            $allowedTypes = [
-                "image/jpeg" => "jpg",
-                "image/png"  => "png",
-                "image/webp" => "webp",
-                "image/gif"  => "gif"
-            ];
-
-            if (!isset($allowedTypes[$mime])) {
-
-                http_response_code(400);
-
-                echo json_encode([
-                    "message" => "Only JPG, PNG, WEBP and GIF images are allowed"
-                ]);
-
-                break;
-            }
-
-            // Save image inside project/assets/products
-            $uploadDirectory = dirname(__DIR__, 2)
-                . DIRECTORY_SEPARATOR . "assets"
-                . DIRECTORY_SEPARATOR . "products";
-
-            if (
-                !is_dir($uploadDirectory) &&
-                !mkdir($uploadDirectory, 0755, true)
-            ) {
-                throw new RuntimeException("Could not create image directory");
-            }
-
-            $fileName = uniqid("product_", true)
-                . "." . $allowedTypes[$mime];
-
-            $destination = $uploadDirectory
-                . DIRECTORY_SEPARATOR . $fileName;
-
-            if (!move_uploaded_file($image["tmp_name"], $destination)) {
-
-                http_response_code(500);
-
-                echo json_encode([
-                    "message" => "Could not save uploaded image"
-                ]);
-
-                break;
-            }
-
-            // Relative path saved in database
-            $imagePath = "assets/products/" . $fileName;
-
-            $data = [
-                "name" => $name,
-                "description" => $description,
-                "price" => $price,
-                "category_id" => (int) $categoryId,
-                "discount_id" => $discountId === null
-                    ? null
-                    : (int) $discountId,
-                "is_active" => (int) $isActive
-            ];
-
-            $newId = $products->createProduct($data, $imagePath);
-
-            http_response_code(201);
+        // Validate product details
+        if (
+            $name === "" ||
+            $price === "" ||
+            !is_numeric($price) ||
+            (float) $price < 0 ||
+            filter_var($quantity, FILTER_VALIDATE_INT) === false ||
+            (int) $quantity < 0 ||
+            $categoryId <= 0
+        ) {
+            http_response_code(400);
 
             echo json_encode([
-                "message" => "Product created successfully",
-                "id" => $newId,
-                "image_url" => $imagePath
+                "message" => "Enter a valid name, price, quantity and category"
             ]);
 
-            break;
-            case "PUT":
+            exit;
+        }
 
-            if ($id < 1 || !$products->productExists($id)) {
+        if (!$products->categoryExists($categoryId)) {
+            http_response_code(400);
+            echo json_encode(["message" => "Category not found"]);
+            exit;
+        }
 
-                http_response_code(404);
+        // Validate discount
+        if ($discountId === "") {
+            $discountId = null;
+        } else {
+            $discountId = (int) $discountId;
 
-                echo json_encode([
-                    "message" => "Product not found"
-                ]);
-
-                break;
-            }
-
-            $data = json_decode(
-                file_get_contents("php://input"),
-                true
-            );
-
-            if (!is_array($data)) {
-
+            if (!$products->discountExists($discountId)) {
                 http_response_code(400);
-
-                echo json_encode([
-                    "message" => "Send valid JSON data"
-                ]);
-
-                break;
+                echo json_encode(["message" => "Discount not found"]);
+                exit;
             }
+        }
 
-            $name = trim($data["name"] ?? "");
-            $price = $data["price"] ?? "";
-            $categoryId = $data["category_id"] ?? "";
+        // Validate status
+        if (!in_array($isActive, [0, 1], true)) {
+            http_response_code(400);
+            echo json_encode(["message" => "Invalid product status"]);
+            exit;
+        }
 
-            $discountId = $data["discount_id"] ?? null;
-            $isActive = $data["is_active"] ?? 1;
+        // Check product when editing
+        if ($id > 0 && !$products->productExists($id)) {
+            http_response_code(404);
+            echo json_encode(["message" => "Product not found"]);
+            exit;
+        }
+
+        // Read variants from the form
+        $variants = json_decode($_POST["variants"] ?? "[]", true);
+
+        if (!is_array($variants) || count($variants) === 0) {
+            http_response_code(400);
+
+            echo json_encode([
+                "message" => "Add at least one product variant"
+            ]);
+
+            exit;
+        }
+
+        $allowedSizes = [
+            "XS", "S", "M", "L", "XL", "XXL",
+            "36", "37", "38", "39", "40", "41",
+            "42", "43", "44", "45", "46", "ONE_SIZE"
+        ];
+
+        $allowedColors = [
+            "black", "white", "gray", "red", "blue",
+            "navy", "green", "yellow", "orange", "pink",
+            "purple", "brown", "beige", "other"
+        ];
+
+        $cleanVariants = [];
+        $usedVariants = [];
+        $totalVariantQuantity = 0;
+
+        foreach ($variants as $variant) {
+            $size = $variant["size"] ?? "";
+            $color = $variant["color"] ?? "";
+            $variantQuantity = $variant["quantity"] ?? "";
 
             if (
-                $name === "" ||
-                $price === "" ||
-                !is_numeric($price) ||
-                (float) $price < 0 ||
-                !ctype_digit((string) $categoryId) ||
-                (int) $categoryId < 1
+                !in_array($size, $allowedSizes, true) ||
+                !in_array($color, $allowedColors, true) ||
+                filter_var(
+                    $variantQuantity,
+                    FILTER_VALIDATE_INT
+                ) === false ||
+                (int) $variantQuantity < 0
             ) {
                 http_response_code(400);
 
                 echo json_encode([
-                    "message" => "Name, valid price and category_id are required"
+                    "message" => "Check variant size, color and quantity"
                 ]);
 
-                break;
+                exit;
             }
 
-            if (!$products->categoryExists((int) $categoryId)) {
+            $variantKey = $size . "_" . $color;
 
+            if (isset($usedVariants[$variantKey])) {
                 http_response_code(400);
 
                 echo json_encode([
-                    "message" => "Category not found"
+                    "message" => "The same size and color cannot be repeated"
                 ]);
 
-                break;
+                exit;
             }
 
-            if ($discountId !== null && $discountId !== "") {
+            $usedVariants[$variantKey] = true;
 
-                if (
-                    !ctype_digit((string) $discountId) ||
-                    (int) $discountId < 1 ||
-                    !$products->discountExists((int) $discountId)
-                ) {
+            $variantQuantity = (int) $variantQuantity;
+            $totalVariantQuantity += $variantQuantity;
+
+            $cleanVariants[] = [
+                "size" => $size,
+                "color" => $color,
+                "quantity" => $variantQuantity
+            ];
+        }
+
+        // The sum of variant quantities must equal the product quantity
+        $productQuantity = (int) $quantity;
+
+        if ($totalVariantQuantity !== $productQuantity) {
+            http_response_code(400);
+
+            echo json_encode([
+                "message" => "Product quantity is " .
+                    $productQuantity .
+                    ", but variants total is " .
+                    $totalVariantQuantity .
+                    ". The quantities must match."
+            ]);
+
+            exit;
+        }
+
+        // Prepare image upload directory
+        $imagePaths = [];
+
+        $uploadDirectory = dirname(__DIR__, 2)
+            . DIRECTORY_SEPARATOR . "assets"
+            . DIRECTORY_SEPARATOR . "products";
+
+        if (!is_dir($uploadDirectory)) {
+            mkdir($uploadDirectory, 0777, true);
+        }
+
+        if (
+            !is_dir($uploadDirectory) ||
+            !is_writable($uploadDirectory)
+        ) {
+            http_response_code(500);
+
+            echo json_encode([
+                "message" => "Product images folder is not writable"
+            ]);
+
+            exit;
+        }
+
+        // Process uploaded images
+        if (isset($_FILES["images"])) {
+            $files = $_FILES["images"];
+
+            for ($i = 0; $i < count($files["name"]); $i++) {
+
+                if ($files["error"][$i] === UPLOAD_ERR_NO_FILE) {
+                    continue;
+                }
+
+                if ($files["error"][$i] !== UPLOAD_ERR_OK) {
                     http_response_code(400);
 
                     echo json_encode([
-                        "message" => "Discount not found"
+                        "message" => "An image could not be uploaded"
                     ]);
 
-                    break;
+                    exit;
                 }
 
-                $discountId = (int) $discountId;
+                if ($files["size"][$i] > 5 * 1024 * 1024) {
+                    http_response_code(400);
 
-            } else {
+                    echo json_encode([
+                        "message" => "Each image must be 5MB or less"
+                    ]);
 
-                $discountId = null;
+                    exit;
+                }
 
+                $imageInfo = getimagesize($files["tmp_name"][$i]);
+
+                if ($imageInfo === false) {
+                    http_response_code(400);
+
+                    echo json_encode([
+                        "message" => "Uploaded file is not a valid image"
+                    ]);
+
+                    exit;
+                }
+
+                $mime = $imageInfo["mime"];
+
+                $extensions = [
+                    "image/jpeg" => "jpg",
+                    "image/png" => "png",
+                    "image/webp" => "webp",
+                    "image/gif" => "gif"
+                ];
+
+                if (!isset($extensions[$mime])) {
+                    http_response_code(400);
+
+                    echo json_encode([
+                        "message" => "Only JPG, PNG, WEBP and GIF images are allowed"
+                    ]);
+
+                    exit;
+                }
+
+                $fileName = uniqid("product_", true)
+                    . "." . $extensions[$mime];
+
+                $destination = $uploadDirectory
+                    . DIRECTORY_SEPARATOR . $fileName;
+
+                if (!move_uploaded_file(
+                    $files["tmp_name"][$i],
+                    $destination
+                )) {
+                    http_response_code(500);
+
+                    echo json_encode([
+                        "message" => "Could not save product image"
+                    ]);
+
+                    exit;
+                }
+
+                $imagePaths[] = "assets/products/" . $fileName;
             }
+        }
 
-            if (!in_array($isActive, [0, 1, "0", "1"], true)) {
+        // A new product must have at least one image
+        if ($id === 0 && count($imagePaths) === 0) {
+            http_response_code(400);
 
-                http_response_code(400);
+            echo json_encode([
+                "message" => "Upload at least one product image"
+            ]);
 
-                echo json_encode([
-                    "message" => "is_active must be 0 or 1"
-                ]);
+            exit;
+        }
 
-                break;
-            }
+        // Data sent to the Product class
+        $data = [
+            "name" => $name,
+            "description" => $description,
+            "price" => (float) $price,
+            "quantity" => $productQuantity,
+            "category_id" => $categoryId,
+            "discount_id" => $discountId,
+            "is_active" => $isActive
+        ];
 
-            $updateData = [
-                "name" => $name,
-                "description" => $data["description"] ?? null,
-                "price" => $price,
-                "category_id" => (int) $categoryId,
-                "discount_id" => $discountId,
-                "is_active" => (int) $isActive
-            ];
-
-            $products->updateProduct($id, $updateData);
+        // Update product
+        if ($id > 0) {
+            $products->updateProduct(
+                $id,
+                $data,
+                $imagePaths,
+                $cleanVariants
+            );
 
             echo json_encode([
                 "message" => "Product updated successfully",
-                "product" => $products->getProduct($id)
+                "id" => $id
             ]);
 
-            break;
+            exit;
+        }
 
-  case "DELETE":
+        // Create product
+        $newId = $products->createProduct(
+            $data,
+            $imagePaths,
+            $cleanVariants
+        );
 
-            if ($id < 1 || !$products->productExists($id)) {
+        http_response_code(201);
 
-                http_response_code(404);
+        echo json_encode([
+            "message" => "Product created successfully",
+            "id" => $newId
+        ]);
 
-                echo json_encode([
-                    "message" => "Product not found"
-                ]);
-
-                break;
-            }
-
-            $products->deleteProduct($id);
-
-            echo json_encode([
-                "message" => "Product deleted successfully"
-            ]);
-
-            break;
-
-        default:
-
-            http_response_code(405);
-            echo json_encode([
-                "message" => "Method not allowed"
-            ]);
+        exit;
     }
 
+    // DELETE: Soft delete product
+    if ($method === "DELETE") {
+
+        if ($id <= 0 || !$products->productExists($id)) {
+            http_response_code(404);
+            echo json_encode(["message" => "Product not found"]);
+            exit;
+        }
+
+        $products->deleteProduct($id);
+
+        echo json_encode([
+            "message" => "Product deleted successfully"
+        ]);
+
+        exit;
+    }
+
+    http_response_code(405);
+
+    echo json_encode([
+        "message" => "Method not allowed"
+    ]);
 
 } catch (PDOException $e) {
-
     http_response_code(500);
 
     echo json_encode([
-        "message" => "Database error"
+        "message" => "Database error",
+        "error" => $e->getMessage()
     ]);
 
 } catch (Throwable $e) {
-
     http_response_code(500);
 
     echo json_encode([
-        "message" => "Server error"
+        "message" => "Server error",
+        "error" => $e->getMessage()
     ]);
 }
-?>

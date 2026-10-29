@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* ========================================
    Base
 ======================================== */
@@ -5,11 +6,15 @@
 *,
 *::before,
 *::after {
+=======
+* {
+>>>>>>> origin/main
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
+<<<<<<< HEAD
   background: var(--color-background);
   color: var(--color-text);
   font-family: var(--font-body);
@@ -41,6 +46,38 @@ h2 {
 h3 {
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-semibold);
+=======
+  font: var(--font-size-base)/1.6 var(--font-body);
+  color: var(--color-text);
+  background: var(--color-surface-admin);
+}
+
+h1,h2,h3 {
+  font-family: var(--font-heading);
+  letter-spacing: -.035em;
+}
+
+h1 {
+  font-size: clamp(26px,3vw,36px);
+  line-height: 1.18;
+  font-weight: 600;
+  margin: 0 0 10px;
+}
+
+h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+h3 {
+  font-size: 15px;
+  margin: 0 0 12px;
+}
+
+p {
+  margin: 0 0 16px;
+>>>>>>> origin/main
 }
 
 a {
@@ -48,6 +85,7 @@ a {
   text-decoration: none;
 }
 
+<<<<<<< HEAD
 a:hover {
   color: var(--color-text-secondary);
 }
@@ -57,10 +95,87 @@ input,
 select,
 textarea {
   font: inherit;
+=======
+button,input,select,textarea {
+  font: inherit;
+}
+
+button,.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 11px 18px;
+  border: 1px solid var(--color-primary);
+  background: var(--color-primary);
+  color: white;
+  cursor: pointer;
+  transition: background-color var(--duration-fast);
+}
+
+button:hover,.button:hover {
+  background: var(--color-primary-hover);
+  color: white;
+}
+
+button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+button.secondary,.button.secondary {
+  background: white;
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+}
+
+button.secondary:hover {
+  background: var(--color-surface-alt);
+}
+
+.icon-button {
+  min-width: 44px;
+  padding: 10px;
+  background: transparent;
+  color: var(--color-text);
+  border-color: transparent;
+}
+
+.icon-button:hover {
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+}
+
+input,select,textarea {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid var(--color-input-border);
+  border-radius: 0;
+  background: white;
+  color: var(--color-text);
+  min-width: 0;
+}
+
+input,select {
+  min-height: 44px;
+}
+
+textarea {
+  resize: vertical;
+}
+
+label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 8px;
+>>>>>>> origin/main
 }
 
 :focus-visible {
   outline: var(--focus-ring);
+<<<<<<< HEAD
   outline-offset: var(--focus-offset);
 }
 
@@ -253,6 +368,9 @@ textarea {
   margin: 0 0 var(--space-6);
   color: var(--color-text-secondary);
   font-size: var(--font-size-sm);
+=======
+  outline-offset: 3px;
+>>>>>>> origin/main
 }
 
 .muted {
@@ -260,6 +378,7 @@ textarea {
 }
 
 .tiny {
+<<<<<<< HEAD
   font-size: var(--font-size-sm);
 }
 
@@ -482,10 +601,45 @@ td img {
 .status.Delivered,
 .status.Approved,
 .status.Active {
+=======
+  font-size: 12px;
+}
+
+.panel {
+  padding: 26px;
+  background: white;
+  border: var(--border-default);
+  min-width: 0;
+}
+
+.panel-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.panel-heading p {
+  margin: 5px 0 0;
+}
+
+.status {
+  display: inline-block;
+  font-size: 11px;
+  padding: 4px 9px;
+  border-radius: 3px;
+  background: var(--color-accent-light);
+  color: #806035;
+}
+
+.status.approved,.status.ready {
+>>>>>>> origin/main
   background: var(--color-success-light);
   color: var(--color-success);
 }
 
+<<<<<<< HEAD
 .status.Cancelled,
 .status.Hidden,
 .status.Inactive {
@@ -664,22 +818,96 @@ td img {
 .loading {
   padding: var(--space-10);
   text-align: center;
+=======
+.status.hidden {
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+}
+
+.table-scroll {
+  overflow: auto;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 13px;
+}
+
+th {
+  padding: 13px 16px;
+  background: var(--color-surface);
+  font-weight: 500;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  text-align: left;
+  white-space: nowrap;
+}
+
+td {
+  padding: 18px 16px;
+  border-bottom: var(--border-default);
+  vertical-align: top;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 20px;
+}
+
+.empty-state>i {
+  font-size: 28px;
+  color: var(--color-accent);
+  margin-bottom: 16px;
+}
+
+.empty-state h3 {
+  font-size: 19px;
+}
+
+.error-banner {
+  padding: 18px 20px;
+  border: 1px solid #e7c2c2;
+  background: var(--color-danger-light);
+  color: #8d3333;
+  margin-bottom: 24px;
+}
+
+.error-banner button {
+  margin-top: 10px;
+}
+
+.loading {
+  padding: 40px;
+  text-align: center;
+  color: var(--color-text-secondary);
+>>>>>>> origin/main
 }
 
 .spinner {
   display: inline-block;
+<<<<<<< HEAD
   width: 24px;
   height: 24px;
   border: 2px solid var(--color-border);
   border-top-color: var(--color-primary);
   border-radius: var(--radius-circle);
   animation: spin 800ms linear infinite;
+=======
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+>>>>>>> origin/main
 }
 
 @keyframes spin {
   to {
     transform: rotate(360deg);
   }
+<<<<<<< HEAD
 }
 
 /* ========================================
@@ -813,10 +1041,16 @@ td img {
    Accessibility
 ======================================== */
 
+=======
+
+}
+
+>>>>>>> origin/main
 .sr-only {
   position: absolute;
   width: 1px;
   height: 1px;
+<<<<<<< HEAD
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
 }
@@ -947,3 +1181,34 @@ td img {
     scroll-behavior: auto !important;
   }
 }
+=======
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+@media(max-width:580px) {
+  .panel {
+    padding: 20px;
+  }
+
+  .panel-heading {
+    align-items: flex-start;
+  }
+
+}
+
+@media(prefers-reduced-motion:reduce) {
+  *,*::before,*::after {
+    animation-duration: .01ms !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+
+}
+>>>>>>> origin/main

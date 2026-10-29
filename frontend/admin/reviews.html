@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="csrf-token" content="">
+    <title> LUMIÈRE | Customer reviews </title>
+    <link rel="stylesheet" href="../assets/vendor/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/vendor/fontawesome.min.css">
+    <link rel="stylesheet" href="../assets/css/index.css">
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/reviews.css">
+  </head>
+  <body data-page="reviews">
+    <a class="sr-only" href="#main">Skip to content</a>
+    <button class="sidebar-backdrop" id="sidebar-backdrop" aria-label="Close navigation" hidden>
+    </button>
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div id="sidebar-content">
+      </div>
+    </aside>
+    <div class="admin-shell">
+      <header class="admin-topbar">
+        <button class="icon-button" id="menu-toggle" aria-controls="admin-sidebar" aria-expanded="false" aria-label="Open menu">
+          <i class="fa-solid fa-bars" aria-hidden="true">
+          </i>
+        </button>
+        <span class="topbar-path">LUMIÈRE / Customer reviews</span>
+        <div class="topbar-actions">
+          <span class="avatar" aria-label="Admin workspace">L</span>
+        </div>
+      </header>
+      <main class="admin-main" id="main">
+        <div class="page-heading">
+          <div>
+            <h1>What your community is saying.</h1>
+            <p class="muted">Thoughtful feedback. A better experience for everyone.</p>
+          </div>
+          <button class="secondary" id="refresh-reviews">
+            <i class="fa-solid fa-rotate" aria-hidden="true">
+            </i> Refresh</button>
+        </div>
+        <div class="error-banner" id="reviews-error" role="alert" hidden>
+          <strong>Reviews are unavailable.</strong>
+          <div id="reviews-error-text">
+          </div>
+          <button class="secondary" id="retry-reviews">Retry connection</button>
+        </div>
+        <section class="kpis" aria-label="Review statistics">
+          <article class="kpi">
+            <div class="kpi-label">Total reviews<i class="fa-solid fa-comments" aria-hidden="true">
+              </i>
+            </div>
+            <div class="kpi-value" id="total-reviews">—</div>
+            <div class="kpi-note">All submitted reviews</div>
+          </article>
+          <article class="kpi">
+            <div class="kpi-label">Average rating<i class="fa-solid fa-star" aria-hidden="true">
+              </i>
+            </div>
+            <div class="kpi-value" id="average-rating">—</div>
+            <div class="kpi-note">Across all review statuses</div>
+          </article>
+          <article class="kpi">
+            <div class="kpi-label">Awaiting moderation<i class="fa-solid fa-clock" aria-hidden="true">
+              </i>
+            </div>
+            <div class="kpi-value" id="pending-reviews">—</div>
+            <div class="kpi-note">Reviews marked pending</div>
+          </article>
+          <article class="kpi">
+            <div class="kpi-label">Approved reviews<i class="fa-solid fa-circle-check" aria-hidden="true">
+              </i>
+            </div>
+            <div class="kpi-value" id="approved-reviews">—</div>
+            <div class="kpi-note">Approved for storefront use</div>
+          </article>
+        </section>
+        <div class="reviews-toolbar">
+          <div class="search-field">
+            <label for="review-search">Search feedback</label>
+            <input type="search" id="review-search" placeholder="Product, customer or review…">
+          </div>
+          <div class="filter-field">
+            <label for="review-status">Status</label>
+            <select id="review-status">
+              <option value="">All statuses</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="hidden">Hidden</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label for="review-rating">Rating</label>
+            <select id="review-rating">
+              <option value="">All ratings</option>
+              <option value="5">5 stars</option>
+              <option value="4">4 stars</option>
+              <option value="3">3 stars</option>
+              <option value="2">2 stars</option>
+              <option value="1">1 star</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label for="review-sort">Sort by</label>
+            <select id="review-sort">
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+              <option value="rating-low">Lowest rating</option>
+              <option value="rating-high">Highest rating</option>
+            </select>
+          </div>
+          <button class="secondary" id="clear-filters">Clear filters</button>
+        </div>
+        <section class="panel reviews-panel">
+          <div class="panel-heading">
+            <h2>Customer feedback</h2>
+            <span class="tiny muted" id="review-count" aria-live="polite">Loading…</span>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Product / customer</th>
+                  <th>Review</th>
+                  <th>Submitted</th>
+                  <th>Status</th>
+                  <th>Moderation</th>
+                </tr>
+              </thead>
+              <tbody id="reviews-body" aria-live="polite">
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination-footer">
+            <span id="pagination-label">Page 1</span>
+            <div class="pagination-buttons">
+              <button class="secondary" id="previous-page" disabled>Previous</button>
+              <button class="secondary" id="next-page" disabled>Next</button>
+            </div>
+          </div>
+        </section>
+        <p class="reviews-summary-note" id="stats-note">Statistics cover all reviews, independent of the filters above.</p>
+        <span id="reviews-updated" class="last-updated" aria-live="polite">
+        </span>
+      </main>
+    </div>
+    <script src="../assets/vendor/sweetalert2.all.min.js">
+    </script>
+    <script src="../assets/vendor/chart.umd.min.js">
+    </script>
+    <script src="../assets/js/admin-api.js">
+    </script>
+    <script src="../assets/js/alerts.js">
+    </script>
+    <script src="../assets/js/admin-layout.js">
+    </script>
+    <script src="../assets/js/reviews.js">
+    </script>
+  </body>
+</html>

@@ -3,8 +3,11 @@ header("Content-Type: application/json; charset=utf-8");
 require_once __DIR__ . "/../config/db.php";
 require_once __DIR__ . "/../classes/Category.php";
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> origin/main
 try{
     $db=new Database();
     $category=new Category($db->connect());

@@ -1,0 +1,190 @@
+
+.product-page {
+  max-width: 1040px;
+  padding: 48px clamp(20px, 6vw, 72px) 64px;
+}
+
+.product-page .page-heading > button {
+  display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    flex-shrink: 0;
+    padding: 12px 20px;
+    border: 0;
+    border-radius: 9px;
+    cursor: pointer;
+    white-space: nowrap;
+      background: var(--color-primary);
+  color: white;
+}
+.product-page .page-heading > button:hover{
+      background: var(--color-primary-hover);
+  color: white;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.image-panel {
+  position: sticky;
+  top: var(--space-6);
+}
+
+
+.main-image {
+  display: block;
+  width: 100%;
+  height: 440px;
+  object-fit: contain;
+  background: var(--color-surface-image);
+}
+
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: var(--space-4);
+  color: var(--color-text-secondary);
+}
+
+.gallery img {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  background: var(--color-surface-image);
+  border: 2px solid transparent;
+  outline: 1px solid var(--color-border);
+  outline-offset: -1px;
+  cursor: pointer;
+  transition: border-color var(--duration-fast);
+}
+
+.gallery img:hover {
+  border-color: var(--color-border-strong);
+}
+
+.gallery img.selected {
+  border-color: var(--color-accent);
+  outline-color: transparent;
+}
+
+
+.product-title {
+  margin: 6px 0 var(--space-4);
+  font-size: 26px;
+  line-height: 1.25;
+}
+
+.price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: 22px;
+  padding: var(--space-4) 0;
+  border-top: var(--border-default);
+  border-bottom: var(--border-default);
+}
+
+.price {
+  font: 700 26px/1.2 var(--font-heading);
+  letter-spacing: var(--letter-spacing-heading);
+  color: var(--color-accent-hover);
+}
+
+.details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  margin-bottom: 26px;
+}
+
+.detail {
+  padding: 14px var(--space-4);
+  background: var(--color-surface);
+  border: var(--border-default);
+}
+
+.detail span {
+  display: block;
+  margin-bottom: var(--space-1);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+}
+
+.detail strong {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  overflow-wrap: anywhere;
+}
+
+.description {
+  margin-top: 10px;
+  line-height: 1.8;
+  color: var(--color-primary-hover);
+  white-space: pre-wrap;
+}
+
+.status.inactive {
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+}
+
+.variants-panel {
+  margin-top: var(--space-6);
+}
+
+.variants-panel .table-scroll {
+  border: var(--border-default);
+}
+
+
+@media (max-width: 850px) {
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .image-panel {
+    position: static;
+  }
+
+  .main-image {
+    height: 340px;
+  }
+}
+
+@media (max-width: 580px) {
+  .main-image {
+    height: 280px;
+  }
+
+  .product-title {
+    font-size: 22px;
+  }
+
+  .price {
+    font-size: 22px;
+  }
+
+  .price-row {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 420px) {
+  .details {
+    grid-template-columns: 1fr;
+  }
+}
+/* محاذاة صفحة التفاصيل مع الهيكل المشترك */
+.product-page { max-width: var(--container-admin-max); padding: 36px 40px; }
+.product-details-page .page-heading { flex-wrap: wrap; }
+.product-details-page .product-grid > * { min-width: 0; }
+.product-details-page .description { overflow-wrap: anywhere; }
+@media (max-width: 1200px) { .product-page { padding: 28px; } }
+@media (max-width: 580px) { .product-page { padding: 26px 16px; } }

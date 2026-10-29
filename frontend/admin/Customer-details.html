@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="csrf-token" content="">
+  <title> LUMIÈRE| Customer details</title>
+  <link rel="stylesheet" href="../assets/vendor/bootstrap.min.css">
+  <link rel="stylesheet" href="../assets/vendor/fontawesome.min.css">
+  <link rel="stylesheet" href="../assets/css/index.css">
+  <link rel="stylesheet" href="../assets/css/global.css">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+  <link rel="stylesheet" href="../assets/css/customers.css">
+</head>
+<body data-page="customers">
+  <a class="sr-only" href="#main">Skip to content</a>
+  <button class="sidebar-backdrop" id="sidebar-backdrop" aria-label="Close navigation" hidden></button>
+  <aside class="admin-sidebar" id="admin-sidebar">
+    <div id="sidebar-content"></div>
+  </aside>
+
+  <div class="admin-shell">
+    <header class="admin-topbar">
+      <span class="topbar-path">LUMIÈRE / Customers / Customer details</span>
+    </header>
+
+    <main class="admin-main" id="main">
+      <a href="Customer.html" class="customer-back-link">
+        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+        Back to Customers
+      </a>
+
+      <div class="page-heading">
+        <div>
+          <h1 id="pageTitle">Customer profile.</h1>
+          <p class="muted">Detailed view of customer information and order history.</p>
+        </div>
+      </div>
+
+      <section class="panel customer-info-panel" aria-label="Customer information">
+        <h2 id="customerName" aria-live="polite">Loading customer…</h2>
+        <div class="customer-info-grid">
+          <div><strong>Customer ID</strong><span id="customerId">—</span></div>
+          <div><strong>Email</strong><span id="customerEmail">—</span></div>
+          <div><strong>Phone</strong><span id="customerPhone">—</span></div>
+          <div><strong>Address</strong><span id="customerAddress">—</span></div>
+          <div><strong>Joined date</strong><span id="customerJoined">—</span></div>
+          <div><strong>Total orders</strong><span id="totalOrders">—</span></div>
+          <div><strong>Total spent</strong><span id="customerSpent">—</span></div>
+        </div>
+      </section>
+
+      <section class="panel customer-table-panel customer-orders-panel" aria-label="Customer orders">
+        <div class="panel-heading">
+          <h2>Customer orders</h2>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr><th>Order ID</th><th>Date</th><th>Total amount</th><th>Status</th></tr>
+            </thead>
+            <tbody id="customerOrdersBody" aria-live="polite">
+              <tr><td colspan="4">Detailed order history is not available from the current API.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../assets/vendor/sweetalert2.all.min.js"></script>
+  <script src="../assets/js/admin-api.js"></script>
+  <script src="../assets/js/alerts.js"></script>
+  <script src="../assets/js/admin-layout.js"></script>
+  <script src="../assets/js/Customer-details.js"></script>
+</body>
+</html>
