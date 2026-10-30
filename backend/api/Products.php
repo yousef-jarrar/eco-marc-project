@@ -32,6 +32,7 @@ try {
 
      
     if ($method === "GET") {
+        $gender = Product::validateGender($_GET["gender"] ?? null);
 
         if (isset($_GET["category_id"])) {
             $categoryId = (int) $_GET["category_id"];
@@ -46,7 +47,7 @@ try {
             }
 
             echo json_encode(
-                $products->getProductsByCategory($categoryId)
+                array_values(array_filter($products->getProductsByCategory($categoryId), static fn($product) => $gender === null || $product["gender"] === $gender || $product["gender"] === "unisex"))
             );
             exit;
         }
@@ -64,7 +65,7 @@ try {
             exit;
         }
 
-        echo json_encode($products->getProducts());
+        echo json_encode($products->getProducts($gender));
         exit;
     }
 
@@ -79,6 +80,7 @@ try {
         $quantity = $_POST["quantity"] ?? "";
         $categoryId = (int) ($_POST["category_id"] ?? 0);
         $discountId = $_POST["discount_id"] ?? "";
+        $gender = Product::validateGender(array_key_exists("gender",$_POST) ? $_POST["gender"] : ($id > 0 ? ($products->getProduct($id)["gender"] ?? null) : null));
 
         $isActive = isset($_POST["is_active"])
             ? (int) $_POST["is_active"]
@@ -282,6 +284,7 @@ try {
             "price" => (float) $price,
             "quantity" => $productQuantity,
             "category_id" => $categoryId,
+            "gender" => $gender,
             "discount_id" => $discountId,
             "is_active" => $isActive
         ];

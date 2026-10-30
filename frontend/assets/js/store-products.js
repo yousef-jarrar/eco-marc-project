@@ -13,6 +13,7 @@
   let currentPage = 1;
   const filters = {
     name: document.getElementById("filter-name"),
+    gender: document.getElementById("filter-gender"),
     color: document.getElementById("filter-color"),
     size: document.getElementById("filter-size"),
     minPrice: document.getElementById("filter-min-price"), price: document.getElementById("filter-price")
@@ -20,6 +21,7 @@
   const selectedCategories = new Set();
   const query = new URLSearchParams(location.search);
   filters.name.value = query.get("q") || "";
+  filters.gender.value = ["men","women","unisex"].includes(query.get("gender")) ? query.get("gender") : "";
 
   function fillSelect(select, values, placeholder) {
     const oldValue = select.value;
@@ -54,6 +56,7 @@
     return products.filter(product => {
       const productName = String(product.name || "").toLowerCase();
       const matchesName = !name || productName.includes(name);
+      const matchesGender = !filters.gender.value || product.gender === filters.gender.value || product.gender === "unisex";
       const categoryId = String(product.category_id ?? product.categoryId ?? "");
       const matchesCategory = selectedCategories.size === 0 || selectedCategories.has(categoryId);
       const variants = C.getVariants(product);
@@ -64,7 +67,7 @@
       });
       const price = C.priceInfo(product);
       const matchesPrice = (minPrice === null || (!Number.isNaN(minPrice) && price.finalPrice >= minPrice)) && (maxPrice === null || (!Number.isNaN(maxPrice) && price.finalPrice <= maxPrice));
-      return matchesName && matchesCategory && matchesColor && matchesSize && matchesPrice && (query.get("sale") !== "1" || price.discounted);
+      return matchesGender && matchesName && matchesCategory && matchesColor && matchesSize && matchesPrice && (query.get("sale") !== "1" || price.discounted);
     });
   }
 
@@ -100,7 +103,7 @@
     }
   }
 
-  Object.values(filters).forEach(input => input.addEventListener(input.tagName === "INPUT" && input.type === "search" ? "input" : "change", () => { currentPage = 1; render(); }));
+  Object.values(filters).forEach(input => input.addEventListener(input.tagName === "INPUT" && input.type === "search" ? "input" : "change", () => { if(input === filters.gender){if(input.value)query.set("gender",input.value);else query.delete("gender");history.replaceState(null,"",location.pathname+(query.toString()?"?"+query.toString():""));} currentPage = 1; render(); }));
   categoriesList.addEventListener("change", event => {
     const checkbox = event.target.closest("[data-category-filter]");
     if (!checkbox) return;
@@ -110,7 +113,7 @@
   document.getElementById("clear-filters").addEventListener("click", () => {
     Object.values(filters).forEach(input => input.value = "");
     selectedCategories.clear();
-    query.delete("sale"); query.delete("category"); query.delete("q"); history.replaceState(null,"",location.pathname);
+    query.delete("gender"); query.delete("sale"); query.delete("category"); query.delete("q"); history.replaceState(null,"",location.pathname);
     categoriesList.querySelectorAll("[data-category-filter]").forEach(input => input.checked = false);
     currentPage = 1; render();
   });
