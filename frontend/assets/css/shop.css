@@ -303,6 +303,7 @@ html.auth-checking body{visibility:hidden}.shop-page{margin:0;background:var(--s
 .quantity-row input {
   border-radius: 2px;
   border-color: #ded6cc;
+  color: black;
 }
 
 .primary-store-btn,

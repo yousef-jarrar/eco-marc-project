@@ -1,0 +1,57 @@
+{
+  "kind": "AI-generated editorial styling, not exact catalog photography",
+  "production": "Built-in image_gen generated one transparent atlas from four existing styling references. Pillow split, cropped, normalized and compressed the same pixels; it did not generate new garment imagery.",
+  "canvas": [
+    1024,
+    1024
+  ],
+  "references": [
+    "frontend/assets/images/demo/jacket.jpg",
+    "frontend/assets/images/demo/tee.jpg",
+    "frontend/assets/images/demo/court.jpg",
+    "frontend/assets/images/demo/tote.jpg"
+  ],
+  "commerce": "Product prices, identities and links are loaded from Products.php and categories.php. Generated pieces link to related categories only; actual products appear in shared catalog cards.",
+  "layers": [
+    {
+      "file": "jacket.webp",
+      "size": [
+        1024,
+        1024
+      ],
+      "alpha": true,
+      "bytes": 159820,
+      "role": "jacket"
+    },
+    {
+      "file": "top.webp",
+      "size": [
+        1024,
+        1024
+      ],
+      "alpha": true,
+      "bytes": 69274,
+      "role": "top"
+    },
+    {
+      "file": "shoes.webp",
+      "size": [
+        1024,
+        1024
+      ],
+      "alpha": true,
+      "bytes": 142176,
+      "role": "shoes"
+    },
+    {
+      "file": "accessory.webp",
+      "size": [
+        1024,
+        1024
+      ],
+      "alpha": true,
+      "bytes": 125750,
+      "role": "accessory"
+    }
+  ]
+}

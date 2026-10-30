@@ -8,6 +8,7 @@
   <script src="assets/js/auth.js?v=20261030-simplified-ai"></script>
 <link rel="stylesheet" href="assets/css/public-header.css?v=20261030-audit">
 <link rel="stylesheet" href="assets/css/product-cards.css?v=20261030-cards">
+<link rel="stylesheet" href="assets/css/product-suggestions.css?v=20261030-suggestions">
 <script src="assets/js/product-cards.js?v=20261030-cards"></script>
 </head>
 <body class="shop-page has-public-header">
@@ -40,8 +41,15 @@
 </header>
   <main class="detail-container"><a class="back-to-shop" href="shop.html"><i class="fa-solid fa-arrow-left"></i> Back to the collection</a>
     <p id="details-status" class="details-status" role="status">Loading product...</p><section id="product-details" class="product-details" hidden></section>
+    <section class="product-suggestions" id="product-suggestions" aria-labelledby="suggestions-title" hidden>
+      <div class="suggestions-heading">
+        <div><h2 id="suggestions-title">You may also like.</h2><p>A few more pieces to make your own.</p></div>
+        <a id="suggestions-collection" href="shop.html">Explore the collection <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+      </div>
+      <div class="suggested-products-grid" id="suggested-products-grid" aria-label="Suggested products" aria-busy="false"></div>
+    </section>
   </main>
   <footer class="shop-footer"><span>LUMIÈRE</span><a href="shop.html">Continue shopping</a></footer>
-  <script src="assets/vendor/sweetalert2.all.min.js"></script><script src="assets/js/alerts.js"></script><script src="assets/js/store-common.js?v=20261030-audit"></script><script src="assets/js/product-details.js?v=20261030-audit"></script>
+  <script src="assets/vendor/sweetalert2.all.min.js"></script><script src="assets/js/alerts.js"></script><script src="assets/js/store-common.js?v=20261030-audit"></script><script src="assets/js/product-details.js?v=20261030-suggestions"></script>
 <script src="assets/js/public-header.js?v=20261030-gender"></script>
 </body></html>

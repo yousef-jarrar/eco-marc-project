@@ -5,6 +5,64 @@
   const status = document.getElementById("details-status");
   const productId = Number(new URLSearchParams(location.search).get("id"));
   let product = null, images = [], variants = [], selectedImage = 0;
+  let suggestionsLoading = false;
+  const suggestions = document.getElementById("product-suggestions");
+  const suggestionsGrid = document.getElementById("suggested-products-grid");
+  function suggestionMessage(message, retry = false) {
+    const box = document.createElement("div");
+    box.className = "suggestions-state";
+    box.setAttribute("role", "status");
+    const text = document.createElement("p");
+    text.textContent = message;
+    box.append(text);
+    if (retry) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = "Try again";
+      button.addEventListener("click", loadSuggestions);
+      box.append(button);
+    }
+    suggestionsGrid.replaceChildren(box);
+  }
+  function sameCategory(item) {
+    if (product.category_id != null && item.category_id != null) return String(item.category_id) === String(product.category_id);
+    const category = String(product.category_name || "").trim().toLowerCase();
+    return category !== "" && String(item.category_name || "").trim().toLowerCase() === category;
+  }
+  function hasStock(item) {
+    if (item.in_stock !== undefined) return item.in_stock === true || Number(item.in_stock) > 0;
+    return C.getVariants(item).some(variant => Number(variant.quantity) > 0);
+  }
+  async function loadSuggestions() {
+    if (suggestionsLoading) return;
+    suggestionsLoading = true;
+    suggestions.hidden = false;
+    suggestionsGrid.setAttribute("aria-busy", "true");
+    suggestionMessage("Finding more pieces for you…");
+    try {
+      const response = await C.request("Products.php");
+      if (!Array.isArray(response) && !Array.isArray(response?.data) && !Array.isArray(response?.products)) throw new Error("Unexpected product response.");
+      const seen = new Set();
+      const items = C.getArray(response).filter(item => {
+        const id = Number(item.id);
+        if (!Number.isInteger(id) || id < 1 || id === productId || seen.has(id) || Number(item.is_active ?? 1) !== 1) return false;
+        if (["men", "women"].includes(product.gender) && ["men", "women"].includes(item.gender) && item.gender !== product.gender) return false;
+        seen.add(id);
+        return true;
+      });
+      const currentPrice = C.priceInfo(product).finalPrice;
+      items.sort((a, b) => Number(sameCategory(b)) - Number(sameCategory(a)) || Number(hasStock(b)) - Number(hasStock(a)) || Math.abs(C.priceInfo(a).finalPrice - currentPrice) - Math.abs(C.priceInfo(b).finalPrice - currentPrice) || Number(b.id) - Number(a.id));
+      if (!items.length) { suggestionMessage("There are no more pieces to suggest right now. Explore the collection for more."); return; }
+      suggestionsGrid.replaceChildren(...items.slice(0, 4).map(item => ProductCards.create(item)));
+      const collection = document.getElementById("suggestions-collection");
+      collection.href = product.category_id != null ? "shop.html?category=" + encodeURIComponent(product.category_id) : "shop.html";
+    } catch (error) {
+      suggestionMessage("Suggested products couldn’t be loaded. Please try again.", true);
+    } finally {
+      suggestionsLoading = false;
+      suggestionsGrid.setAttribute("aria-busy", "false");
+    }
+  }
   function availableVariants() { return variants.filter(variant => Number(variant.quantity) > 0); }
   function selectedVariant() {
     const color = section.querySelector("#product-color")?.value || "";
@@ -101,5 +159,6 @@ C.notify("Product added to your cart.", "success");section.querySelector("#detai
     if (!product || !product.id || Number(product.is_active ?? 1) !== 1) throw new Error("This product is not available.");
     images = C.getImages(product); if (!images.length) images = [""];
     variants = C.getVariants(product); status.textContent = ""; renderProduct();
+    loadSuggestions();
   } catch (error) { status.textContent = error.message; status.classList.add("status-error"); }
 })();
