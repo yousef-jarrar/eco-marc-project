@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout | Eco Marc</title>
+
+    <link rel="stylesheet" href="../assets/vendor/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/vendor/fontawesome.min.css">
+    <link rel="stylesheet" href="../assets/css/index.css">
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+
+    <link rel="stylesheet" href="../assets/css/checkout.css">
+</head>
+<body>
+    <main class="checkout-page">
+        <div class="checkout-container">
+
+            <div class="checkout-top">
+                <a href="cart.html" class="back-link">
+                    <span aria-hidden="true">&larr;</span>
+                    Back to cart
+                </a>
+
+                <p class="checkout-brand">ECO <span>MARC</span></p>
+            </div>
+
+            <div class="checkout-heading">
+                <p class="eyebrow">ALMOST YOURS</p>
+                <h1>Checkout</h1>
+                <p class="muted">Confirm your delivery address, then place your order.</p>
+            </div>
+
+            <div id="checkout-error" class="error-banner" role="alert" hidden></div>
+
+            <div class="checkout-layout">
+                <form id="checkout-form" class="checkout-form" novalidate>
+
+                    <section class="panel">
+                        <div class="panel-heading">
+                            <div>
+                                <h2>Your details</h2>
+                                <p class="muted">Saved on your account.</p>
+                            </div>
+                            <span class="step-number">01</span>
+                        </div>
+
+                        <div id="account-info" style="display:grid;gap:.5rem;">
+                            <div><span class="muted">Name:</span> <strong id="acc-name">—</strong></div>
+                            <div><span class="muted">Email:</span> <strong id="acc-email">—</strong></div>
+                            <div><span class="muted">Phone:</span> <strong id="acc-phone">—</strong></div>
+                        </div>
+                    </section>
+
+                    <section class="panel">
+                        <div class="panel-heading">
+                            <div>
+                                <h2>Delivery address</h2>
+                                <p class="muted">Where should we deliver your order?</p>
+                            </div>
+                            <span class="step-number">02</span>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-field full-width">
+                                <label for="address">Street address</label>
+                                <input type="text" id="address" name="address"
+                                       autocomplete="street-address"
+                                       placeholder="Building, street name" required>
+                                <small class="field-error"></small>
+                            </div>
+
+                            <div class="form-field">
+                                <label for="city">City</label>
+                                <input type="text" id="city" name="city"
+                                       autocomplete="address-level2" required>
+                                <small class="field-error"></small>
+                            </div>
+
+                            <div class="form-field">
+                                <label for="district">District / Area</label>
+                                <input type="text" id="district" name="district"
+                                       placeholder="Optional">
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="panel">
+                        <div class="panel-heading">
+                            <div>
+                                <h2>Payment method</h2>
+                                <p class="muted">Choose how you want to pay.</p>
+                            </div>
+                            <span class="step-number">03</span>
+                        </div>
+
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method"
+                                   value="cash_on_delivery" checked>
+                            <span class="payment-copy">
+                                <strong>Cash on delivery</strong>
+                                <small>Pay when your order arrives.</small>
+                            </span>
+                            <span class="payment-tag">Available</span>
+                        </label>
+                    </section>
+
+                    <p class="checkout-disclaimer">
+                        By placing your order, you confirm that your delivery
+                        information is correct.
+                    </p>
+
+                    <button type="submit" id="place-order" class="place-order-button">
+                        <span class="button-label">Place order</span>
+                        <span aria-hidden="true">&rarr;</span>
+                    </button>
+
+                </form>
+
+                <aside class="order-summary panel">
+                    <div class="panel-heading">
+                        <div>
+                            <h2>Your order</h2>
+                            <p class="muted">Review your items before ordering.</p>
+                        </div>
+                    </div>
+
+                    <div id="checkout-loading" class="loading">
+                        Loading your cart...
+                    </div>
+
+                    <div id="checkout-items" class="checkout-items"></div>
+
+                    <div class="coupon-box" style="margin:1rem 0;">
+                        <label for="coupon-input" style="display:block;margin-bottom:.35rem;">Coupon code</label>
+                        <div style="display:flex;gap:.5rem;">
+                            <input type="text" id="coupon-input" placeholder="Enter code"
+                                   autocomplete="off" style="flex:1;min-width:0;">
+                            <button type="button" id="coupon-apply" class="place-order-button"
+                                    style="width:auto;padding:.5rem 1.1rem;">Apply</button>
+                        </div>
+                        <small id="coupon-message" class="muted" style="display:block;margin-top:.35rem;"></small>
+                    </div>
+
+                    <div id="checkout-totals" class="checkout-totals">
+                        <div class="total-row">
+                            <span>Subtotal</span>
+                            <span id="subtotal">JOD 0.00</span>
+                        </div>
+
+                        <div class="total-row">
+                            <span>Discount</span>
+                            <span id="discount">− JOD 0.00</span>
+                        </div>
+
+                        <div class="total-row">
+                            <span>Delivery</span>
+                            <span id="delivery">JOD 0.00</span>
+                        </div>
+
+                        <div class="total-row grand-total">
+                            <span>Total</span>
+                            <strong id="total">JOD 0.00</strong>
+                        </div>
+                    </div>
+
+                    <div class="shipping-box" style="margin-top:1.25rem;">
+                        <h3 style="font-size:1rem;margin-bottom:.5rem;">Shipping to</h3>
+                        <div id="shipping-preview" class="muted"
+                             style="white-space:pre-line;">Fill in your details to see them here.</div>
+                    </div>
+
+                    <div class="summary-note">
+                        <span aria-hidden="true">✓</span>
+                        <p>Order totals are calculated from your cart.</p>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </main>
+
+    <script src="../assets/js/checkout.js"></script>
+</body>
+</html>
