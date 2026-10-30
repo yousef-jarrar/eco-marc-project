@@ -49,5 +49,5 @@ if (footer) {
 }
 
 const customerChatScript = document.createElement("script");
-customerChatScript.src = new URL("frontend/assets/js/customer-chat.js?v=20261029-box", footerRoot).href;
+customerChatScript.src = new URL("frontend/assets/js/customer-chat.js?v=20261030-cards", footerRoot).href;
 document.body.append(customerChatScript);

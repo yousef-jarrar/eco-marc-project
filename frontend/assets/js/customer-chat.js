@@ -136,65 +136,20 @@
   }
 
   function addProducts(bubble, products) {
-    const list = document.createElement('div');
-    list.className = 'chat-products';
-    products.forEach(product => {
-      const card = document.createElement('article');
-      const image = document.createElement('img');
-      try {
-        const url = new URL(product.image_url, projectRoot);
-        if (['http:', 'https:'].includes(url.protocol)) image.src = url;
-      } catch {}
-      image.alt = product.name;
-      image.width = 88; image.height = 110;
-      image.loading = 'lazy';
-      image.addEventListener('error', () => { image.hidden = true; card.classList.add('no-photo'); }, {once:true});
-      const details = document.createElement('div');
-      const title = document.createElement('h3'); title.textContent = product.name;
-      const price = document.createElement('strong');
-      price.textContent = new Intl.NumberFormat('en-JO', {style:'currency',currency:'JOD'}).format(product.price);
-      price.prepend(icon('tag'));
-      details.append(title, price);
-      addReasons(details, product);
-      if (product.review_count > 0 && product.average_rating != null) {
-        const rating = document.createElement('p');
-        rating.className = 'chat-rating';
-        rating.textContent = ' ' + Number(product.average_rating).toFixed(2) + '/5 · ' + product.review_count + ' reviews';
-        rating.prepend(icon('star'));
-        details.append(rating);
-      }
-      const variants = document.createElement('p');
-      const variantDetails = document.createElement('details');
-      const variantTitle = document.createElement('summary');
-      iconLabel(variantTitle,'ruler','Sizes & colors');
-      variantDetails.append(variantTitle, variants);
-      variants.textContent = 'Sizes: ' + [...new Set(product.variants.map(v => v.size))].join(', ');
-      variants.append(document.createElement('br'),colorSwatches(product.variants.map(v => v.color)));
-      const link = document.createElement('a');
-      const productUrl = new URL('frontend/Landing.html', projectRoot);
-      productUrl.searchParams.set('product', String(product.id));
-      productUrl.hash = 'shop';
-      link.href = productUrl;
-      iconLabel(link,'arrow-up-right-from-square','View in store');
-      const compare = document.createElement('button');
-      compare.type = 'button'; compare.className = 'chat-compare-pick'; compare.dataset.compareId = String(product.id);
-      compare.setAttribute('aria-label', 'Compare ' + product.name);
-      compare.addEventListener('click', () => {
-        if (compareIds.has(product.id)) compareIds.delete(product.id);
-        else if (compareIds.size < 2) compareIds.add(product.id);
-        else status.textContent = 'Choose at most two pieces. Clear a selection to choose another.';
+    const list=document.createElement('div');list.className='chat-products';
+    products.forEach(product=>{
+      const card=ProductCards.create(product,{compact:true});
+      const extra=card.querySelector('.pc-extra');addReasons(extra,product);
+      const compare=document.createElement('button');compare.type='button';compare.className='chat-compare-pick';compare.dataset.compareId=String(product.id);compare.setAttribute('aria-label','Compare '+product.name);
+      compare.addEventListener('click',()=>{
+        if(compareIds.has(product.id))compareIds.delete(product.id);
+        else if(compareIds.size<2)compareIds.add(product.id);
+        else status.textContent='Choose at most two pieces. Clear a selection to choose another.';
         updateCompare();
       });
-      details.append(variantDetails, link, compare);
-      const photoLink = document.createElement('a');
-      photoLink.className = 'chat-product-photo';
-      photoLink.href = productUrl;
-      photoLink.setAttribute('aria-label', 'View ' + product.name + ' in store');
-      photoLink.append(image);
-      card.append(photoLink, details); list.append(card);
+      extra.append(compare);list.append(card);
     });
-    if (products.length) bubble.append(list);
-    updateCompare();
+    if(products.length)bubble.append(list);updateCompare();
   }
 
   const compareIds = new Set();

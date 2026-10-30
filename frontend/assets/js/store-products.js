@@ -18,6 +18,8 @@
     price: document.getElementById("filter-price")
   };
   const selectedCategories = new Set();
+  const query = new URLSearchParams(location.search);
+  filters.name.value = query.get("q") || "";
 
   function fillSelect(select, values, placeholder) {
     const oldValue = select.value;
@@ -61,7 +63,7 @@
       });
       const price = C.priceInfo(product);
       const matchesPrice = maxPrice === null || (!Number.isNaN(maxPrice) && price.finalPrice <= maxPrice);
-      return matchesName && matchesCategory && matchesColor && matchesSize && matchesPrice;
+      return matchesName && matchesCategory && matchesColor && matchesSize && matchesPrice && (query.get("sale") !== "1" || price.discounted);
     });
   }
 
@@ -83,7 +85,13 @@
       const [productData, categoryData] = await Promise.all([C.request("Products.php"), C.request("categories.php")]);
       products = C.getArray(productData).filter(product => Number(product.is_active ?? 1) === 1);
       categories = C.getArray(categoryData);
+      if (query.get("sort") === "new") products.sort((a,b)=>(Date.parse(b.created_at)||0)-(Date.parse(a.created_at)||0)||Number(b.id)-Number(a.id));
       populateFilters();
+      const category = query.get("category") || "";
+      if (category) {
+        const selected = categories.find(c=>String(c.id)===category || String(c.name).toLowerCase()===category.toLowerCase());
+        if (selected) { selectedCategories.add(String(selected.id)); const checkbox=categoriesList.querySelector('input[value="'+String(selected.id)+'"]'); if(checkbox)checkbox.checked=true; }
+      }
       render();
     } catch (error) {
       grid.innerHTML = `<div class="empty-state">${C.escapeHtml(error.message)}</div>`;
@@ -101,6 +109,7 @@
   document.getElementById("clear-filters").addEventListener("click", () => {
     Object.values(filters).forEach(input => input.value = "");
     selectedCategories.clear();
+    query.delete("sale"); query.delete("category"); query.delete("q"); history.replaceState(null,"",location.pathname);
     categoriesList.querySelectorAll("[data-category-filter]").forEach(input => input.checked = false);
     currentPage = 1; render();
   });

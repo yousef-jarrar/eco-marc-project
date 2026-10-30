@@ -58,7 +58,8 @@ window.StoreCommon = (function () {
   function imageUrl(url) {
     if (!url) return imageFallback;
     try {
-      const parsed = new URL(url, document.baseURI);
+      const baseUrl = ["frontend/","backend/uploads/","assets/products/"].some(prefix=>String(url).startsWith(prefix)) ? new URL("../../",apiBase) : document.baseURI;
+      const parsed = new URL(url,baseUrl);
       if (!["http:", "https:", "data:"].includes(parsed.protocol)) return imageFallback;
       return parsed.href;
     } catch (_) { return imageFallback; }
@@ -117,24 +118,7 @@ window.StoreCommon = (function () {
   }
 
   function card(product, options = {}) {
-    const id = Number(product.id);
-    const detailsPage = options.detailsPage || "product-details.html";
-    const images = getImages(product);
-    const image = imageUrl(images[0]);
-    const price = priceInfo(product);
-    const hasStock = getVariants(product).some(v => Number(v.quantity) > 0);
-    const category = product.category_name || "";
-    const removeButton = options.wishlist ? `<button type="button" class="remove-wishlist" data-remove-wishlist="${id}"><i class="fa-solid fa-trash-can"></i> Remove</button>` : "";
-    return `<article class="product-card ${options.wishlist ? "wishlist-card" : ""}" data-card-product="${id}">
-      <a class="card-image-wrap" href="${detailsPage}?id=${id}" aria-label="View ${escapeHtml(product.name)}">
-        <img class="card-image" data-product-image src="${escapeHtml(image)}" alt="${escapeHtml(product.name || "Product image")}" loading="lazy">
-        ${price.discounted ? `<span class="sale-tag">-${price.percentage}%</span>` : ""}
-      </a>
-      ${options.wishlist ? "" : `<button class="heart-button" type="button" data-add-wishlist="${id}" aria-label="Add ${escapeHtml(product.name)} to wishlist" title="Add to wishlist"><i class="fa-regular fa-heart"></i></button>`}
-      <div class="card-copy"><a class="card-title" href="${detailsPage}?id=${id}">${escapeHtml(product.name || "Untitled product")}</a>
-        ${cardPrice(product)}<p class="card-category">${escapeHtml(category)}</p>
-        <div class="card-actions">${options.wishlist ? `${removeButton}<a class="outline-btn" href="${detailsPage}?id=${id}">Choose options</a>` : `<a class="add-to-cart" href="${detailsPage}?id=${id}">${hasStock ? "Choose options" : "Out of stock"}</a>`}</div>
-      </div></article>`;
+    return ProductCards.html(product, {wishlist:!!options.wishlist});
   }
   let cartItemsCache = [];
 

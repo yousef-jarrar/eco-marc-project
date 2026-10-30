@@ -83,7 +83,7 @@ document.getElementById('remove-image').addEventListener('click',() => {
 });
 
 function productLink(product) {
-  const url = new URL('Landing.html',location.href); url.searchParams.set('product',String(product.id)); url.hash = 'shop'; return url.href;
+  const url = new URL('ProductShop.html',location.href); url.searchParams.set('id',String(product.id)); return url.href;
 }
 function productImage(product) {
   try { const url = new URL(product.image_url,new URL('../',location.href)); return ['http:','https:'].includes(url.protocol) ? url.href : ''; }
@@ -140,18 +140,12 @@ function renderMatches() {
   }
   visibleMatches.forEach((product,index) => {
     const best = product.id === matches[0]?.id;
-    const card = document.createElement('article'); card.className = 'result-card'+(best?' closest-match':'');
-    const picture = document.createElement('button'); picture.type = 'button'; picture.className = 'result-picture'; picture.setAttribute('aria-label','View photo of '+product.name);
-    const image = document.createElement('img'); image.src = productImage(product); image.alt = product.name; image.loading = 'lazy'; image.width = 400; image.height = 500;
-    image.addEventListener('error',() => { picture.replaceChildren(); const fallback=document.createElement('span');fallback.className='image-fallback';fallback.textContent='Photo unavailable';picture.append(fallback); },{once:true});
-    const zoom = document.createElement('span'); zoom.className='photo-action'; zoom.innerHTML='<i class="fa-solid fa-expand" aria-hidden="true"></i><span>View photo</span>';
-    picture.append(image,zoom); picture.addEventListener('click',() => openProduct(index));
-    const badge = document.createElement('span'); badge.className='match-label'; badge.textContent=best?'Closest visual match':'Similar piece';
-    const title=document.createElement('h3');const link=document.createElement('a');link.href=productLink(product);link.textContent=product.name;title.append(link);
-    const price=document.createElement('p');price.className='result-price';price.textContent=money(product.price);
-    const availability=document.createElement('p');availability.className='result-availability'+(product.in_stock===false?' sold-out':'');availability.textContent=product.in_stock===false?'Currently out of stock':product.in_stock===true?'Available':'';
-    const store=document.createElement('a');store.className='result-store-link';store.href=productLink(product);store.innerHTML='View in store <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>';
-    card.append(picture,badge,title,price,availability,store);results.append(card);
+    const card = ProductCards.create(product, {
+      className:'result-card'+(best?' closest-match':''),
+      badge:best?'Closest visual match':'',
+      onQuick:()=>openProduct(index)
+    });
+    results.append(card);
   });
 }
 sortInput.addEventListener('change',renderMatches);
