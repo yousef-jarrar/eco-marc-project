@@ -72,14 +72,17 @@ function showError(message) {
 }
 
 async function apiRequest(action, data = {}, method = "POST") {
-    const response = await EcoAuth.fetch(API_URL, {
-        method,
-        headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        },
-        body: JSON.stringify({ action, ...data })
-    });
+    if (action === "list") {
+        const [items, totals] = await Promise.all([apiRequest("items", {}, "GET"), apiRequest("total", {}, "GET")]);
+        return Object.assign({}, totals, {items:Array.isArray(items)?items:[]});
+    }
+    if (action === "update_quantity") { action="quantity"; method="PATCH"; data.cart_item_id=Number(data.cart_item_id); }
+    if (action === "remove") method="DELETE";
+    const url=new URL(API_URL);
+    const options={method,headers:{Accept:"application/json"}};
+    if(method==="GET")url.searchParams.set("action",action);
+    else { options.headers["Content-Type"]="application/json"; options.body=JSON.stringify({action,...data}); }
+    const response=await EcoAuth.fetch(url,options);
 
     let result;
 
@@ -155,6 +158,10 @@ function renderCart() {
     cartItemsContainer.replaceChildren();
 
     if (!cartItems.length) {
+        checkoutButton.disabled=true;
+        document.getElementById("item-count").textContent="0 products";
+        document.getElementById("cart-count").hidden=true;
+        ["summary-subtotal","summary-discount","summary-total","cart-delivery"].forEach(id=>document.getElementById(id).textContent=formatMoney(0));
         loadingMessage.classList.add("hidden");
         errorMessage.classList.add("hidden");
         cartContent.classList.add("hidden");
@@ -271,6 +278,8 @@ function renderCart() {
         cartTotals?.total ?? totals.total
     );
 
+    document.getElementById("cart-delivery").textContent=formatMoney(cartTotals?.delivery_fee??0);
+    const badge=document.getElementById("cart-count");badge.textContent=String(totals.quantity);badge.hidden=totals.quantity===0;
     checkoutButton.disabled = checkoutInProgress || busyItems.size > 0;
 
     loadingMessage.classList.add("hidden");
@@ -385,7 +394,7 @@ async function proceedToCheckout() {
     if (checkoutInProgress || !cartItems.length) return;
 
     // This route is a placeholder until the project's checkout page is confirmed.
-    window.location.href = "checkout.html";
+    await Alerts.show("Checkout is not connected yet", "Your cart is saved. You can keep shopping or adjust your selection.", "info");
 }
 
 retryButton.addEventListener("click", loadCart);

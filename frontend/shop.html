@@ -1,66 +1,65 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" class="auth-checking">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Shop | LUMIÈRE</title>
-
-    <link rel="stylesheet" href="assets/css/fonts.css">
-    <link rel="stylesheet" href="assets/css/index.css">
-    <link rel="stylesheet" href="assets/css/shop.css">
-    <link rel="stylesheet" href="assets/vendor/fontawesome.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop | LUMIÈRE</title>
+  <link rel="stylesheet" href="assets/css/fonts.css">
+  <link rel="stylesheet" href="assets/css/index.css">
+  <link rel="stylesheet" href="assets/css/shop.css">
+  <link rel="stylesheet" href="assets/vendor/fontawesome.min.css">
+  <script src="assets/js/auth.js?v=20261030-public"></script>
+<link rel="stylesheet" href="assets/css/public-header.css?v=20261030-public">
+<link rel="stylesheet" href="assets/css/product-cards.css?v=20261030-cards">
+<script src="assets/js/product-cards.js?v=20261030-cards"></script>
 </head>
-
-<body>
-
-    <header class="shop-header">
-        <a href="Landing.html" class="shop-logo">LUMIÈRE</a>
-
-        <nav>
-            <a href="Landing.html">Home</a>
-            <a href="Shop.html">Shop</a>
-        </nav>
-    </header>
-
-    <main class="shop-container">
-
-        <aside class="filters">
-
-            <h2>Refine your edit</h2>
-
-            <h3>Categories</h3>
-
-            <div id="categoriesList">
-                Loading categories...
-            </div>
-
-        </aside>
-
-        <section class="products-section">
-
-            <div class="shop-top">
-
-                <h1>Shop the Collection</h1>
-
-                <input
-                    type="text"
-                    id="searchInput"
-                    placeholder="Search the collection..."
-                >
-
-            </div>
-
-            <p id="productsCount">0 products</p>
-
-            <div class="products-grid" id="productsGrid"></div>
-
-        </section>
-
-    </main>
-
-    <script src="assets/js/shop.js"></script>
-
-</body>
-</html>
+<body class="shop-page has-public-header">
+  <header class="public-header">
+  <div class="ph-announcement"><span class="ph-announcement-text">Considered style. Everyday movement.</span></div>
+  <div class="ph-inner wrap">
+    <button class="ph-icon ph-menu-toggle" id="burger" type="button" aria-label="Open navigation" aria-controls="links" aria-expanded="false"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
+    <a class="ph-logo" href="Landing.html" aria-label="LUMIÈRE home"><img src="../assets/lumiere-icon-light.svg" alt="" width="35" height="35"><span>LUMIÈRE</span></a>
+    <nav class="ph-nav" id="links" aria-label="Store navigation">
+      <a href="Landing.html">Home</a>
+      <a href="shop.html">Shop</a>
+      <a href="shop.html?category=footwear">Footwear</a>
+      <a href="shop.html?category=accessories">Accessories</a>
+      <a href="shop.html?sort=new">New arrivals</a>
+      <a href="shop.html?sale=1">Sale</a>
+      <a class="ph-mobile-link" href="customers/wishlist.html"><i class="fa-regular fa-heart" aria-hidden="true"></i> Wishlist</a>
+      <a class="ph-mobile-link" data-ph-user href="account/profile.html" hidden><i class="fa-regular fa-user" aria-hidden="true"></i> My account</a>
+      <a class="ph-mobile-link" data-ph-guest href="account/login.html">Sign in</a><a class="ph-mobile-link" data-ph-guest href="account/register.html">Create an account</a>
+    </nav>
+    <div class="ph-actions">
+      <button class="ph-icon ph-search-toggle" type="button" aria-label="Search products" aria-controls="public-search" aria-expanded="false"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
+      <a class="ph-icon" href="visual-search.html" aria-label="Search by image" title="Search by image"><i class="fa-solid fa-camera" aria-hidden="true"></i></a>
+      <a class="ph-icon ph-desktop-action ph-account" href="account/login.html" aria-label="Sign in" title="My account"><i class="fa-regular fa-user" aria-hidden="true"></i></a>
+      <a class="ph-icon ph-desktop-action" href="customers/wishlist.html" aria-label="Wishlist" title="Wishlist"><i class="fa-regular fa-heart" aria-hidden="true"></i></a>
+      <a class="ph-icon"  href="account/cart.html" aria-label="Open cart" title="Shopping bag"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i><b class="ph-badge" id="store-cart-count" hidden>0</b></a>
+      
+    </div>
+  </div>
+  <div class="ph-search" id="public-search" hidden><form action="shop.html"><label for="public-search-input">Search the collection</label><input id="public-search-input" name="q" type="search" placeholder="Search the collection…" autocomplete="off"><button type="submit" class="ph-search-submit"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><span>Search</span></button><button type="button" class="ph-search-close" aria-label="Close search"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></form></div>
+</header>
+  <main class="shop-container">
+    <aside class="filters">
+      <p class="shop-eyebrow">YOUR SELECTION</p><h2>Refine your edit</h2>
+      <h3>Categories</h3><div id="categoriesList" class="categories-list"><p>Loading categories...</p></div>
+      <div class="filter-field"><label for="filter-color">Color</label><select id="filter-color"><option value="">All colors</option></select></div>
+      <div class="filter-field"><label for="filter-size">Size</label><select id="filter-size"><option value="">All sizes</option></select></div>
+      <div class="filter-field"><label for="filter-price">Maximum price (JOD)</label><input type="number" id="filter-price" min="0" step="0.01" placeholder="e.g. 25"></div>
+      <button type="button" class="clear-filters" id="clear-filters">Clear all filters</button>
+    </aside>
+    <section class="products-section">
+      <div class="shop-top"><div><p class="shop-eyebrow">THE LUMIÈRE COLLECTION</p><h1>Shop the Collection</h1><p class="shop-subtitle">Find the pieces that feel like you.</p></div>
+        <input type="search" id="filter-name" placeholder="Search the collection..." aria-label="Search products">
+      </div>
+      <div class="products-meta"><p id="products-count" aria-live="polite">Loading products...</p><p id="shop-message" role="status"></p></div>
+      <div class="products-grid" id="product-grid"><div class="shop-loading">Loading products...</div></div>
+      <div class="pagination"><button type="button" id="prev-page" class="page-btn" disabled><i class="fa-solid fa-arrow-left"></i></button><span id="page-info">Page 1</span><button type="button" id="next-page" class="page-btn" disabled><i class="fa-solid fa-arrow-right"></i></button></div>
+    </section>
+  </main>
+  <footer class="shop-footer"><span>LUMIÈRE</span><a href="Landing.html">Back to home</a></footer>
+  <script src="assets/vendor/sweetalert2.all.min.js"></script><script src="assets/js/alerts.js"></script><script src="assets/js/store-common.js?v=20261030-cards"></script><script src="assets/js/store-products.js"></script>
+<script src="assets/js/public-header.js?v=20261030-cards"></script>
+</body></html>
