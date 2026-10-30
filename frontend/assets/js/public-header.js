@@ -5,6 +5,9 @@
   const nav=header.querySelector('.ph-nav');const menu=header.querySelector('.ph-menu-toggle');
   const search=header.querySelector('.ph-search');const toggle=header.querySelector('.ph-search-toggle');
   const field=header.querySelector('[name=q]');
+  const shopLink=[...nav.querySelectorAll('a')].find(link=>new URL(link.href).pathname.endsWith('/shop.html')&&!new URL(link.href).search);
+  if(shopLink){let previous=shopLink;for(const [value,label] of [['men','Men'],['women','Women']]){const link=document.createElement('a');link.href=new URL('frontend/shop.html?gender='+value,root).href;link.textContent=label;previous.after(link);previous=link;}}
+
   function closeMenu(){nav.classList.remove('open');menu.setAttribute('aria-expanded','false');}
   function closeSearch(){search.hidden=true;toggle.setAttribute('aria-expanded','false');}
   menu.onclick=event=>{

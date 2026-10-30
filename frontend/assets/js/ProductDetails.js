@@ -47,6 +47,7 @@ async function loadProductDetails() {
         document.getElementById("productPrice").textContent =
             "JOD " + Number(product.price || 0).toFixed(2);
         document.getElementById("categoryName").textContent = product.category_name || "—";
+        document.getElementById("productGender").textContent = ({men:"Men",women:"Women",unisex:"Unisex"})[product.gender] || "Not set";
         document.getElementById("productQuantity").textContent = Number(product.quantity || 0);
         document.getElementById("discountName").textContent = product.discount_name || "No discount";
 

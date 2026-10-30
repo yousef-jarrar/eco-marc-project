@@ -857,6 +857,7 @@
             document.getElementById("productCategory").value =
                 getCategoryId(product);
 
+            document.getElementById("productGender").value = product.gender || "";
             document.getElementById("productPrice").value =
                 product.price ?? "";
 

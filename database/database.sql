@@ -246,6 +246,7 @@ CREATE TABLE `discounts` (
 --
 
 CREATE TABLE `products` (
+  `gender` enum('men','women','unisex') DEFAULT NULL,
   `id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,

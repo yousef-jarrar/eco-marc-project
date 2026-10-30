@@ -7,7 +7,7 @@ class ShoppingData {
 
     public function catalog(): array {
         if ($this->catalog !== null) return $this->catalog;
-        $sql = "SELECT p.id,p.name,p.description,p.price,p.category_id,c.name AS category,
+        $sql = "SELECT p.id,p.name,p.description,p.price,p.gender,p.category_id,c.name AS category,
             d.percentage,ratings.average_rating,COALESCE(ratings.review_count,0) AS review_count,
             (SELECT i.image_url FROM product_images i WHERE i.product_id=p.id ORDER BY i.is_primary DESC,i.id LIMIT 1) AS image_url
             FROM products p JOIN categories c ON c.id=p.category_id
@@ -26,7 +26,7 @@ class ShoppingData {
                 'price'=>round((float)$row['price']*(1-max(0,min(100,(float)$row['percentage']))/100),2),
                 'original_price'=>(float)$row['price'],'category_id'=>(int)$row['category_id'],'category'=>$row['category'],
                 'average_rating'=>$row['average_rating']===null?null:(float)$row['average_rating'],'review_count'=>(int)$row['review_count'],
-                'image_url'=>$row['image_url'] ?? '', 'variants'=>$variants[(int)$row['id']] ?? [], 'metadata'=>[],
+                'image_url'=>$row['image_url'] ?? '', 'variants'=>$variants[(int)$row['id']] ?? [], 'gender'=>$row['gender'],'metadata'=>$row['gender'] ? ['gender'=>$row['gender']] : [],
             ];
         }
         return $this->catalog;

@@ -19,8 +19,16 @@ class Product
     }
 
      
-    public function getProducts()
+    public static function validateGender($value): ?string
     {
+        if ($value === null || $value === '') return null;
+        if (!in_array($value, ['men','women','unisex'],true)) throw new InvalidArgumentException('Choose Men, Women, Unisex, or Not set.');
+        return $value;
+    }
+
+    public function getProducts(?string $gender = null)
+    {
+        $gender = self::validateGender($gender);
         $sql = "SELECT
                     p.*,
                     c.name AS category_name,
@@ -29,12 +37,11 @@ class Product
                 FROM products p
                 LEFT JOIN categories c ON p.category_id = c.id
                 LEFT JOIN discounts d ON p.discount_id = d.id AND d.type='normal' AND " . DiscountRules::ACTIVE_SQL . "
-                WHERE p.is_active = 1
-                ORDER BY p.id DESC";
+                WHERE p.is_active = 1" . ($gender !== null ? " AND (p.gender = ? OR p.gender = 'unisex')" : "") . " ORDER BY p.id DESC";
 
-        $products = $this->connect
-            ->query($sql)
-            ->fetchAll(PDO::FETCH_ASSOC);
+        $stmt = $this->connect->prepare($sql);
+        $stmt->execute($gender === null ? [] : [$gender]);
+        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         foreach ($products as &$product) {
             $product = $this->addProductDetails($product);
@@ -149,12 +156,13 @@ class Product
     public function createProduct($data, $imagePaths, $variants)
     {
         $this->removedImages = [];
+        $gender = self::validateGender($data["gender"] ?? null);
         $this->connect->beginTransaction();
         try {
         $sql = "INSERT INTO products
                     (name, description, price, quantity,
-                     category_id, discount_id, is_active)
-                VALUES (?, ?, ?, ?, ?, ?, ?)";
+                     category_id, discount_id, is_active, gender)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         $stmt = $this->connect->prepare($sql);
 
@@ -165,7 +173,8 @@ class Product
             $data["quantity"],
             $data["category_id"],
             $data["discount_id"],
-            $data["is_active"]
+            $data["is_active"],
+            $gender
         ]);
 
         $productId = $this->connect->lastInsertId();
@@ -216,13 +225,14 @@ class Product
     {
         $this->removedImages = [];
         $removedImages = [];
+        $gender = self::validateGender(array_key_exists("gender",$data) ? $data["gender"] : ($this->getProduct($id)["gender"] ?? null));
         $this->connect->beginTransaction();
         try {
             $statement = $this->connect->prepare("UPDATE products SET name = ?, description = ?,
-                price = ?, quantity = ?, category_id = ?, discount_id = ?, is_active = ? WHERE id = ?");
+                price = ?, quantity = ?, category_id = ?, discount_id = ?, is_active = ?, gender = ? WHERE id = ?");
             $statement->execute([
                 $data['name'], $data['description'], $data['price'], $data['quantity'],
-                $data['category_id'], $data['discount_id'], $data['is_active'], $id
+                $data['category_id'], $data['discount_id'], $data['is_active'], $gender, $id
             ]);
 
             $statement = $this->connect->prepare('SELECT id, size, color FROM product_variants WHERE product_id = ?');
