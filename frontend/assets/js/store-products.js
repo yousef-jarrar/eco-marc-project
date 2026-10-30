@@ -7,7 +7,7 @@
   const prev = document.getElementById("prev-page");
   const next = document.getElementById("next-page");
   const categoriesList = document.getElementById("categoriesList");
-  const pageSize = 5;
+  const pageSize = 10;
   let products = [];
   let categories = [];
   let currentPage = 1;
