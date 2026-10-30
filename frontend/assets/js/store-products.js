@@ -15,7 +15,7 @@
     name: document.getElementById("filter-name"),
     color: document.getElementById("filter-color"),
     size: document.getElementById("filter-size"),
-    price: document.getElementById("filter-price")
+    minPrice: document.getElementById("filter-min-price"), price: document.getElementById("filter-price")
   };
   const selectedCategories = new Set();
   const query = new URLSearchParams(location.search);
@@ -49,6 +49,7 @@
     const name = filters.name.value.trim().toLowerCase();
     const color = filters.color.value.toLowerCase();
     const size = filters.size.value.toLowerCase();
+    const minPrice = filters.minPrice.value.trim() === "" ? null : Number(filters.minPrice.value);
     const maxPrice = filters.price.value.trim() === "" ? null : Number(filters.price.value);
     return products.filter(product => {
       const productName = String(product.name || "").toLowerCase();
@@ -62,7 +63,7 @@
         return value === size || (size === "one size" && value === "one_size");
       });
       const price = C.priceInfo(product);
-      const matchesPrice = maxPrice === null || (!Number.isNaN(maxPrice) && price.finalPrice <= maxPrice);
+      const matchesPrice = (minPrice === null || (!Number.isNaN(minPrice) && price.finalPrice >= minPrice)) && (maxPrice === null || (!Number.isNaN(maxPrice) && price.finalPrice <= maxPrice));
       return matchesName && matchesCategory && matchesColor && matchesSize && matchesPrice && (query.get("sale") !== "1" || price.discounted);
     });
   }
