@@ -2,6 +2,9 @@
 const footerRoot = new URL("../../../", document.currentScript.src);
 const footerLinks = {
     home: new URL("frontend/Landing.html", footerRoot).pathname,
+    shop: new URL("frontend/shop.html", footerRoot).pathname,
+    orders: new URL("frontend/account/my-orders.html", footerRoot).pathname,
+    wishlist: new URL("frontend/customers/wishlist.html", footerRoot).pathname,
     account: new URL("frontend/account/index.html", footerRoot).pathname,
     login: new URL("frontend/account/login.html", footerRoot).pathname,
     register: new URL("frontend/account/register.html", footerRoot).pathname,
@@ -21,7 +24,7 @@ if (footer) {
       </div>
       <nav aria-label="Footer account links">
         <h2>Your LUMIÈRE</h2>
-        <a href="${footerLinks.home}">Home</a>
+        <a href="${footerLinks.shop}">Shop the collection</a><a href="${footerLinks.wishlist}">Wishlist</a><a href="${footerLinks.orders}">My orders</a>
         <a href="${footerLinks.account}">My account</a>
         <a href="${footerLinks.login}">Sign in</a>
         <a href="${footerLinks.register}">Create an account</a>
@@ -43,11 +46,12 @@ if (footer) {
     <div class="site-footer-bottom">
       <span>© ${new Date().getFullYear()} LUMIÈRE. All rights reserved.</span>
       <span>Fashion &amp; footwear, thoughtfully selected.</span>
-      <a href="#top">Back to top <span aria-hidden="true">↑</span></a>
+      <a href="#" data-footer-top>Back to top <span aria-hidden="true">↑</span></a>
     </div>
   `;
 }
 
+footer?.querySelector('[data-footer-top]')?.addEventListener('click',event=>{event.preventDefault();window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'});});
 const customerChatScript = document.createElement("script");
-customerChatScript.src = new URL("frontend/assets/js/customer-chat.js?v=20261030-cards", footerRoot).href;
+customerChatScript.src = new URL("frontend/assets/js/customer-chat.js?v=20261030-simplified-ai", footerRoot).href;
 document.body.append(customerChatScript);

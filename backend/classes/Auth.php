@@ -55,22 +55,19 @@ class Auth {
     }
 
     public function checkLimit(string $key): void {
-        $query = $this->db->prepare('SELECT blocked_until > NOW() FROM auth_login_attempts WHERE attempt_key = ?');
-        $query->execute([$key]);
-        $blocked = $query->fetchColumn();
-        if ($blocked) {
+        $attempt = $_SESSION['auth_attempts'][$key] ?? null;
+        if ($attempt && time() - (int)$attempt['started'] < 900 && (int)$attempt['count'] >= 10) {
             throw new RuntimeException('Too many attempts. Please wait 15 minutes.', 429);
         }
     }
 
     public function recordAttempt(string $key): void {
-         
-        $query = $this->db->prepare('INSERT INTO auth_login_attempts (attempt_key, attempts, window_started)
-            VALUES (?, 1, NOW()) ON DUPLICATE KEY UPDATE
-            attempts = IF(window_started < DATE_SUB(NOW(), INTERVAL 15 MINUTE), 1, attempts + 1),
-            window_started = IF(window_started < DATE_SUB(NOW(), INTERVAL 15 MINUTE), NOW(), window_started),
-            blocked_until = IF(attempts >= 10, DATE_ADD(NOW(), INTERVAL 15 MINUTE), NULL)');
-        $query->execute([$key]);
+        $now = time();
+        $attempts = $_SESSION['auth_attempts'] ?? [];
+        foreach ($attempts as $id => $attempt) if ($now - (int)$attempt['started'] >= 900) unset($attempts[$id]);
+        if (!isset($attempts[$key])) $attempts[$key] = ['started'=>$now,'count'=>0];
+        $attempts[$key]['count']++;
+        $_SESSION['auth_attempts'] = $attempts;
     }
 
     public function login(string $email, string $password): array {

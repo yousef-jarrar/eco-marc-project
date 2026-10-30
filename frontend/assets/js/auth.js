@@ -10,6 +10,8 @@ const EcoAuth = (function () {
   let state = null;
   let pageUserId = null;
   const isAdminPage = location.pathname.startsWith(adminFolder);
+  const privateAccountPages = ["checkout.html", "my-orders.html", "Order-success.html"];
+  const isPrivateAccountPage = privateAccountPages.some(page => location.pathname === new URL("frontend/account/" + page, projectRoot).pathname);
 
   async function readAuthResponse(response) {
     const text = await response.text();
@@ -40,7 +42,7 @@ const EcoAuth = (function () {
 
   const ready = loadSession().then(function (session) {
     pageUserId = session.user ? String(session.user.id) : null;
-    if (isAdminPage && !session.user) {
+    if ((isAdminPage || isPrivateAccountPage) && !session.user) {
       location.replace(login + "?next=" + encodeURIComponent(location.pathname + location.search));
       throw new Error("Please sign in.");
     }
@@ -107,7 +109,7 @@ const EcoAuth = (function () {
     const headers = new Headers(options.headers || {});
     if (!["GET", "HEAD", "OPTIONS"].includes(method)) headers.set("X-CSRF-Token", state.csrf_token);
     const response = await fetch(url, Object.assign({}, options, { headers: headers, credentials: "same-origin" }));
-    if (response.status === 401 && isAdminPage) location.replace(login + "?next=" + encodeURIComponent(location.pathname + location.search));
+    if (response.status === 401 && (isAdminPage || isPrivateAccountPage)) location.replace(login + "?next=" + encodeURIComponent(location.pathname + location.search));
      
     if (response.status === 403) {
       try {
@@ -120,7 +122,7 @@ const EcoAuth = (function () {
 
   function destination(user) {
     const next = new URLSearchParams(location.search).get("next");
-    const allowed = ["ai-knowledge.html", "ai-assistant.html", "categories.html", "Customer.html", "Customer-details.html", "Products.html", "ProductDetails.html", "reviews.html", "settings.html", "overveiw.html", "orders.html", "order-details.html"];
+    const allowed = ["ai-assistant.html", "categories.html", "Customer.html", "Customer-details.html", "Products.html", "ProductDetails.html", "reviews.html", "settings.html", "overveiw.html", "orders.html", "order-details.html"];
     if (user.role === "admin" && next) {
       try {
         const url = new URL(next, location.origin);
@@ -132,7 +134,7 @@ const EcoAuth = (function () {
       try {
         const url = new URL(next,location.origin);
         const publicFolder = new URL("frontend/",projectRoot).pathname;
-        const pages = ["Landing.html","shop.html","ProductShop.html","visual-search.html","customers/wishlist.html","account/cart.html","account/profile.html","account/index.html"];
+        const pages = ["Landing.html","shop.html","ProductShop.html","visual-search.html","customers/wishlist.html","account/cart.html","account/checkout.html","account/my-orders.html","account/Order-success.html","account/profile.html","account/index.html"];
         if (url.origin === location.origin && url.pathname.startsWith(publicFolder) && pages.includes(url.pathname.slice(publicFolder.length))) return url.pathname+url.search+url.hash;
       } catch {}
     }

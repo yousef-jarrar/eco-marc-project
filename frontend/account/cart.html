@@ -4,15 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cart | Eco Marc</title>
+    <title>Cart | LUMIÈRE</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
 
+    <link rel="stylesheet" href="../assets/css/index.css"><link rel="stylesheet" href="../assets/css/global.css">
     <style>
         :root {
-            --primary: #3968AC;
+            --primary: var(--color-primary);
             --text: #111111;
             --muted: #666666;
             --border: #e5e5e5;
@@ -381,11 +379,11 @@
     </style>
 <link rel="stylesheet" href="../assets/css/fonts.css">
 <link rel="stylesheet" href="../assets/vendor/fontawesome.min.css">
-<link rel="stylesheet" href="../assets/css/public-header.css?v=20261030-public">
+<link rel="stylesheet" href="../assets/css/public-header.css?v=20261030-audit">
 <style>.hidden{display:none!important}#retry-button{margin-left:12px;min-height:40px;border:1px solid #bbb;background:transparent;padding:8px 16px;color:#171717}#item-count,#cart-message{font-size:13px;color:#666}</style>
 <link rel="stylesheet" href="../assets/css/product-cards.css?v=20261030-cards">
 <script src="../assets/js/product-cards.js?v=20261030-cards"></script>
-</head>
+<link rel="stylesheet" href="../assets/css/cart.css?v=20261030-audit"></head>
 
 <body class="has-public-header">
     <header class="public-header">
@@ -399,7 +397,7 @@
       <a href="../shop.html?category=footwear">Footwear</a>
       <a href="../shop.html?category=accessories">Accessories</a>
       <a href="../shop.html?sort=new">New arrivals</a>
-      <a href="../shop.html?sale=1">Sale</a>
+      <a href="../shop.html?sale=1">Sale</a><a href="my-orders.html">My orders</a>
       <a class="ph-mobile-link" href="../customers/wishlist.html"><i class="fa-regular fa-heart" aria-hidden="true"></i> Wishlist</a>
       <a class="ph-mobile-link" data-ph-user href="../account/profile.html" hidden><i class="fa-regular fa-user" aria-hidden="true"></i> My account</a>
       <a class="ph-mobile-link" data-ph-guest href="../account/login.html">Sign in</a><a class="ph-mobile-link" data-ph-guest href="../account/register.html">Create an account</a>
@@ -462,7 +460,7 @@
 
             <button type="button" class="checkout-button" id="checkout-button">
                 Continue to checkout
-                <span class="material-symbols-outlined">arrow_forward</span>
+                <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
             </button>
 
             <p class="delivery-note">
@@ -474,10 +472,10 @@
     
 
     <!-- Keep your project's existing authentication and alert scripts here. -->
-    <script src="../assets/js/auth.js?v=20261030-public"></script>
+    <script src="../assets/js/auth.js?v=20261030-simplified-ai"></script>
     <script src="../assets/vendor/sweetalert2.all.min.js"></script>
     <script src="../assets/js/alerts.js?v=20261029-pages"></script>
-    <script src="../assets/js/cart.js?v=20261030-layout"></script>
-<script src="../assets/js/public-header.js?v=20261030-cards"></script>
+    <script src="../assets/js/cart.js?v=20261030-audit"></script>
+<script src="../assets/js/public-header.js?v=20261030-simplified-ai"></script>
 </body>
 </html>

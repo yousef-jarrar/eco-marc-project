@@ -109,10 +109,10 @@ function displayCategories(data) {
 
         const deleteButton = document.createElement("button");
         deleteButton.type = "button";
-        deleteButton.textContent = "Delete";
+        deleteButton.textContent = "Hide";
         deleteButton.className = "category-delete-button";
         deleteButton.disabled = changingCategory;
-        deleteButton.setAttribute("aria-label", "Delete " + category.name);
+        deleteButton.setAttribute("aria-label", "Hide " + category.name);
         deleteButton.addEventListener("click", function () { removeCategory(category); });
 
         actions.appendChild(editButton);
@@ -136,6 +136,8 @@ function showFilteredCategories() {
         }
     }
     displayCategories(filtered);
+    const restore = document.getElementById("restore-hidden-categories");
+    if (restore) { restore.hidden = hiddenCategoryIds.size === 0; restore.textContent = `Show hidden categories (${hiddenCategoryIds.size})`; }
 }
 
  
@@ -299,6 +301,12 @@ async function removeCategory(category) {
     }
 }
 
+document.getElementById("restore-hidden-categories").addEventListener("click", () => {
+    hiddenCategoryIds.clear();
+    localStorage.removeItem(hiddenCategoriesStorageKey);
+    showFilteredCategories();
+    Alerts.toast("Hidden categories are visible again");
+});
 searchInput.addEventListener("input", showFilteredCategories);
 addCategoryButton.addEventListener("click", function () { openCategoryForm(); });
 loadCategories();

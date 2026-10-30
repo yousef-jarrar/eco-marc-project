@@ -131,7 +131,12 @@ class Customer
         $stmt = $this->db->prepare($sql);
         $stmt->execute(["id" => $id]);
 
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $customer = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$customer) return false;
+        $history = $this->db->prepare("SELECT c.id AS order_id,c.status,c.created_at AS placed_at,cd.total FROM carts c JOIN cart_details cd ON cd.cart_id=c.id WHERE c.user_id=? AND c.status<>'active' ORDER BY c.created_at DESC,c.id DESC LIMIT 20");
+        $history->execute([$id]);
+        $customer['order_history'] = $history->fetchAll(PDO::FETCH_ASSOC);
+        return $customer;
     }
 
      

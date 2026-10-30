@@ -94,6 +94,7 @@ function renderOrders(orders) {
                 cell.textContent = value;
             }
 
+            cell.dataset.label = ["Order", "Date", "Status", "Subtotal", "Discount", "Delivery", "Total"][index];
             row.appendChild(cell);
         });
 
@@ -107,13 +108,14 @@ async function loadOrders() {
     ordersCount.textContent = "";
 
     try {
+        await EcoAuth.ready;
         const url = new URL(API_URL);
 
         url.searchParams.set("action", "my_orders");
         url.searchParams.set("page", currentPage);
 
         const fetchFunction =
-            window.EcoAuth?.fetch || window.fetch.bind(window);
+            EcoAuth.fetch;
 
         const response = await fetchFunction(url.href, {
             method: "GET",
@@ -166,6 +168,7 @@ async function loadOrders() {
     } catch (error) {
         console.error("Load orders error:", error);
         showState("error", error.message);
+        Alerts.show("Orders unavailable", error.message, "error");
     }
 }
 

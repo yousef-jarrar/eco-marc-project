@@ -61,7 +61,7 @@
     if (gallery) { selectedImage = Number(gallery.dataset.gallery); renderGallery(); return; }
     if (event.target.closest("#add-detail-wishlist")) {
       const button = section.querySelector("#add-detail-wishlist"); button.disabled = true;
-      try { await C.addWishlist(product.id); button.innerHTML = '<i class="fa-solid fa-heart"></i> Added to wishlist'; }
+      try { if (!(await C.addWishlist(product.id))) return; button.innerHTML = '<i class="fa-solid fa-heart"></i> Added to wishlist'; }
       catch (error) { C.notify(error.message, "error"); }
       finally { button.disabled = false; }
       return;

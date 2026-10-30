@@ -1,33 +1,59 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="auth-checking">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order placed | Eco Marc</title>
+    <title>Order placed | LUMIÈRE</title>
 
     <link rel="stylesheet" href="../assets/vendor/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/index.css">
     <link rel="stylesheet" href="../assets/css/global.css">
-    <link rel="stylesheet" href="../assets/css/checkout.css">
-</head>
-<body>
+    <link rel="stylesheet" href="../assets/css/checkout.css?v=20261030-audit">
+<link rel="stylesheet" href="../assets/vendor/fontawesome.min.css"><link rel="stylesheet" href="../assets/css/public-header.css?v=20261030-audit"><link rel="icon" type="image/svg+xml" href="../../assets/lumiere-icon-light.svg"><style>html.auth-checking body{visibility:hidden}</style><script src="../assets/js/auth.js?v=20261030-simplified-ai"></script></head>
+<body class="has-public-header"><header class="public-header">
+  <div class="ph-announcement"><span class="ph-announcement-text">Considered style. Everyday movement.</span></div>
+  <div class="ph-inner wrap">
+    <button class="ph-icon ph-menu-toggle" id="burger" type="button" aria-label="Open navigation" aria-controls="links" aria-expanded="false"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
+    <a class="ph-logo" href="../Landing.html" aria-label="LUMIÈRE home"><img src="../../assets/lumiere-icon-light.svg" alt="" width="35" height="35"><span>LUMIÈRE</span></a>
+    <nav class="ph-nav" id="links" aria-label="Store navigation">
+      <a href="../Landing.html">Home</a>
+      <a href="../shop.html">Shop</a>
+      <a href="../shop.html?category=footwear">Footwear</a>
+      <a href="../shop.html?category=accessories">Accessories</a>
+      <a href="../shop.html?sort=new">New arrivals</a>
+      <a href="../shop.html?sale=1">Sale</a>
+      <a class="ph-mobile-link" href="../customers/wishlist.html"><i class="fa-regular fa-heart" aria-hidden="true"></i> Wishlist</a>
+      <a class="ph-mobile-link" data-ph-user href="../account/profile.html" hidden><i class="fa-regular fa-user" aria-hidden="true"></i> My account</a>
+      <a class="ph-mobile-link" data-ph-guest href="../account/login.html">Sign in</a><a class="ph-mobile-link" data-ph-guest href="../account/register.html">Create an account</a>
+    </nav>
+    <div class="ph-actions">
+      <button class="ph-icon ph-search-toggle" type="button" aria-label="Search products" aria-controls="public-search" aria-expanded="false"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
+      <a class="ph-icon" href="../visual-search.html" aria-label="Search by image" title="Search by image"><i class="fa-solid fa-camera" aria-hidden="true"></i></a>
+      <a class="ph-icon ph-desktop-action ph-account" href="../account/login.html" aria-label="Sign in" title="My account"><i class="fa-regular fa-user" aria-hidden="true"></i></a>
+      <a class="ph-icon ph-desktop-action" href="../customers/wishlist.html" aria-label="Wishlist" title="Wishlist"><i class="fa-regular fa-heart" aria-hidden="true"></i></a>
+      <a class="ph-icon"  href="../account/cart.html" aria-label="Open cart" title="Shopping bag"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i><b class="ph-badge" id="store-cart-count" hidden>0</b></a>
+      
+    </div>
+  </div>
+  <div class="ph-search" id="public-search" hidden><form action="../shop.html"><label for="public-search-input">Search the collection</label><input id="public-search-input" name="q" type="search" placeholder="Search the collection…" autocomplete="off"><button type="submit" class="ph-search-submit"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><span>Search</span></button><button type="button" class="ph-search-close" aria-label="Close search"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></form></div>
+</header>
     <main class="checkout-page">
         <div class="checkout-container" style="max-width:640px;">
 
             <div class="checkout-top">
-                <p class="checkout-brand">ECO <span>MARC</span></p>
+                
             </div>
 
             <div class="panel" style="text-align:center;">
                 <p style="font-size:3rem;margin:0;" aria-hidden="true">✓</p>
                 <p class="eyebrow">THANK YOU</p>
-                <h1>Your order is placed</h1>
+                <h1>Order confirmation</h1>
                 <p class="muted">
-                    Order <strong id="order-number">#—</strong> is pending.
+                    Order <strong id="order-number">#—</strong> <span id="success-status"></span>.
                     You pay in cash when it arrives.
                 </p>
 
-                <div id="order-summary" style="text-align:left;margin:1.5rem 0;" hidden>
+                <p id="success-message" role="status">Loading your order…</p><div id="order-summary" style="text-align:left;margin:1.5rem 0;" hidden>
                     <div class="total-row"><span>Subtotal</span><span id="os-subtotal"></span></div>
                     <div class="total-row"><span>Discount</span><span id="os-discount"></span></div>
                     <div class="total-row"><span>Delivery</span><span id="os-delivery"></span></div>
@@ -41,34 +67,11 @@
                    style="display:inline-flex;text-decoration:none;margin-right:.5rem;">
                     My orders
                 </a>
-                <a href="index.html" class="text-link">Continue shopping</a>
+                <a href="../shop.html" class="text-link">Continue shopping</a>
             </div>
         </div>
     </main>
 
-    <script>
-        const CURRENCY = "JOD";
-        const money = v => `${CURRENCY} ${(Number(v) || 0).toFixed(2)}`;
 
-        const params = new URLSearchParams(window.location.search);
-        let order = null;
-
-        try {
-            order = JSON.parse(sessionStorage.getItem("last_order") || "null");
-        } catch { /* ignore */ }
-
-        const id = params.get("order") || order?.order_id;
-        if (id) document.getElementById("order-number").textContent = `#${id}`;
-
-        if (order) {
-            document.getElementById("os-subtotal").textContent = money(order.subtotal);
-            document.getElementById("os-discount").textContent = `− ${money(order.discount_amount)}`;
-            document.getElementById("os-delivery").textContent =
-                Number(order.delivery_fee) === 0 ? "Free" : money(order.delivery_fee);
-            document.getElementById("os-total").textContent = money(order.total);
-            document.getElementById("os-address").textContent = order.shipping_address || "";
-            document.getElementById("order-summary").hidden = false;
-        }
-    </script>
-</body>
+<script src="../assets/vendor/sweetalert2.all.min.js"></script><script src="../assets/js/alerts.js?v=20261029-pages"></script><script src="../assets/js/order-success.js?v=20261030-checkout"></script><script src="../assets/js/public-header.js?v=20261030-simplified-ai"></script></body>
 </html>

@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/DiscountRules.php';
 
 
 class Product
@@ -27,7 +28,7 @@ class Product
                     d.percentage AS discount_percentage
                 FROM products p
                 LEFT JOIN categories c ON p.category_id = c.id
-                LEFT JOIN discounts d ON p.discount_id = d.id
+                LEFT JOIN discounts d ON p.discount_id = d.id AND d.type='normal' AND " . DiscountRules::ACTIVE_SQL . "
                 WHERE p.is_active = 1
                 ORDER BY p.id DESC";
 
@@ -54,7 +55,7 @@ class Product
                     d.percentage AS discount_percentage
                 FROM products p
                 LEFT JOIN categories c ON p.category_id = c.id
-                LEFT JOIN discounts d ON p.discount_id = d.id
+                LEFT JOIN discounts d ON p.discount_id = d.id AND d.type='normal' AND " . DiscountRules::ACTIVE_SQL . "
                 WHERE p.id = ?";
 
         $stmt = $this->connect->prepare($sql);
@@ -124,7 +125,7 @@ class Product
         }
 
         $stmt = $this->connect->prepare(
-            "SELECT id FROM discounts WHERE id = ?"
+            "SELECT id FROM discounts WHERE id = ? AND type='normal' AND is_active=1"
         );
 
         $stmt->execute([$discountId]);

@@ -53,9 +53,11 @@ async function saveProfile(form, action, payload, statusId, successMessage) {
     const result = await requestProfile(action, payload);
     if (result.data) showProfile(result.data);
     setProfileStatus(statusId, successMessage);
+    Alerts.toast(successMessage);
     if (form === passwordForm) form.reset();
   } catch (error) {
     setProfileStatus(statusId, error.message || "Your changes could not be saved.", true);
+    Alerts.show("Changes were not saved", error.message || "Please try again.", "error");
   } finally {
     setFormBusy(form, false);
   }

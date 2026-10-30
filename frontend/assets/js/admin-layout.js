@@ -52,6 +52,7 @@ const adminPages = [
   { name: "Categories", page: "categories", file: "categories.html", icon: "layer-group", available: true },
   { name: "Products", page: "products", file: "Products.html", icon: "box", available: true },
   { name: "Orders", page: "orders", file: "orders.html", icon: "bag-shopping", available: true },
+  { name: "Discounts", page: "discounts", file: "discounts.html", icon: "tags", available: true },
   { name: "Customers", page: "customers", file: "Customer.html", icon: "users", available: true },
   { name: "Reviews", page: "reviews", file: "reviews.html", icon: "star", available: true },
   { name: "AI business assistant", page: "ai", file: "ai-assistant.html", icon: "wand-magic-sparkles", available: true },
@@ -282,7 +283,7 @@ document.addEventListener("keydown", function (event) {
 document.getElementById("admin-logout").addEventListener("click", EcoAuth.logout);
 EcoAuth.ready.then(function (session) {
   if (!session.user) return;
-  const name = session.user.first_name + " " + session.user.last_name;
+  const name = [session.user.first_name, session.user.last_name].filter(Boolean).join(" ") || "Administrator";
   document.querySelector(".admin-identity-text strong").textContent = name;
   document.querySelector(".admin-identity .avatar").textContent = session.user.first_name.slice(0, 1).toUpperCase();
 }).catch(function () { });

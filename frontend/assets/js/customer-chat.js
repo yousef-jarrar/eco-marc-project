@@ -8,7 +8,7 @@
   function iconLabel(element,name,text) { element.replaceChildren(icon(name),document.createTextNode(text)); }
   const css = document.createElement('link');
   css.rel = 'stylesheet';
-  css.href = new URL('frontend/assets/css/customer-chat.css?v=20261029-box', projectRoot);
+  css.href = new URL('frontend/assets/css/customer-chat.css?v=20261030-simplified-ai', projectRoot);
   document.head.append(css);
   const launcher = document.createElement('button');
   launcher.id = 'customer-chat-launcher';
@@ -21,7 +21,7 @@
   dialog.setAttribute('aria-labelledby', 'chat-title');
   dialog.innerHTML = `
     <div class="chat-header"><span class="chat-avatar" aria-hidden="true">✦</span><div class="chat-heading"><h2 id="chat-title">Your shopping assistant</h2><p>LUMIÈRE · Made for your next find</p></div><button type="button" id="chat-expand" aria-label="Expand chat" aria-pressed="false"><i class="fa-solid fa-expand chat-icon" aria-hidden="true"></i></button><button type="button" id="chat-close" aria-label="Close shopping assistant"><i class="fa-solid fa-xmark chat-icon" aria-hidden="true"></i></button></div>
-    <div class="chat-toolbar"><a class="chat-preferences-link" href="${new URL("frontend/account/index.html#shopping-preferences-title", projectRoot).href}"><i class="fa-solid fa-sliders chat-icon" aria-hidden="true"></i>Your preferences</a><button type="button" id="chat-clear"><i class="fa-solid fa-rotate-left chat-icon" aria-hidden="true"></i>New chat</button></div>
+    <div class="chat-toolbar"><button type="button" id="chat-clear"><i class="fa-solid fa-rotate-left chat-icon" aria-hidden="true"></i>New chat</button></div>
     <div id="chat-log" role="log" aria-label="Conversation" aria-live="polite" aria-relevant="additions"></div>
     <button id="chat-latest" type="button" hidden><i class="fa-solid fa-arrow-down chat-icon" aria-hidden="true"></i>Latest reply</button>
     <div id="chat-compare-bar" hidden><span id="chat-compare-count" aria-live="polite"></span><button id="chat-compare-go" type="button" disabled><i class="fa-solid fa-scale-balanced chat-icon" aria-hidden="true"></i>Compare selected</button><button id="chat-compare-clear" type="button" aria-label="Clear comparison"><i class="fa-solid fa-xmark chat-icon" aria-hidden="true"></i></button></div>
@@ -114,7 +114,7 @@
   }
 
   function storeLink(page) {
-    const allowed = ['Landing.html#shop', 'visual-search.html', 'account/index.html', 'account/index.html#shopping-preferences-title'];
+    const allowed = ['Landing.html#shop', 'visual-search.html', 'account/index.html'];
     return new URL('frontend/' + (allowed.includes(page) ? page : 'Landing.html#shop'), projectRoot).href;
   }
 

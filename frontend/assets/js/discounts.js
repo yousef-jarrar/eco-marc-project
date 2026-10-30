@@ -1,10 +1,12 @@
-const DISCOUNTS_API =  "http://localhost/eco-marc-project-main/backend/api/discounts.php";
+const DISCOUNTS_API =  AdminConfig.apiBase + "discounts.php";
 
 const DISCOUNTS_PER_PAGE = 10;
 
 let allDiscounts = [];
 let currentPage = 1;
 let isLoading = false;
+let discountServerTime = null;
+let discountClockStarted = 0;
 
 const body = document.getElementById("discounts-body");
 const searchInput = document.getElementById("discount-search");
@@ -52,7 +54,8 @@ function isActive(discount) {
 }
 
 async function apiRequest(url, options = {}) {
-  const response = await fetch(url, {
+  await EcoAuth.ready;
+  const response = await EcoAuth.fetch(url, {
     ...options,
     credentials: "same-origin",
     headers: {
@@ -97,7 +100,10 @@ function getFilteredDiscounts() {
       discount.type
     ].join(" ").toLowerCase();
 
-    // Search by name or coupon code.
+    if (typeFilter.value && discount.type !== typeFilter.value) return false;
+    const state = discount.promotion_status || (isActive(discount) ? 'active' : 'inactive');
+    const statusFilter = document.getElementById('discount-state').value;
+    if (statusFilter && state !== statusFilter) return false;
     if (!searchable.includes(search)) {
       return false;
     }
@@ -130,8 +136,9 @@ function getFilteredDiscounts() {
 
 function statusBadge(discount) {
   const active = isActive(discount);
-  const status = active ? "Active" : "Inactive";
-  const className = active ? "approved" : "hidden";
+  const state = discount.promotion_status || (active ? "active" : "inactive");
+  const status = state.charAt(0).toUpperCase() + state.slice(1);
+  const className = state === "active" ? "approved" : state === "scheduled" ? "pending" : "hidden";
 
   return `<span class="status ${className}">${status}</span>`;
 }
@@ -145,7 +152,7 @@ function renderDiscountRow(discount) {
       <strong>${escapeHTML(discount.name)}</strong>
       <div class="tiny muted">#${escapeHTML(discount.id)}</div>
     </td>
-    <td>${escapeHTML(discount.type)}</td>
+    <td>${discount.type === "normal" ? "Product discount" : "Coupon"}</td><td>${discount.type === "normal" ? Number(discount.product_count || 0) + " products" : "At checkout"}</td>
     <td><strong>${escapeHTML(discount.percentage)}%</strong></td>
     <td>${escapeHTML(discount.coupon_code || "—")}</td>
     <td>${escapeHTML(formatDate(discount.start_date))}</td>
@@ -153,7 +160,7 @@ function renderDiscountRow(discount) {
     <td>${statusBadge(discount)}</td>
     <td>
       <div class="d-flex gap-2 flex-wrap">
-        <button class="secondary" data-action="edit">
+        <button class="secondary" data-action="edit" ${isActive(discount) ? "" : "disabled"}>
           <i class="fa-solid fa-pen" aria-hidden="true"></i>
           Edit
         </button>
@@ -170,6 +177,8 @@ function renderDiscountRow(discount) {
     </td>
   `;
 
+  const labels = ["Discount", "Type", "Applies to", "Percentage", "Coupon code", "Start date", "End date", "Status", "Actions"];
+  row.querySelectorAll("td").forEach((cell, index) => cell.dataset.label = labels[index]);
   return row;
 }
 
@@ -203,7 +212,7 @@ function renderDiscounts() {
   if (pageItems.length === 0) {
     body.innerHTML = `
       <tr>
-        <td colspan="8">
+        <td colspan="9">
           <div class="empty-state">
             <i class="fa-solid fa-tags" aria-hidden="true"></i>
             <h3>No discounts found</h3>
@@ -221,16 +230,16 @@ function renderDiscounts() {
 }
 
 function updateStatistics() {
-  const active = allDiscounts.filter(isActive);
+  const active = allDiscounts.filter(d => (d.promotion_status || (isActive(d) ? "active" : "inactive")) === "active");
 
   setText("total-discounts", active.length);
   setText(
     "normal-discounts",
-    active.filter(item => item.type === "normal").length
+    allDiscounts.filter(item => item.type === "normal").length
   );
   setText(
     "coupon-discounts",
-    active.filter(item => item.type === "coupon").length
+    allDiscounts.filter(item => item.type === "coupon").length
   );
 }
 
@@ -254,7 +263,7 @@ async function loadDiscounts() {
 
   body.innerHTML = `
     <tr>
-      <td colspan="8">
+      <td colspan="9">
         <div class="loading">
           <span class="spinner"></span>
           <p>Loading discounts...</p>
@@ -264,9 +273,16 @@ async function loadDiscounts() {
   `;
 
   try {
-    const result = await apiRequest(`${DISCOUNTS_API}?page=1`);
+    const result = await apiRequest(`${DISCOUNTS_API}?page=1&include_inactive=1`);
 
+    discountServerTime = result.server_time || null;
+    discountClockStarted = Date.now();
     allDiscounts = extractDiscounts(result);
+    const pages = Number(result.pagination?.total_pages) || 1;
+    for (let page = 2; page <= pages; page++) {
+      const next = await apiRequest(`${DISCOUNTS_API}?page=${page}&include_inactive=1`);
+      allDiscounts.push(...extractDiscounts(next));
+    }
 
     updateStatistics();
     currentPage = 1;
@@ -293,7 +309,7 @@ async function loadDiscounts() {
 
     body.innerHTML = `
       <tr>
-        <td colspan="8">
+        <td colspan="9">
           <div class="empty-state">
             <h3>Could not load discounts</h3>
             <p class="muted">Check the API connection and retry.</p>
@@ -306,154 +322,134 @@ async function loadDiscounts() {
 
 function discountFormHTML(discount = null) {
   const editing = Boolean(discount);
-
-  return `
-    <div style="text-align:left">
-      <label for="discount-name">Discount name</label>
-      <input id="discount-name" class="swal2-input"
-             maxlength="100" placeholder="Summer Sale"
-             value="${escapeHTML(discount?.name || "")}"
-             ${editing ? "disabled" : "required"}>
-
-      ${
-        editing
-          ? `<p class="muted">Name and type cannot be changed here.</p>`
-          : `
-            <label for="discount-type-input">Discount type</label>
-            <select id="discount-type-input" class="swal2-select">
-              <option value="normal">Normal discount</option>
-              <option value="coupon">Coupon discount</option>
-            </select>
-            <p class="muted">Coupon codes are generated automatically.</p>
-          `
-      }
-
-      <label for="discount-percentage">Percentage (0–100)</label>
-      <input id="discount-percentage" class="swal2-input"
-             type="number" min="0" max="100" step="0.01"
-             value="${editing ? escapeHTML(discount.percentage) : ""}"
-             required>
-
-      <label for="discount-start">Start date (optional)</label>
-      <input id="discount-start" class="swal2-input"
-             type="datetime-local"
-             value="${editing ? toDateTimeInput(discount.start_date) : ""}">
-
-      <label for="discount-end">End date (optional)</label>
-      <input id="discount-end" class="swal2-input"
-             type="datetime-local"
-             value="${editing ? toDateTimeInput(discount.end_date) : ""}">
+  return `<div class="discount-editor-form">
+    <p class="discount-editor-intro">${editing ? 'Update the offer and where it applies.' : 'Set your offer, choose where it applies, and review it before saving.'}</p>
+    <div class="discount-editor-fields">
+      <div class="discount-editor-field"><label for="discount-name">Offer name</label><input id="discount-name" maxlength="100" placeholder="e.g. Weekend collection" value="${escapeHTML(discount?.name || '')}" ${editing ? 'disabled' : 'required'}></div>
+      <div class="discount-editor-field"><label for="discount-type-input">Offer type</label><select id="discount-type-input" ${editing ? 'disabled' : ''}><option value="normal" ${discount?.type !== 'coupon' ? 'selected' : ''}>Product discount</option><option value="coupon" ${discount?.type === 'coupon' ? 'selected' : ''}>Coupon code</option></select></div>
+      <div class="discount-editor-field"><label for="discount-percentage">Discount percentage</label><div class="discount-percent-input"><input id="discount-percentage" type="number" min="0" max="100" step="0.01" placeholder="e.g. 20" value="${editing ? escapeHTML(discount.percentage) : ''}" required><span aria-hidden="true">%</span></div><small>The percentage deducted from the price.</small></div>
+      <div id="discount-code-field" class="discount-editor-field" hidden><label for="discount-code">Your coupon code</label><input id="discount-code" type="text" name="coupon_code" minlength="3" maxlength="40" spellcheck="false" autocomplete="off" placeholder="e.g. WEEKEND20" value="${escapeHTML(discount?.coupon_code || '')}" aria-describedby="discount-code-help"><small id="discount-code-help">3–40 letters or numbers. Hyphens and underscores are allowed.${editing ? ' Changing this replaces the old code.' : ''}</small></div>
     </div>
-  `;
+    <div class="discount-editor-schedule"><div class="discount-section-title"><h3><i class="fa-regular fa-calendar" aria-hidden="true"></i> Schedule <span>Optional</span></h3><button type="button" id="discount-clear-dates">Clear dates</button></div><div class="discount-editor-fields"><div class="discount-editor-field"><label for="discount-start">Starts</label><input id="discount-start" type="datetime-local" value="${editing ? toDateTimeInput(discount.start_date) : ''}"></div><div class="discount-editor-field"><label for="discount-end">Ends</label><input id="discount-end" type="datetime-local" value="${editing ? toDateTimeInput(discount.end_date) : ''}"></div></div><p class="discount-editor-hint">Choose the current time or a future time. Leave dates empty to start immediately with no end date.</p></div>
+    ${productPickerHTML(discount)}
+    <div class="discount-offer-preview" aria-live="polite"><span class="discount-preview-icon"><i class="fa-solid fa-tag" aria-hidden="true"></i></span><div><strong id="discount-preview-title">Your offer preview</strong><p id="discount-preview-detail">Enter a percentage to preview your offer.</p></div></div>
+  </div>`;
 }
 
-function validateDates(start, end) {
-  if (start && end && new Date(start) > new Date(end)) {
-    return "The start date must be before the end date.";
-  }
-
+function discountNow() {
+  const value = discountServerTime ? new Date(discountServerTime.replace(' ', 'T')).getTime() + Date.now() - discountClockStarted : Date.now();
+  const now = new Date(value);
+  now.setSeconds(0, 0);
+  return now;
+}
+function localDateInput(date) {
+  const pad = number => String(number).padStart(2, '0');
+  return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate()) + 'T' + pad(date.getHours()) + ':' + pad(date.getMinutes());
+}
+function validateDates(start, end, original = null) {
+  const now = discountNow();
+  if (start && start !== toDateTimeInput(original?.start_date) && new Date(start) < now) return 'Start date cannot be in the past. Choose the current time or a future time.';
+  if (end && end !== toDateTimeInput(original?.end_date) && new Date(end) <= now) return 'End date must be in the future.';
+  if (start && end && new Date(start) >= new Date(end)) return 'The start date must be before the end date.';
   return null;
+}
+
+let discountProducts = [];
+
+function productPickerHTML(discount) {
+  const selected = new Set((discount?.product_ids || discountProducts.filter(p => Number(p.discount_id) === Number(discount?.id)).map(p => p.id)).map(Number));
+  return `<fieldset id="discount-products-field" class="discount-products-field">
+    <legend>Apply to products</legend>
+    <p class="muted tiny">Choose the products for this offer. Each product can have one product discount; selecting it replaces its current offer.</p>
+    <label class="sr-only" for="discount-product-search">Find a product</label>
+    <input id="discount-product-search" type="search" placeholder="Search products…" autocomplete="off">
+    <p id="discount-selected-count" class="tiny muted" aria-live="polite"></p>
+    <div class="discount-product-list">${discountProducts.map(product => `<label class="discount-product-option" data-product-name="${escapeHTML(String(product.name).toLowerCase())}">
+      <input type="checkbox" name="discount-products" value="${Number(product.id)}" ${selected.has(Number(product.id)) ? 'checked' : ''}>
+      <span><strong>${escapeHTML(product.name)}</strong><small>${Number(product.price).toFixed(2)} JOD <span data-price-preview="${Number(product.price)}"></span>${product.discount_name && Number(product.discount_id) !== Number(discount?.id) ? ' · replaces ' + escapeHTML(product.discount_name) : ''}</small></span>
+    </label>`).join('') || '<p class="muted">No active products available.</p>'}</div>
+    <p class="tiny muted">Leave all products unchecked to keep this offer available for later assignment.</p>
+  </fieldset>`;
 }
 
 async function openDiscountForm(discount = null) {
   if (isLoading) return;
-
-  const editing = Boolean(discount);
-
-  const result = await Swal.fire({
-    title: editing ? "Edit discount" : "Add discount",
-    html: discountFormHTML(discount),
-    confirmButtonText: editing ? "Save changes" : "Create discount",
-    showCancelButton: true,
-    cancelButtonText: "Cancel",
-    focusConfirm: false,
-
-    preConfirm: () => {
-      const name = document.getElementById("discount-name").value.trim();
-      const rawPercentage =
-        document.getElementById("discount-percentage").value;
-      const amount = Number(rawPercentage);
-
-      const start = document.getElementById("discount-start").value;
-      const end = document.getElementById("discount-end").value;
-
-      if (!editing && !name) {
-        Swal.showValidationMessage("Enter a discount name.");
-        return false;
-      }
-
-      if (
-        rawPercentage === "" ||
-        !Number.isFinite(amount) ||
-        amount < 0 ||
-        amount > 100
-      ) {
-        Swal.showValidationMessage(
-          "Percentage must be between 0 and 100."
-        );
-        return false;
-      }
-
-      const dateError = validateDates(start, end);
-
-      if (dateError) {
-        Swal.showValidationMessage(dateError);
-        return false;
-      }
-
-      const payload = {
-        percentage: amount,
-        start_date: toApiDate(start),
-        end_date: toApiDate(end)
-      };
-
-      if (!editing) {
-        payload.name = name;
-        payload.type =
-          document.getElementById("discount-type-input").value;
-      }
-
-      return payload;
-    }
-  });
-
-  if (!result.isConfirmed) return;
-
   setLoading(true);
-
   try {
-    if (editing) {
-      await apiRequest(
-        `${DISCOUNTS_API}?id=${encodeURIComponent(discount.id)}`,
-        {
-          method: "PUT",
-          body: JSON.stringify(result.value)
-        }
-      );
-    } else {
-      await apiRequest(DISCOUNTS_API, {
-        method: "POST",
-        body: JSON.stringify(result.value)
-      });
-    }
-
-    setLoading(false);
-
-    await Swal.fire({
-      icon: "success",
-      title: editing ? "Discount updated" : "Discount created",
-      text: "The discount was saved successfully."
-    });
-
-    await loadDiscounts();
+    const result = await apiRequest(AdminConfig.apiBase + 'Products.php');
+    discountProducts = Array.isArray(result) ? result : result.data;
+    if (!Array.isArray(discountProducts)) throw new Error('Products could not be loaded. Please retry.');
   } catch (error) {
     setLoading(false);
-
-    await Swal.fire({
-      icon: "error",
-      title: "Could not save discount",
-      text: error.message
+    Alerts.show('Products unavailable', error.message, 'error');
+    return;
+  }
+  setLoading(false);
+  const editing = Boolean(discount);
+  const dialog = Alerts.form(editing ? 'Edit discount' : 'Create discount', discountFormHTML(discount), async () => {
+    const name = document.getElementById('discount-name').value.trim();
+    const input = document.getElementById('discount-percentage').value;
+    const percentage = Number(input);
+    const start = document.getElementById('discount-start').value;
+    const end = document.getElementById('discount-end').value;
+    const type = discount?.type || document.getElementById('discount-type-input').value;
+    if (!name) { Alerts.validation('Enter a discount name.'); return false; }
+    if (input === '' || !Number.isFinite(percentage) || percentage < 0 || percentage > 100) { Alerts.validation('Percentage must be between 0 and 100.'); return false; }
+    const error = validateDates(start, end, discount);
+    if (error) { Alerts.validation(error); document.getElementById(error.startsWith('Start') ? 'discount-start' : 'discount-end').focus(); return false; }
+    const payload = {percentage, start_date:editing && start === toDateTimeInput(discount.start_date) ? discount.start_date : toApiDate(start), end_date:editing && end === toDateTimeInput(discount.end_date) ? discount.end_date : toApiDate(end)};
+    payload.product_ids = type === 'normal' ? [...document.querySelectorAll('input[name="discount-products"]:checked')].map(el => Number(el.value)) : [];
+    if (type === 'coupon') {
+      const code = document.getElementById('discount-code').value.trim().toUpperCase();
+      if (!/^[A-Z0-9][A-Z0-9_-]{2,39}$/.test(code)) { Alerts.validation('Enter a coupon code of 3–40 letters or numbers, with optional hyphens or underscores.'); document.getElementById('discount-code').focus(); return false; }
+      payload.coupon_code = code;
+    }
+    if (!editing) Object.assign(payload, {name, type});
+    try {
+      return await apiRequest(DISCOUNTS_API + (editing ? '?id=' + encodeURIComponent(discount.id) : ''), {method:editing ? 'PUT' : 'POST', body:JSON.stringify(payload)});
+    } catch (requestError) { Alerts.validation(requestError.message); return false; }
+  }, {width:760,customClass:{popup:'discount-editor',htmlContainer:'discount-editor-content'},showCloseButton:true,closeButtonAriaLabel:'Close discount editor',confirmButtonText:editing?'Save changes':'Create discount'});
+  function updateDateLimits() {
+    const start = document.getElementById('discount-start'), end = document.getElementById('discount-end');
+    const now = discountNow();
+    const oldStart = toDateTimeInput(discount?.start_date), oldEnd = toDateTimeInput(discount?.end_date);
+    start.min = start.value && start.value === oldStart && new Date(start.value) < now ? oldStart : localDateInput(now);
+    const earliestEnd = new Date(Math.max(now.getTime(), start.value ? new Date(start.value).getTime() : now.getTime()) + 60000);
+    end.min = end.value && end.value === oldEnd && new Date(end.value) <= now ? oldEnd : localDateInput(earliestEnd);
+  }
+  document.getElementById('discount-start').addEventListener('change', updateDateLimits);
+  document.getElementById('discount-end').addEventListener('change', updateDateLimits);
+  function updatePicker() {
+    updateDateLimits();
+    const type = discount?.type || document.getElementById('discount-type-input').value;
+    document.getElementById('discount-products-field').hidden = type !== 'normal';
+    document.getElementById('discount-code-field').hidden = type !== 'coupon';
+    const count = document.querySelectorAll('input[name="discount-products"]:checked').length;
+    document.getElementById('discount-selected-count').textContent = count + ' selected';
+    const percentage = Number(document.getElementById('discount-percentage').value);
+    const code = document.getElementById('discount-code').value.trim().toUpperCase();
+    const valid = document.getElementById('discount-percentage').value !== '' && Number.isFinite(percentage) && percentage >= 0 && percentage <= 100;
+    document.getElementById('discount-preview-title').textContent = valid ? percentage + '% off' + (type === 'coupon' && code ? ' with ' + code : '') : 'Your offer preview';
+    document.getElementById('discount-preview-detail').textContent = type === 'coupon' ? 'Customers enter your code at checkout. It applies after any product discounts.' : count ? count + ' selected product' + (count === 1 ? '' : 's') + '. Prices update during the offer period.' : 'Select products below their names to apply this offer, or save it for later.';
+    document.querySelectorAll('[data-price-preview]').forEach(el => {
+      el.textContent = Number.isFinite(percentage) && percentage >= 0 && percentage <= 100 ? ' → ' + (Number(el.dataset.pricePreview) * (1 - percentage / 100)).toFixed(2) + ' JOD' : '';
     });
+  }
+  document.getElementById('discount-code').addEventListener('input', updatePicker);
+  document.getElementById('discount-code').addEventListener('blur', event => {event.target.value=event.target.value.trim().toUpperCase();updatePicker();});
+  document.getElementById('discount-clear-dates').addEventListener('click', () => {document.getElementById('discount-start').value='';document.getElementById('discount-end').value='';updatePicker();});
+  document.getElementById('discount-type-input')?.addEventListener('change', updatePicker);
+  document.getElementById('discount-percentage').addEventListener('input', updatePicker);
+  document.querySelectorAll('input[name="discount-products"]').forEach(el => el.addEventListener('change', updatePicker));
+  document.getElementById('discount-product-search').addEventListener('input', event => {
+    const query = event.target.value.trim().toLowerCase();
+    document.querySelectorAll('.discount-product-option').forEach(el => el.hidden = !el.dataset.productName.includes(query));
+  });
+  updatePicker();
+  const result = await dialog;
+  if (result.isConfirmed) {
+    Alerts.toast(editing ? 'Discount updated' : 'Discount created');
+    await loadDiscounts();
   }
 }
 
@@ -541,6 +537,8 @@ document.getElementById("discount-end-filter")
 document.getElementById("clear-discount-filters")
   .addEventListener("click", () => {
     searchInput.value = "";
+    typeFilter.value = "";
+    document.getElementById("discount-state").value = "";
     document.getElementById("discount-start-filter").value = "";
     document.getElementById("discount-end-filter").value = "";
 
@@ -573,3 +571,4 @@ document.getElementById("retry-discounts")
   .addEventListener("click", loadDiscounts);
 
 loadDiscounts();
+[typeFilter, document.getElementById("discount-state")].forEach(el => el.addEventListener("change", () => {currentPage=1; renderDiscounts();}));

@@ -39,13 +39,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 String(customer.orders ?? 0);
             document.getElementById("customerSpent").textContent =
                 `JOD ${Number(customer.total_spent ?? 0).toFixed(2)}`;
-            const row = document.createElement("tr");
-            const cell = document.createElement("td");
-            cell.colSpan = 4;
-            cell.textContent =
-                "Detailed order history is not available from the current API.";
-            row.appendChild(cell);
-            ordersBody.replaceChildren(row);
+            ordersBody.replaceChildren();
+            const history = Array.isArray(customer.order_history) ? customer.order_history : [];
+            if (!history.length) {
+                const cell = document.createElement("td");cell.colSpan=4;cell.textContent="No orders yet.";
+                const row=document.createElement("tr");row.append(cell);ordersBody.append(row);
+            }
+            for (const order of history) {
+                const row=document.createElement("tr");
+                const id=document.createElement("td"),link=document.createElement("a");
+                link.href="order-details.html?id="+encodeURIComponent(order.order_id);link.textContent="#"+order.order_id;link.className="text-link";id.append(link);row.append(id);
+                for (const value of [displayDate(order.placed_at),formatJOD(order.total),order.status]) {const cell=document.createElement("td");cell.textContent=value;row.append(cell);}
+                ordersBody.append(row);
+            }
         } catch (error) {
             console.error("Error loading customer details:", error);
             nameElement.textContent = error instanceof Error
