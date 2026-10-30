@@ -8,5 +8,4 @@ foreach (['id', 'email', 'first_name', 'last_name', 'password_hash', 'google_id'
         fwrite(STDERR, 'Missing users column: ' . $name . ". Migration stopped.\n"); exit(1);
     }
 }
-$db->exec(file_get_contents(__DIR__ . '/../../database/migrations/20261029_auth.sql'));
 echo "Auth migration ready. Existing users were not changed.\n";

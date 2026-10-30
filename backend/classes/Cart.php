@@ -2,14 +2,14 @@
 
 require_once __DIR__ . "/../config/db.php";
 
+require_once __DIR__ . '/DiscountRules.php';
+
 class Cart
 {
     private $db;
 
     // A discount counts only while it is switched on and inside its date range.
-    private const DISCOUNT_IS_LIVE = "d.is_active = 1
-        AND (d.start_date IS NULL OR d.start_date <= NOW())
-        AND (d.end_date IS NULL OR d.end_date >= NOW())";
+    private const DISCOUNT_IS_LIVE = DiscountRules::ACTIVE_SQL;
 
     public function __construct()
     {

@@ -3,9 +3,7 @@
          
         const PRODUCTS_API = AdminConfig.apiBase + "Products.php";
         const CATEGORIES_API = AdminConfig.apiBase + "categories.php";
-        const DISCOUNTS_API = AdminConfig.apiBase + "Discount.php";
-       console.log("API Base:", AdminConfig.apiBase);
-console.log("Discount API:", DISCOUNTS_API);
+        const DISCOUNTS_API = AdminConfig.apiBase + "discounts.php";
         const IMAGE_BASE_PATH = "../../";
 
          
@@ -255,16 +253,20 @@ console.log("Discount API:", DISCOUNTS_API);
                 const data = await getJson(DISCOUNTS_API);
 
                 discounts = getArray(data);
+                const pages = Number(data.pagination?.total_pages) || 1;
+                for (let page = 2; page <= pages; page++) {
+                    const next = await getJson(`${DISCOUNTS_API}?page=${page}`);
+                    discounts.push(...getArray(next));
+                }
 
+                discounts = discounts.filter(discount => discount.type === "normal" && Number(discount.is_active) === 1);
                 discounts.forEach(function (discount) {
                     const option = document.createElement("option");
 
                     option.value = discount.id;
 
                     option.textContent =
-                        discount.name ||
-                        discount.title ||
-                        ("Discount #" + discount.id);
+                        `${discount.name || "Discount #" + discount.id} (${Number(discount.percentage)}%)`;
 
                     select.appendChild(option);
                 });
@@ -498,7 +500,7 @@ console.log("Discount API:", DISCOUNTS_API);
                                         <button
                                             type="button"
                                             class="action-btn view-btn"
-                                            data-action="view"
+                                            aria-label="View ${escapeHtml(product.name)}" title="View product" data-action="view"
                                             data-id="${escapeHtml(product.id)}"
                                         >
                                             <i class="fa-regular fa-eye"></i>
@@ -507,7 +509,7 @@ console.log("Discount API:", DISCOUNTS_API);
                                         <button
                                             type="button"
                                             class="action-btn"
-                                            data-action="edit"
+                                            aria-label="Edit ${escapeHtml(product.name)}" title="Edit product" data-action="edit"
                                             data-id="${escapeHtml(product.id)}"
                                         >
                                             <i class="fa-solid fa-pen"></i>
@@ -516,7 +518,7 @@ console.log("Discount API:", DISCOUNTS_API);
                                         <button
                                             type="button"
                                             class="action-btn"
-                                            data-action="delete"
+                                            aria-label="Delete ${escapeHtml(product.name)}" title="Delete product" data-action="delete"
                                             data-id="${escapeHtml(product.id)}"
                                         >
                                            <i class="fa-solid fa-trash-can"></i>

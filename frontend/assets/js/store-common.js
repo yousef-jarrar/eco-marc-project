@@ -76,9 +76,8 @@ window.StoreCommon = (function () {
   }
 
   function notify(message, type = "success") {
-    if (window.Alerts && typeof Alerts.toast === "function" && type === "success") { Alerts.toast(message); return; }
-    if (window.Swal) { Swal.fire({toast:true,position:"top-end",icon:type,title:message,showConfirmButton:false,timer:2600,timerProgressBar:true}); return; }
-    window.alert(message);
+    if (type === "success") Alerts.toast(message);
+    else Alerts.show("Store", message, type);
   }
 
   function requireLogin() {
@@ -179,7 +178,7 @@ function renderCartDrawer(items) {
                 <div class="store-cart-footer">
                     <span>Items in cart</span>
                     <strong id="store-cart-total-quantity">0</strong>
-                    <a href="Shop.html" class="store-cart-continue">
+                    <a href="${new URL("../../frontend/shop.html", apiBase).href}" class="store-cart-continue">
                         Continue shopping
                     </a>
                 </div>

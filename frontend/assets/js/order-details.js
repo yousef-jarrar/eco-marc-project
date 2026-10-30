@@ -5,6 +5,8 @@ const API_URL = new URL("../../backend/api/cart.php", location.href).href;
 
 const params = new URLSearchParams(window.location.search);
 const orderId = params.get("id");
+let currentStatus = "";
+let saving = false;
 
 const loadingMessage = document.getElementById("loading-message");
 const errorMessage = document.getElementById("error-message");
@@ -94,14 +96,15 @@ function renderStatus(status) {
     const allowedStatuses = [
         "completed",
         "delivered",
-        "approved",
+        "confirmed",
+        "shipped",
         "pending",
         "processing",
         "cancelled",
         "rejected"
     ];
 
-    element.className = "status";
+    element.className = "od-status";
 
     const normalized = value.toLowerCase();
 
@@ -112,6 +115,7 @@ function renderStatus(status) {
 
 function renderStatusControls(status) {
     const current = String(status ?? "").toLowerCase();
+    currentStatus = current;
     const locked = current === "cancelled";
 
      
@@ -128,10 +132,10 @@ function renderStatusControls(status) {
 
     statusSelect.value = current;
     statusSelect.disabled = locked;
-    saveStatusButton.disabled = locked;
+    saveStatusButton.disabled = true;
 
     setStatusMessage(
-        locked ? "A cancelled order cannot be changed." : ""
+        locked ? "This order is cancelled and cannot be changed." : "No unsaved changes."
     );
 }
 
@@ -159,9 +163,14 @@ function renderItems(items) {
 
          
         const productCell = document.createElement("td");
+        productCell.dataset.label = "Product";
         const productWrap = document.createElement("div");
         productWrap.className = "product-cell";
 
+        const placeholder = document.createElement("span");
+        placeholder.className = "od-image-placeholder";
+        placeholder.innerHTML = '<i class="fa-regular fa-image" aria-hidden="true"></i>';
+        placeholder.setAttribute("aria-label", "Product image unavailable");
         const imageUrl = orderImageUrl(item.product_image);
         if (imageUrl) {
             const image = document.createElement("img");
@@ -169,9 +178,9 @@ function renderItems(items) {
             image.src = imageUrl;
             image.alt = displayValue(item.product_name);
             image.loading = "lazy";
-            image.addEventListener("error", () => image.remove());
+            image.addEventListener("error", () => image.replaceWith(placeholder), {once: true});
             productWrap.appendChild(image);
-        }
+        } else { productWrap.appendChild(placeholder); }
 
         const productText = document.createElement("div");
 
@@ -211,12 +220,15 @@ function renderItems(items) {
         const quantity = Number(item.quantity ?? 0);
 
         const priceCell = document.createElement("td");
+        priceCell.dataset.label = "Unit price";
         priceCell.textContent = formatMoney(price);
 
         const quantityCell = document.createElement("td");
+        quantityCell.dataset.label = "Quantity";
         quantityCell.textContent = String(quantity);
 
         const subtotalCell = document.createElement("td");
+        subtotalCell.dataset.label = "Total";
         subtotalCell.textContent = formatMoney(price * quantity);
 
         row.append(
@@ -239,6 +251,7 @@ function renderItems(items) {
 
 function renderOrder(order) {
     setText("order-number", `#${order.order_id}`);
+    document.title = `Order #${order.order_id} | LUMIÈRE`;
     setText("summary-date", formatDate(order.placed_at));
     setMoney("summary-total", order.total);
 
@@ -304,7 +317,7 @@ async function loadOrderDetails() {
             !Array.isArray(order.items)
         ) {
             throw new Error(
-                "The API response is missing order details or its items array. Check the response in Postman."
+                "The order details could not be loaded. Please try again."
             );
         }
 
@@ -314,58 +327,59 @@ async function loadOrderDetails() {
 
         showError(
             error.message ||
-            "Could not load the order. Check that XAMPP and the PHP API are running."
+            "Could not load this order. Try again or return to the orders list."
         );
     }
 }
 
 async function saveStatus() {
     const newStatus = statusSelect.value;
-
+    if (saving || newStatus === currentStatus || currentStatus === "cancelled") return;
+    saving = true;
     saveStatusButton.disabled = true;
-    setStatusMessage("Saving...");
-
+    statusSelect.disabled = true;
+    if (newStatus === "cancelled") {
+        const result = await Alerts.confirm("Cancel this order?", "This will cancel the order and return its items to stock. A cancelled order cannot be changed.");
+        if (!result.isConfirmed) {
+            saving = false;
+            statusSelect.disabled = false;
+            statusSelect.value = currentStatus;
+            setStatusMessage("No unsaved changes.");
+            return;
+        }
+    }
+    saveStatusButton.setAttribute("aria-busy", "true");
+    saveStatusButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Saving';
+    setStatusMessage("Saving your change…");
     try {
         const response = await EcoAuth.fetch(API_URL, {
             method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            body: JSON.stringify({
-                action: "order_status",
-
-                order_id: Number(orderId),
-                status: newStatus
-            })
+            headers: {"Content-Type": "application/json", "Accept": "application/json"},
+            body: JSON.stringify({action: "order_status", order_id: Number(orderId), status: newStatus})
         });
-
         const result = await response.json();
-
-        if (!response.ok || result.success === false) {
-            throw new Error(
-                result.message || `Request failed (${response.status}).`
-            );
-        }
-
+        if (!response.ok || result.success === false) throw new Error(result.message || "Could not update the order status.");
         renderStatus(newStatus);
-
-        if (newStatus === "cancelled") {
-            statusSelect.disabled = true;
-            setStatusMessage("Order cancelled.", "success");
-            return;  
-        }
-
-        setStatusMessage("Status updated.", "success");
+        renderStatusControls(newStatus);
+        setStatusMessage(newStatus === "cancelled" ? "Order cancelled. Its status can no longer be changed." : "Status updated.", "success");
+        Alerts.toast(newStatus === "cancelled" ? "Order cancelled" : "Order status updated");
     } catch (error) {
-        console.error("Failed to update status:", error);
-        setStatusMessage(error.message || "Could not update the status.", "error");
+        setStatusMessage(error.message || "Could not update the status. Try again.", "error");
+        Alerts.show("Status was not saved", error.message || "Please try again.", "error");
+    } finally {
+        saving = false;
+        statusSelect.disabled = currentStatus === "cancelled";
+        saveStatusButton.disabled = currentStatus === "cancelled" || statusSelect.value === currentStatus;
+        saveStatusButton.removeAttribute("aria-busy");
+        saveStatusButton.innerHTML = '<i class="fa-solid fa-check" aria-hidden="true"></i> Save status';
     }
-
-    saveStatusButton.disabled = false;
 }
 
- 
+statusSelect.addEventListener("change", () => {
+    const changed = statusSelect.value !== currentStatus;
+    saveStatusButton.disabled = !changed || saving || currentStatus === "cancelled";
+    setStatusMessage(changed ? "You have an unsaved status change." : "No unsaved changes.");
+});
 
 retryButton.addEventListener("click", loadOrderDetails);
 saveStatusButton.addEventListener("click", saveStatus);

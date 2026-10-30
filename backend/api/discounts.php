@@ -128,12 +128,18 @@ function validateNewDiscount(array $data): array
         'type' => $type,
         'percentage' => $percentage,
         'start_date' => $startDate,
-        'end_date' => $endDate
+        'end_date' => $endDate,
+        'product_ids' => $data['product_ids'] ?? [],
+        'coupon_code' => $data['coupon_code'] ?? null
     ];
 }
 
 try {
+    require_once __DIR__ . "/../middleware/admin.php";
+    require_once __DIR__ . "/../middleware/csrf.php";
+    requireAdmin();
     $method = $_SERVER['REQUEST_METHOD'] ?? '';
+    if ($method !== "GET") requireCsrf();
     $discounts = new Discounts();
 
     // Validate optional ID
@@ -206,32 +212,35 @@ try {
                 'end_date'
             );
 
-            respond(200, [
-                "success" => true,
-                ...$discounts->getDiscounts(
+            respond(200, array_merge(["success" => true], $discounts->getDiscounts(
                     $page,
                     $name,
                     $startDate,
-                    $endDate
-                )
-            ]);
+                    $endDate,
+                    ($_GET['include_inactive'] ?? '0') === '1'
+                )));
 
         // POST: create discount
         case 'POST':
 
             $data = validateNewDiscount(readInput());
 
-            $discounts->addDiscount(
+            if (isset($data['product_ids']) && !is_array($data['product_ids'])) throw new InvalidArgumentException('Choose valid products.');
+            if (isset($data['coupon_code']) && !is_string($data['coupon_code'])) throw new InvalidArgumentException('Enter a valid coupon code.');
+            $createdId = $discounts->addDiscount(
                 $data['name'],
                 $data['type'],
                 $data['percentage'],
                 $data['start_date'],
-                $data['end_date']
+                $data['end_date'],
+                $data['product_ids'],
+                $data['coupon_code']
             );
 
             respond(201, [
                 "success" => true,
-                "message" => "Discount created successfully"
+                "message" => "Discount created successfully",
+                "data" => $discounts->getById($createdId)
             ]);
 
         // PUT: update percentage and/or dates
@@ -253,75 +262,11 @@ try {
 
             $data = readInput();
 
-            $allowedFields = ['percentage', 'start_date', 'end_date'];
-
-            if (count(array_intersect(
-                array_keys($data),
-                $allowedFields
-            )) === 0) {
-                respond(422, [
-                    "success" => false,
-                    "message" => "Provide percentage, start_date, or end_date"
-                ]);
-            }
-
-            $amount = null;
-
-            if (array_key_exists('percentage', $data)) {
-                if (!is_numeric($data['percentage'])) {
-                    respond(422, [
-                        "success" => false,
-                        "message" => "Percentage must be numeric"
-                    ]);
-                }
-
-                $amount = (float) $data['percentage'];
-
-                if ($amount < 0 || $amount > 100) {
-                    respond(422, [
-                        "success" => false,
-                        "message" => "Percentage must be between 0 and 100"
-                    ]);
-                }
-            }
-
-            $startDate = array_key_exists('start_date', $data)
-                ? validateDateTime($data['start_date'], 'start_date')
-                : null;
-
-            $endDate = array_key_exists('end_date', $data)
-                ? validateDateTime($data['end_date'], 'end_date')
-                : null;
-
-            // Validate the resulting date range.
-            $current = $discounts->getById($id);
-
-            $finalStart = $startDate ?? $current['start_date'];
-            $finalEnd = $endDate ?? $current['end_date'];
-
-            if (
-                $finalStart !== null &&
-                $finalEnd !== null &&
-                $finalStart > $finalEnd
-            ) {
-                respond(422, [
-                    "success" => false,
-                    "message" => "End date must be after start date"
-                ]);
-            }
-
-            $updated = $discounts->updateDiscount(
-                $id,
-                $amount,
-                $startDate,
-                $endDate
-            );
-
-            respond(200, [
-                "success" => true,
-                "message" => "Discount update processed",
-                "changed" => $updated
-            ]);
+            $changes = array_intersect_key($data, array_flip(['percentage','start_date','end_date','product_ids','coupon_code']));
+            if (!$changes) throw new InvalidArgumentException('Provide percentage, dates, or products to update.');
+            foreach (['start_date','end_date'] as $field) if (array_key_exists($field,$changes)) $changes[$field]=validateDateTime($changes[$field],$field);
+            $updated = $discounts->updateDiscount($id,$changes);
+            respond(200, ['success'=>true,'message'=>'Discount updated','changed'=>$updated,'data'=>$discounts->getById($id)]);
 
         // DELETE: soft delete by setting is_active = 0
         case 'DELETE':
@@ -360,6 +305,7 @@ try {
 } catch (PDOException $e) {
     error_log($e->getMessage());
 
+    if (($e->errorInfo[1] ?? null) === 1062) respond(409, ['success'=>false,'message'=>'This coupon code already exists. Choose another code.']);
     if ($e->getCode() === '23000') {
         respond(409, [
             "success" => false,

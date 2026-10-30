@@ -1,541 +1,62 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" class="auth-checking">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Details</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
-
-    <style>
-        :root {
-            --primary: #3968AC;
-            --primary-dark: #274778;
-            --background: #F4F5F6;
-            --surface: #FFFFFF;
-            --text: #0B1220;
-            --muted: #5B6573;
-            --border: #E5E7EB;
-            --success: #15803D;
-            --danger: #B91C1C;
-            --warning: #B45309;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            padding: 32px;
-            background: var(--background);
-            color: var(--text);
-            font-family: 'Inter', sans-serif;
-        }
-
-        .page {
-            max-width: 1280px;
-            margin: 0 auto;
-        }
-
-        .top-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            margin-bottom: 28px;
-            flex-wrap: wrap;
-        }
-
-        .back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .back-link:hover {
-            color: var(--primary-dark);
-        }
-
-        h1 {
-            margin: 0;
-            font-size: 28px;
-            font-weight: 700;
-            letter-spacing: -0.7px;
-        }
-
-        .subtitle {
-            margin: 8px 0 0;
-            color: var(--muted);
-            font-size: 14px;
-        }
-
-        .order-heading {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-         
-
-        .status {
-            display: inline-flex;
-            align-items: center;
-            padding: 6px 12px;
-            border-radius: 20px;
-            background: #E5E7EB;
-            color: #374151;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: capitalize;
-        }
-
-        .status.completed,
-        .status.delivered,
-        .status.approved {
-            background: #DCFCE7;
-            color: var(--success);
-        }
-
-        .status.pending,
-        .status.processing {
-            background: #FEF3C7;
-            color: var(--warning);
-        }
-
-        .status.cancelled,
-        .status.rejected {
-            background: #FEE2E2;
-            color: var(--danger);
-        }
-
-         
-
-        .order-layout {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) 360px;
-            gap: 24px;
-            align-items: start;
-        }
-
-        .order-side {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-
-        .card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 24px;
-            min-width: 0;
-        }
-
-        .section-header {
-            margin-bottom: 20px;
-        }
-
-        .section-header h2 {
-            margin: 0 0 6px;
-            font-size: 18px;
-        }
-
-        .section-header p {
-            margin: 0;
-            color: var(--muted);
-            font-size: 13px;
-        }
-
-         
-
-        .info-block {
-            margin-bottom: 18px;
-        }
-
-        .info-block:last-child {
-            margin-bottom: 0;
-        }
-
-        .info-label {
-            margin-bottom: 6px;
-            color: var(--muted);
-            font-size: 12px;
-        }
-
-        .info-value {
-            font-size: 14px;
-            font-weight: 600;
-            overflow-wrap: anywhere;
-        }
-
-        .address {
-            line-height: 1.7;
-            font-weight: 400;
-            white-space: pre-wrap;
-        }
-
-         
-
-        .table-wrap {
-            width: 100%;
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            white-space: nowrap;
-        }
-
-        th {
-            padding: 14px 16px;
-            text-align: left;
-            background: #F9FAFB;
-            color: var(--muted);
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        td {
-            padding: 16px;
-            border-top: 1px solid var(--border);
-            font-size: 13px;
-            vertical-align: middle;
-        }
-
-        .product-cell {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .product-image {
-            width: 48px;
-            height: 48px;
-            flex-shrink: 0;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background: #F9FAFB;
-            object-fit: cover;
-        }
-
-        .product-name {
-            font-weight: 600;
-        }
-
-        .product-meta {
-            margin-top: 5px;
-            color: var(--muted);
-            font-size: 12px;
-        }
-
-         
-
-        .total-row {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-            padding: 8px 0;
-            color: var(--muted);
-            font-size: 14px;
-        }
-
-        .total-row strong {
-            color: var(--text);
-            font-weight: 600;
-        }
-
-        .grand-total {
-            margin-top: 8px;
-            padding-top: 16px;
-            border-top: 1px solid var(--border);
-            color: var(--text);
-            font-size: 17px;
-            font-weight: 700;
-        }
-
-         
-
-        .status-select {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: var(--surface);
-            color: var(--text);
-            font: inherit;
-            font-size: 14px;
-        }
-
-        .status-select:disabled {
-            background: #F9FAFB;
-            color: var(--muted);
-            cursor: not-allowed;
-        }
-
-        .status-message {
-            margin-top: 10px;
-            min-height: 18px;
-            color: var(--muted);
-            font-size: 13px;
-        }
-
-        .status-message.error {
-            color: var(--danger);
-        }
-
-        .status-message.success {
-            color: var(--success);
-        }
-
-         
-
-        .retry-button {
-            margin-top: 12px;
-            padding: 10px 16px;
-            border: none;
-            border-radius: 8px;
-            background: var(--primary);
-            color: white;
-            font: inherit;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .retry-button:hover {
-            background: var(--primary-dark);
-        }
-
-        .save-button {
-            width: 100%;
-        }
-
-        .save-button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .message {
-            padding: 24px;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            background: var(--surface);
-            color: var(--muted);
-            text-align: center;
-            line-height: 1.6;
-        }
-
-        .message.error {
-            border-color: #FECACA;
-            color: var(--danger);
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-         
-
-        @media (max-width: 1000px) {
-            .order-layout {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 800px) {
-            body {
-                padding: 20px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            body {
-                padding: 14px;
-            }
-
-            .card {
-                padding: 18px;
-            }
-
-            h1 {
-                font-size: 23px;
-            }
-        }
-    </style>
-<style>html.auth-checking body { visibility: hidden; }</style>
-<script src="../assets/js/auth.js?v=20261029-complete"></script>
-<link rel="icon" type="image/svg+xml" href="../../assets/lumiere-icon-light.svg">
-<link rel="stylesheet" href="../assets/css/sticky-header.css?v=20261029-sticky">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="csrf-token" content="">
+  <title>Order details | LUMIÈRE</title>
+  <link rel="stylesheet" href="../assets/vendor/bootstrap.min.css">
+  <link rel="stylesheet" href="../assets/vendor/fontawesome.min.css">
+  <link rel="stylesheet" href="../assets/css/index.css">
+  <link rel="stylesheet" href="../assets/css/global.css">
+  <link rel="stylesheet" href="../assets/css/admin.css?v=20261030-audit">
+  <link rel="stylesheet" href="../assets/css/sticky-header.css?v=20261029-sticky">
+  <link rel="stylesheet" href="../assets/css/order-details.css?v=20261030-theme">
+  <link rel="icon" type="image/svg+xml" href="../../assets/lumiere-icon-light.svg">
+  <style>html.auth-checking body { visibility: hidden; }</style>
+  <script src="../assets/js/auth.js?v=20261030-simplified-ai"></script>
 </head>
-
-<body>
-    <main class="page">
-        <div class="top-bar">
-            <a class="back-link" href="orders.html">
-                <span class="material-symbols-outlined">arrow_back</span>
-                Back to Orders
-            </a>
+<body data-page="orders">
+  <a class="sr-only" href="#main">Skip to content</a>
+  <button class="sidebar-backdrop" id="sidebar-backdrop" aria-label="Close navigation" hidden></button>
+  <aside class="admin-sidebar" id="admin-sidebar"><div id="sidebar-content"></div></aside>
+  <div class="admin-shell">
+    <header class="admin-topbar"><span class="topbar-path">LUMIÈRE / Orders / Details</span></header>
+    <main class="admin-main order-details-page" id="main">
+      <a href="orders.html" class="od-back"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> All orders</a>
+      <div id="loading-message" class="od-state" role="status"><span class="spinner" aria-hidden="true"></span><h1>Loading order details</h1><p>Getting the items and customer information.</p></div>
+      <div id="error-message" class="od-state hidden" role="alert"><i class="fa-solid fa-circle-exclamation od-state-icon" aria-hidden="true"></i><h1>Order unavailable</h1><p id="error-text">Unable to load this order.</p><button id="retry-button" type="button"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Try again</button></div>
+      <div id="order-content" class="hidden">
+        <header class="page-heading od-heading">
+          <div><div class="od-title-row"><h1>Order <span id="order-number"></span></h1><span id="order-status" class="od-status">Unknown</span></div><p class="muted"><i class="fa-regular fa-calendar" aria-hidden="true"></i> Placed <span id="summary-date">—</span></p></div>
+          <div class="od-heading-total"><span>Order total</span><strong id="summary-total">—</strong></div>
+        </header>
+        <div class="od-layout">
+          <div class="od-main">
+            <section class="od-panel" aria-labelledby="items-title">
+              <header class="od-panel-heading"><div><h2 id="items-title"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i> Order items</h2><p>Products and selected options.</p></div><span class="od-count"><span id="summary-items">0</span> units</span></header>
+              <div class="od-items-wrap"><table class="od-items"><caption class="sr-only">Products included in this order</caption><thead><tr><th scope="col">Product</th><th scope="col">Options</th><th scope="col">Unit price</th><th scope="col">Qty</th><th scope="col">Total</th></tr></thead><tbody id="items-table"></tbody></table></div>
+            </section>
+            <section class="od-panel" aria-labelledby="customer-title">
+              <header class="od-panel-heading"><h2 id="customer-title"><i class="fa-regular fa-user" aria-hidden="true"></i> Customer & delivery</h2></header>
+              <div class="od-customer-grid"><dl class="od-customer"><div><dt>Name</dt><dd id="customer-name">—</dd></div><div><dt>Email</dt><dd id="customer-email">—</dd></div><div><dt>Customer ID</dt><dd id="customer-id">—</dd></div></dl><div class="od-address"><h3><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Shipping address</h3><p id="shipping-address">—</p></div></div>
+            </section>
+          </div>
+          <aside class="od-side" aria-label="Order management">
+            <section class="od-panel od-status-panel" aria-labelledby="status-title">
+              <header class="od-panel-heading"><div><h2 id="status-title"><i class="fa-solid fa-box" aria-hidden="true"></i> Order status</h2><p id="status-help">Choose a new status, then save your change.</p></div></header>
+              <div class="od-panel-body"><label for="status-select">Update status</label><select id="status-select" aria-describedby="status-help status-message"><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="processing">Processing</option><option value="shipped">Shipped</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option></select><button id="save-status" type="button" disabled><i class="fa-solid fa-check" aria-hidden="true"></i> Save status</button><p id="status-message" class="status-message" role="status" aria-live="polite"></p></div>
+            </section>
+            <section class="od-panel" aria-labelledby="payment-title"><header class="od-panel-heading"><h2 id="payment-title"><i class="fa-regular fa-credit-card" aria-hidden="true"></i> Payment summary</h2></header><dl class="od-totals"><div><dt>Subtotal</dt><dd id="subtotal">—</dd></div><div><dt>Discount</dt><dd id="discount">—</dd></div><div><dt>Delivery fee</dt><dd id="delivery-fee">—</dd></div><div class="od-grand-total"><dt>Total</dt><dd id="final-total">—</dd></div></dl></section>
+          </aside>
         </div>
-
-        <div id="loading-message" class="message">
-            Loading order details...
-        </div>
-
-        <div id="error-message" class="message error hidden">
-            <div id="error-text">Unable to load this order.</div>
-            <button id="retry-button" class="retry-button" type="button">
-                Try Again
-            </button>
-        </div>
-
-        <div id="order-content" class="hidden">
-            <div class="top-bar">
-                <div>
-                    <div class="order-heading">
-                        <h1>Order Details</h1>
-                        <span id="order-status" class="status">Unknown</span>
-                    </div>
-                    <p class="subtitle">
-                        Order <span id="order-number"></span>
-                    </p>
-                </div>
-            </div>
-
-            <div class="order-layout">
-                
-                <section class="card order-main">
-                    <div class="section-header">
-                        <h2>Order Items</h2>
-                        <p>Products included in this order</p>
-                    </div>
-
-                    <div class="table-wrap">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Product</th>
-                                    <th>Variant</th>
-                                    <th>Price</th>
-                                    <th>Quantity</th>
-                                    <th>Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody id="items-table"></tbody>
-                        </table>
-                    </div>
-                </section>
-
-                
-                <aside class="order-side">
-                    <section class="card">
-                        <div class="section-header">
-                            <h2>Order Status</h2>
-                            <p>Change the status of this order</p>
-                        </div>
-
-                        <select id="status-select" class="status-select" aria-label="Order status">
-                            <option value="pending">Pending</option>
-                            <option value="processing">Processing</option>
-                            <option value="completed">Completed</option>
-                            <option value="cancelled">Cancelled</option>
-                        </select>
-
-                        <button id="save-status" class="retry-button save-button" type="button">
-                            Save Status
-                        </button>
-
-                        <div id="status-message" class="status-message" role="status"></div>
-                    </section>
-
-                    <section class="card">
-                        <div class="section-header">
-                            <h2>Summary</h2>
-                        </div>
-
-                        <div class="info-block">
-                            <div class="info-label">Order Date</div>
-                            <div id="summary-date" class="info-value">—</div>
-                        </div>
-
-                        <div class="info-block">
-                            <div class="info-label">Products</div>
-                            <div id="summary-items" class="info-value">0</div>
-                        </div>
-
-                        <div class="info-block">
-                            <div class="info-label">Order Total</div>
-                            <div id="summary-total" class="info-value">—</div>
-                        </div>
-                    </section>
-
-                    <section class="card">
-                        <div class="section-header">
-                            <h2>Customer</h2>
-                        </div>
-
-                        <div class="info-block">
-                            <div class="info-label">Name</div>
-                            <div id="customer-name" class="info-value">—</div>
-                        </div>
-
-                        <div class="info-block">
-                            <div class="info-label">Email</div>
-                            <div id="customer-email" class="info-value">—</div>
-                        </div>
-
-                        <div class="info-block">
-                            <div class="info-label">Customer ID</div>
-                            <div id="customer-id" class="info-value">—</div>
-                        </div>
-
-                        <div class="info-block">
-                            <div class="info-label">Shipping Address</div>
-                            <div id="shipping-address" class="info-value address">—</div>
-                        </div>
-                    </section>
-
-                    <section class="card">
-                        <div class="section-header">
-                            <h2>Payment</h2>
-                        </div>
-
-                        <div class="total-row">
-                            <span>Subtotal</span>
-                            <strong id="subtotal">—</strong>
-                        </div>
-
-                        <div class="total-row">
-                            <span>Discount</span>
-                            <strong id="discount">—</strong>
-                        </div>
-
-                        <div class="total-row">
-                            <span>Delivery Fee</span>
-                            <strong id="delivery-fee">—</strong>
-                        </div>
-
-                        <div class="total-row grand-total">
-                            <span>Total</span>
-                            <strong id="final-total">—</strong>
-                        </div>
-                    </section>
-                </aside>
-            </div>
-        </div>
+      </div>
     </main>
-
-    <script src="../assets/vendor/sweetalert2.all.min.js"></script>
-<script src="../assets/js/alerts.js?v=20261029-pages"></script>
-<script src="../assets/js/order-details.js?v=20261029-pages"></script>
+  </div>
+  <script src="../assets/vendor/sweetalert2.all.min.js"></script>
+  <script src="../assets/js/admin-api.js?v=20261029-scriptfix"></script>
+  <script src="../assets/js/alerts.js?v=20261029-scriptfix"></script>
+  <script src="../assets/js/admin-layout.js?v=20261030-audit"></script>
+  <script src="../assets/js/order-details.js?v=20261030-theme"></script>
 </body>
 </html>

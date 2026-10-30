@@ -1,6 +1,6 @@
 
 <!doctype html>
-<html lang="en">
+<html lang="en" class="auth-checking">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,9 +11,9 @@
   <link rel="stylesheet" href="../assets/vendor/fontawesome.min.css">
   <link rel="stylesheet" href="../assets/css/index.css">
   <link rel="stylesheet" href="../assets/css/global.css">
-  <link rel="stylesheet" href="../assets/css/admin.css">
-  <link rel="stylesheet" href="../assets/css/discounts.css">
-</head>
+  <link rel="stylesheet" href="../assets/css/admin.css?v=20261030-audit">
+  <link rel="stylesheet" href="../assets/css/discounts.css?v=20261030-coupon-editor">
+<style>html.auth-checking body { visibility: hidden; }</style><script src="../assets/js/auth.js?v=20261030-simplified-ai"></script><link rel="icon" type="image/svg+xml" href="../../assets/lumiere-icon-light.svg"><link rel="stylesheet" href="../assets/css/sticky-header.css?v=20261029-sticky"></head>
 
 <body data-page="discounts">
   <a class="sr-only" href="#main">Skip to content</a>
@@ -83,7 +83,7 @@
       <section class="kpis" aria-label="Discount statistics">
         <article class="kpi">
           <div class="kpi-label">
-            Total discounts
+            Live discounts
             <i class="fa-solid fa-tags" aria-hidden="true"></i>
           </div>
           <div class="kpi-value" id="total-discounts">—</div>
@@ -92,11 +92,11 @@
 
         <article class="kpi">
           <div class="kpi-label">
-            Normal discounts
+            Product discounts
             <i class="fa-solid fa-percent" aria-hidden="true"></i>
           </div>
           <div class="kpi-value" id="normal-discounts">—</div>
-          <div class="kpi-note">Product promotions</div>
+          <div class="kpi-note">All saved product promotions</div>
         </article>
 
         <article class="kpi">
@@ -105,12 +105,12 @@
             <i class="fa-solid fa-ticket" aria-hidden="true"></i>
           </div>
           <div class="kpi-value" id="coupon-discounts">—</div>
-          <div class="kpi-note">Coupon-code promotions</div>
+          <div class="kpi-note">All saved coupon codes</div>
         </article>
       </section>
 
       <!-- Search and date filters -->
-      <div class="discounts-toolbar">
+      <div class="discounts-toolbar"><div class="discount-date-field"><label for="discount-type">Type</label><select id="discount-type"><option value="">All types</option><option value="normal">Product discounts</option><option value="coupon">Coupons</option></select></div><div class="discount-date-field"><label for="discount-state">Status</label><select id="discount-state"><option value="">All statuses</option><option value="active">Active</option><option value="scheduled">Scheduled</option><option value="expired">Expired</option><option value="inactive">Inactive</option></select></div>
         <div class="discount-search-field">
           <label for="discount-search">Search discounts</label>
           <input
@@ -158,7 +158,7 @@
             <thead>
               <tr>
                 <th>Discount</th>
-                <th>Type</th>
+                <th>Type</th><th>Applies to</th>
                 <th>Percentage</th>
                 <th>Coupon code</th>
                 <th>Start date</th>
@@ -216,8 +216,8 @@
   <!-- JavaScript -->
   <script src="../assets/vendor/sweetalert2.all.min.js"></script>
   <script src="../assets/js/admin-api.js"></script>
-  <script src="../assets/js/alerts.js"></script>
-  <script src="../assets/js/admin-layout.js"></script>
-  <script src="../assets/js/discounts.js"></script>
+  <script src="../assets/js/alerts.js?v=20261030-coupon-editor"></script>
+  <script src="../assets/js/admin-layout.js?v=20261030-audit"></script>
+  <script src="../assets/js/discounts.js?v=20261030-date-validation"></script>
 </body>
 </html>

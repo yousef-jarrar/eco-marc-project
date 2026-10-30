@@ -15,28 +15,6 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `auth_login_attempts`
---
-
-CREATE TABLE `auth_login_attempts` (
-  `attempt_key` char(64) NOT NULL,
-  `attempts` int(11) NOT NULL DEFAULT 0,
-  `window_started` datetime NOT NULL,
-  `blocked_until` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `auth_login_attempts`
---
-
-INSERT INTO `auth_login_attempts` (`attempt_key`, `attempts`, `window_started`, `blocked_until`) VALUES
-('0446f335df0de577ae4ff49b1385933b74a1a7b413bd72b7e417b02cd392769f', 1, '2026-10-29 13:04:20', NULL),
-('227a139b2d0f158050b5542327a01af02caf27028d0e765c5c3b769a71257468', 1, '2026-10-29 15:33:57', NULL),
-('5812e2ac8710ef86601eeed3a9107bc2d5f74c8437b433937cadc437427349a1', 1, '2026-10-29 11:41:09', NULL);
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `carts`
 --
 
@@ -503,12 +481,6 @@ CREATE TABLE `wishlist` (
 --
 -- Indexes for dumped tables
 --
-
---
--- Indexes for table `auth_login_attempts`
---
-ALTER TABLE `auth_login_attempts`
-  ADD PRIMARY KEY (`attempt_key`);
 
 --
 -- Indexes for table `carts`

@@ -140,3 +140,5 @@
   .kpi { padding: 16px; }
   .kpi-value { font-size: 23px; }
 }
+
+.admin-sidebar #admin-logout{background:transparent;color:var(--color-text-secondary);border:0}.admin-sidebar #admin-logout:hover{background:var(--color-surface);color:var(--color-text)}

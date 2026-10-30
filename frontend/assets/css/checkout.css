@@ -596,3 +596,5 @@ button:disabled {
         scroll-behavior: auto !important;
     }
 }
+
+@media(max-width:600px){#orders-content .table thead{display:none}#orders-content .table,#orders-content .table tbody{display:block}#orders-content .table tr{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:18px 0;border-bottom:1px solid var(--color-border)}#orders-content .table td{display:block;border:0;padding:0;overflow-wrap:anywhere}#orders-content .table td::before{content:attr(data-label);display:block;font-size:10px;color:var(--color-text-secondary);margin-bottom:4px}#orders-content .table td:last-child{font-weight:600}}

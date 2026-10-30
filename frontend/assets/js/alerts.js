@@ -33,7 +33,7 @@ const Alerts = {
   },
 
    
-  form: function (title, html, save) {
+  form: function (title, html, save, options = {}) {
     return Swal.fire({
       title: title,
       html: html,
@@ -45,9 +45,10 @@ const Alerts = {
       showLoaderOnConfirm: true,
       allowOutsideClick: function () { return !Swal.isLoading(); },
       allowEscapeKey: function () { return !Swal.isLoading(); },
+      ...options,
       preConfirm: save,
       didOpen: function () {
-        const input = document.querySelector(".swal2-html-container input");
+        const input = document.querySelector(".swal2-html-container input:not([disabled]):not([type=hidden])");
         if (input) input.focus();
       }
     });

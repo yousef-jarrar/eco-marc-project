@@ -10,12 +10,9 @@ class CustomerChat {
     private ShoppingData $shoppingData;
     public function __construct(PDO $db, ?ShoppingData $shoppingData = null) { $this->db = $db; $this->shoppingData = $shoppingData ?? new ShoppingData($db); }
 
-    public function answer(string $message, array $history, ?string $preferredStyle = null): array {
+    public function answer(string $message, array $history): array {
         $arabic = preg_match('/\p{Arabic}/u', $message) === 1;
         $catalog = $this->shoppingData->catalog();
-        if ($preferredStyle !== null) $catalog = array_values(array_filter($catalog, function ($product) use ($preferredStyle) {
-            return empty($product['metadata']['style']) || $product['metadata']['style'] === $preferredStyle;
-        }));
         $gender = preg_match('/رجالي|للرجال|\bmen\b/iu', $message) ? 'men' : (preg_match('/نسائي|للنساء|\bwomen\b/iu', $message) ? 'women' : '');
         if ($gender !== '') $catalog = array_values(array_filter($catalog, function ($product) use ($gender) {
             $label = $product['metadata']['gender'] ?? '';

@@ -35,9 +35,8 @@ try {
     }
     $requests[] = $now; $_SESSION['customer_chat_requests'] = $requests;
     $db = (new Database())->connect();
-    $user = empty($_SESSION['user_id']) ? null : (new Auth($db))->currentUser();
     session_write_close();
-    $answer = (new ShoppingAssistant($db))->answer($message, $history, $data, $user ? (int)$user['id'] : null);
+    $answer = (new ShoppingAssistant($db))->answer($message, $history, $data);
     echo json_encode(['success' => true] + $answer, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
 } catch (InvalidArgumentException $error) {
     http_response_code(400); echo json_encode(['success' => false, 'message' => $error->getMessage()]);

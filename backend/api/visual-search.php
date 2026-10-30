@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../classes/DiscountRules.php';
 ini_set('display_errors', '0');
 set_time_limit(150);
 $searchStage = 'setup';
@@ -65,7 +66,7 @@ try {
         $statement = $db->prepare("SELECT p.id, p.price, d.percentage, c.name AS category,
             EXISTS(SELECT 1 FROM product_variants v WHERE v.product_id=p.id AND v.quantity>0) AS in_stock
             FROM products p JOIN categories c ON c.id=p.category_id
-            LEFT JOIN discounts d ON d.id=p.discount_id WHERE p.id IN ($placeholders)");
+            LEFT JOIN discounts d ON d.id=p.discount_id AND d.type='normal' AND " . DiscountRules::ACTIVE_SQL . " WHERE p.id IN ($placeholders)");
         $statement->execute($ids);
         $catalog = array_column($statement->fetchAll(PDO::FETCH_ASSOC), null, 'id');
         foreach ($products as &$product) {

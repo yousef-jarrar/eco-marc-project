@@ -49,6 +49,7 @@ function showMessage(message, type = "error") {
     messageBox.className = `notice ${type}`;
     messageBox.hidden = false;
     messageBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    Alerts.show("Checkout", message, type === "error" ? "error" : "info");
 }
 
 function clearMessage() {
@@ -79,27 +80,9 @@ function endpoint(action, extra = {}) {
     return url.toString();
 }
 
-let csrfToken = null;
-
-// The server checks the X-CSRF-Token header on every POST (middleware/csrf.php).
-async function getCsrfToken() {
-    if (csrfToken) return csrfToken;
-
-    const response = await fetch(endpoint("csrf"), {
-        credentials: "same-origin",
-        headers: { Accept: "application/json" }
-    });
-    const result = await response.json();
-
-    csrfToken = result?.data?.csrf_token || "";
-    return csrfToken;
-}
-
 async function apiRequest(url, options = {}) {
     const method = (options.method || "GET").toUpperCase();
-    const csrfHeaders = method === "GET"
-        ? {}
-        : { "X-CSRF-Token": await getCsrfToken() };
+    await EcoAuth.ready;
 
     const requestOptions = {
         credentials: "same-origin",
@@ -107,12 +90,12 @@ async function apiRequest(url, options = {}) {
         headers: {
             Accept: "application/json",
             ...(options.body ? { "Content-Type": "application/json" } : {}),
-            ...csrfHeaders,
+
             ...(options.headers || {})
         }
     };
 
-    const fetchFunction = window.EcoAuth?.fetch || window.fetch.bind(window);
+    const fetchFunction = EcoAuth.fetch;
     const response = await fetchFunction(url, requestOptions);
 
     let result;
@@ -395,7 +378,7 @@ async function loadCheckout() {
         placeOrderButton.disabled = true;
 
         showMessage(
-            `${error.message} Check CHECKOUT_CONFIG.apiUrl and your PHP cart endpoint.`
+            error.message
         );
     }
 
@@ -520,23 +503,11 @@ if (form) {
                 sessionStorage.removeItem("coupon_code");
             } catch { /* ignore */ }
 
-            // Keep a small summary for the confirmation page, then go there.
-            try {
-                sessionStorage.setItem("last_order", JSON.stringify({
-                    order_id: order.cart_id ?? order.order_id ?? null,
-                    subtotal: order.subtotal,
-                    discount_amount: order.discount_amount,
-                    delivery_fee: order.delivery_fee,
-                    total: order.total,
-                    shipping_address: buildShippingAddress()
-                }));
-            } catch { /* ignore */ }
-
             if (buttonLabel) buttonLabel.textContent = "Order placed";
 
             const orderId = order.cart_id ?? order.order_id ?? "";
             window.location.href =
-                `order-success.html${orderId ? `?order=${encodeURIComponent(orderId)}` : ""}`;
+                `Order-success.html${orderId ? `?order=${encodeURIComponent(orderId)}` : ""}`;
             return;
         } catch (error) {
             showMessage(
