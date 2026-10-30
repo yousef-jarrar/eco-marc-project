@@ -128,6 +128,14 @@ const EcoAuth = (function () {
         if (url.origin === location.origin && url.pathname.startsWith(adminFolder) && allowed.includes(page)) return url.pathname + url.search;
       } catch { }
     }
+    if (next) {
+      try {
+        const url = new URL(next,location.origin);
+        const publicFolder = new URL("frontend/",projectRoot).pathname;
+        const pages = ["Landing.html","shop.html","ProductShop.html","visual-search.html","customers/wishlist.html","account/cart.html","account/profile.html","account/index.html"];
+        if (url.origin === location.origin && url.pathname.startsWith(publicFolder) && pages.includes(url.pathname.slice(publicFolder.length))) return url.pathname+url.search+url.hash;
+      } catch {}
+    }
     return user.role === "admin" ? admin : account;
   }
 
