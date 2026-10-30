@@ -70,6 +70,9 @@ function renderProducts(products) {
         const card = document.createElement("div");
         card.className = "product-card";
 
+        const imageContainer = document.createElement("div");
+        imageContainer.className = "product-image";
+
         const image = document.createElement("img");
 
         image.src = product.image_url
@@ -77,6 +80,23 @@ function renderProducts(products) {
             : "";
 
         image.alt = product.name;
+
+        const badge = document.createElement("span");
+        badge.className = "product-badge";
+        badge.textContent = "New season";
+
+        const wishlist = document.createElement("button");
+        wishlist.className = "wishlist-btn";
+        wishlist.type = "button";
+        wishlist.setAttribute("aria-label", `Add ${product.name} to wishlist`);
+        wishlist.innerHTML = '<i class="fa-regular fa-heart"></i>';
+
+        const quickView = document.createElement("button");
+        quickView.className = "quick-view";
+        quickView.type = "button";
+        quickView.textContent = "Quick view +";
+
+        imageContainer.append(image, badge, wishlist, quickView);
 
         const info = document.createElement("div");
         info.className = "product-info";
@@ -86,11 +106,11 @@ function renderProducts(products) {
 
         const price = document.createElement("p");
         price.className = "product-price";
-        price.textContent = `${Number(product.price).toFixed(2)} JOD`;
+        price.textContent = `JOD ${Number(product.price).toFixed(2)}`;
 
         info.append(name, price);
-        card.append(image, info);
 
+        card.append(imageContainer, info);
         productsGrid.appendChild(card);
     });
 }
