@@ -32,31 +32,54 @@ class Cart
         $sql = "INSERT INTO carts (user_id) VALUES (?)";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$user_id]);
-
+ 
         return (int) $this->db->lastInsertId();
     }
 
-    public function getCard(int $user_id): array
-    {
-        $sql = "SELECT c.id AS cart_id, ci.id AS cart_item_id, ci.variant_id, ci.quantity,
-                       p.id AS product_id, p.name AS product_name, p.price,
-                       COALESCE(d.percentage, 0) AS discount_percentage,
-                       pv.size, pv.color, pv.quantity AS stock
-                FROM carts c
-                JOIN cart_items ci ON ci.cart_id = c.id
-                JOIN product_variants pv ON pv.id = ci.variant_id
-                JOIN products p ON p.id = pv.product_id
-                LEFT JOIN discounts d
-                       ON d.id = p.discount_id
-                      AND d.type = 'normal'
-                      AND " . self::DISCOUNT_IS_LIVE . "
-                WHERE c.user_id = ? AND c.status = 'active'";
+public function getCard(int $user_id): array
+{
+    $sql = "SELECT
+                c.id AS cart_id,
+                ci.id AS cart_item_id,
+                ci.variant_id,
+                ci.quantity,
+                p.id AS product_id,
+                p.name AS product_name,
+                p.price,
 
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([$user_id]);
+                (
+                    SELECT pi.image_url
+                    FROM product_images pi
+                    WHERE pi.product_id = p.id
+                    ORDER BY pi.is_primary DESC, pi.id ASC
+                    LIMIT 1
+                ) AS product_image,
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+                COALESCE(d.percentage, 0) AS discount_percentage,
+                pv.size,
+                pv.color,
+                pv.quantity AS stock
+
+            FROM carts c
+            JOIN cart_items ci
+                ON ci.cart_id = c.id
+            JOIN product_variants pv
+                ON pv.id = ci.variant_id
+            JOIN products p
+                ON p.id = pv.product_id
+            LEFT JOIN discounts d
+                ON d.id = p.discount_id
+                AND d.type = 'normal'
+                AND " . self::DISCOUNT_IS_LIVE . "
+
+            WHERE c.user_id = ?
+              AND c.status = 'active'";
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute([$user_id]);
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
     public function addItme(
         int $user_id,
@@ -299,37 +322,39 @@ class Cart
      * Cart page totals. Uses the same calculateTotals() as checkout(),
      * so the cart and the saved order can never disagree.
      */
-    public function getCartTotal(int $user_id): array
-    {
-        $sql = "SELECT id FROM carts WHERE user_id = ? AND status = 'active' LIMIT 1";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([$user_id]);
-        $cart_id = $stmt->fetchColumn();
+  public function getCartTotal(int $user_id, ?string $coupon_code = null): array
+{
+    $sql = "SELECT id FROM carts WHERE user_id = ? AND status = 'active' LIMIT 1";
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute([$user_id]);
+    $cart_id = $stmt->fetchColumn();
 
-        if (!$cart_id) {
-            return [
-                "subtotal" => 0.0,
-                "product_discount" => 0.0,
-                "coupon_discount" => 0.0,
-                "discount_amount" => 0.0,
-                "delivery_fee" => 0.0,
-                "total" => 0.0,
-                "coupon_code" => null
-            ];
-        }
-
-        $t = $this->calculateTotals((int) $cart_id);
-
+    if (!$cart_id) {
         return [
-            "subtotal" => $t["subtotal"],
-            "product_discount" => $t["product_discount"],
-            "coupon_discount" => $t["coupon_discount"],
-            "discount_amount" => $t["discount_amount"],
-            "delivery_fee" => $t["delivery_fee"],
-            "total" => $t["total"],
-            "coupon_code" => $t["coupon_code"]
+            "subtotal" => 0.0,
+            "product_discount" => 0.0,
+            "coupon_discount" => 0.0,
+            "discount_amount" => 0.0,
+            "delivery_fee" => 0.0,
+            "total" => 0.0,
+            "coupon_code" => null,
+            "coupon_invalid" => false
         ];
     }
+
+    $t = $this->calculateTotals((int) $cart_id, $coupon_code);
+
+    return [
+        "subtotal" => $t["subtotal"],
+        "product_discount" => $t["product_discount"],
+        "coupon_discount" => $t["coupon_discount"],
+        "discount_amount" => $t["discount_amount"],
+        "delivery_fee" => $t["delivery_fee"],
+        "total" => $t["total"],
+        "coupon_code" => $t["coupon_code"],
+        "coupon_invalid" => $t["coupon_invalid"]
+    ];
+}
 
     /**
      * 1. Product (normal) discounts come from products.discount_id.
@@ -337,78 +362,78 @@ class Cart
      *    left after the product discounts.
      * 3. Only discounts that are active and inside their dates count.
      */
-    private function calculateTotals(int $cart_id): array
-    {
-        $sql = "SELECT
-                    COALESCE(SUM(p.price * ci.quantity), 0) AS subtotal,
-                    COALESCE(SUM(
-                        p.price * ci.quantity * COALESCE(d.percentage, 0) / 100
-                    ), 0) AS product_discount
-                FROM cart_items ci
-                JOIN product_variants pv ON pv.id = ci.variant_id
-                JOIN products p ON p.id = pv.product_id
-                LEFT JOIN discounts d
-                       ON d.id = p.discount_id
-                      AND d.type = 'normal'
-                      AND " . self::DISCOUNT_IS_LIVE . "
-                WHERE ci.cart_id = ?";
+private function calculateTotals(int $cart_id, ?string $coupon_code = null): array
+{
+    $sql = "SELECT
+                COALESCE(SUM(p.price * ci.quantity), 0) AS subtotal,
+                COALESCE(SUM(
+                    p.price * ci.quantity * COALESCE(d.percentage, 0) / 100
+                ), 0) AS product_discount
+            FROM cart_items ci
+            JOIN product_variants pv ON pv.id = ci.variant_id
+            JOIN products p ON p.id = pv.product_id
+            LEFT JOIN discounts d
+                   ON d.id = p.discount_id
+                  AND d.type = 'normal'
+                  AND " . self::DISCOUNT_IS_LIVE . "
+            WHERE ci.cart_id = ?";
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute([$cart_id]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $subtotal = round((float) $row["subtotal"], 2);
+    $product_discount = round((float) $row["product_discount"], 2);
+
+    // Coupon: look up the typed code in discounts, nothing is stored on the cart
+    $coupon_discount = 0.0;
+    $applied_code = null;
+    $coupon_invalid = false;
+
+    $coupon_code = $coupon_code !== null ? trim($coupon_code) : "";
+
+    if ($coupon_code !== "") {
+        $sql = "SELECT d.percentage, d.coupon_code
+                FROM discounts d
+                WHERE d.coupon_code = ?
+                  AND d.type = 'coupon'
+                  AND " . self::DISCOUNT_IS_LIVE . "
+                LIMIT 1";
 
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([$cart_id]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        $subtotal = round((float) $row["subtotal"], 2);
-        $product_discount = round((float) $row["product_discount"], 2);
-
-        // Coupon on this cart (if any) and whether it is still valid
-        $sql = "SELECT c.coupon_id, d.percentage, d.coupon_code
-                FROM carts c
-                LEFT JOIN discounts d
-                       ON d.id = c.coupon_id
-                      AND d.type = 'coupon'
-                      AND " . self::DISCOUNT_IS_LIVE . "
-                WHERE c.id = ?";
-
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([$cart_id]);
+        $stmt->execute([$coupon_code]);
         $coupon = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        $coupon_discount = 0.0;
-        $coupon_code = null;
-        $coupon_invalid = false;
-
-        if ($coupon && $coupon["coupon_id"] !== null) {
-            if ($coupon["percentage"] === null) {
-                $coupon_invalid = true; // expired, switched off, or deleted
-            } else {
-                $coupon_code = $coupon["coupon_code"];
-                $coupon_discount = round(
-                    ($subtotal - $product_discount)
-                    * (float) $coupon["percentage"] / 100,
-                    2
-                );
-            }
+        if (!$coupon) {
+            $coupon_invalid = true;
+        } else {
+            $applied_code = $coupon["coupon_code"];
+            $coupon_discount = round(
+                ($subtotal - $product_discount)
+                * (float) $coupon["percentage"] / 100,
+                2
+            );
         }
-
-        $discount_amount = round($product_discount + $coupon_discount, 2);
-        $delivery_fee = round($this->calculateDeliveryFee($subtotal), 2);
-        $total = round(
-            max(0, $subtotal - $discount_amount + $delivery_fee),
-            2
-        );
-
-        return [
-            "subtotal" => $subtotal,
-            "product_discount" => $product_discount,
-            "coupon_discount" => $coupon_discount,
-            "discount_amount" => $discount_amount,
-            "delivery_fee" => $delivery_fee,
-            "total" => $total,
-            "coupon_code" => $coupon_code,
-            "coupon_invalid" => $coupon_invalid
-        ];
     }
 
+    $discount_amount = round($product_discount + $coupon_discount, 2);
+    $delivery_fee = round($this->calculateDeliveryFee($subtotal), 2);
+    $total = round(
+        max(0, $subtotal - $discount_amount + $delivery_fee),
+        2
+    );
+
+    return [
+        "subtotal" => $subtotal,
+        "product_discount" => $product_discount,
+        "coupon_discount" => $coupon_discount,
+        "discount_amount" => $discount_amount,
+        "delivery_fee" => $delivery_fee,
+        "total" => $total,
+        "coupon_code" => $applied_code,
+        "coupon_invalid" => $coupon_invalid
+    ];
+}
     public function applyCoupon(int $user_id, string $code): array
     {
         $code = trim($code);
@@ -481,10 +506,13 @@ class Cart
         return $delivery_fee;
     }
 
-    public function checkout(
-        int $user_id,
-        string $shipping_address
-    ): array {
+ public function checkout(
+    int $user_id,
+    string $shipping_address,
+    ?string $coupon_code = null
+): array {
+
+    
         $shipping_address = trim($shipping_address);
 
         if ($shipping_address === "") {
@@ -568,8 +596,14 @@ class Cart
                 }
             }
 
+            $totals = $this->calculateTotals($cart_id, $coupon_code);
+
+            if ($totals["coupon_invalid"]) {
+                throw new InvalidArgumentException(
+                    "The coupon code is no longer valid. Remove it and try again."
+                );
+            }
             // Same calculation as the cart page: product discounts + coupon.
-            $totals = $this->calculateTotals($cart_id);
 
             if ($totals["coupon_invalid"]) {
                 throw new InvalidArgumentException(
@@ -901,4 +935,106 @@ class Cart
 
         return $order;
     }
+
+    public function getProfile(int $user_id): array
+{
+    $sql = "SELECT first_name, last_name, email, phone, address
+            FROM users WHERE id = ? LIMIT 1";
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute([$user_id]);
+
+    return $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+}
+
+public function getMyOrders(int $user_id, int $page = 1, int $limit = 10): array
+{
+    $page = max(1, $page);
+    $limit = max(1, min($limit, 100));
+    $offset = ($page - 1) * $limit;
+
+    $sql = "
+        SELECT
+            c.id AS order_id,
+            c.status,
+            cd.subtotal,
+            cd.discount_amount,
+            cd.delivery_fee,
+            cd.total,
+            c.created_at AS placed_at
+        FROM carts c
+        INNER JOIN cart_details cd ON cd.cart_id = c.id
+        WHERE c.user_id = ?
+          AND c.status <> 'active'
+        ORDER BY c.created_at DESC, c.id DESC
+        LIMIT ? OFFSET ?
+    ";
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->bindValue(1, $user_id, PDO::PARAM_INT);
+    $stmt->bindValue(2, $limit, PDO::PARAM_INT);
+    $stmt->bindValue(3, $offset, PDO::PARAM_INT);
+    $stmt->execute();
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+public function getMyOrderDetails(int $user_id, int $order_id): ?array
+{
+    $sql = "
+        SELECT
+            c.id AS order_id,
+            c.status,
+            cd.subtotal,
+            cd.discount_amount,
+            cd.delivery_fee,
+            cd.total,
+            cd.shipping_address,
+            c.created_at AS placed_at
+        FROM carts c
+        INNER JOIN cart_details cd ON cd.cart_id = c.id
+        WHERE c.id = ?
+          AND c.user_id = ?
+          AND c.status <> 'active'
+        LIMIT 1
+    ";
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute([$order_id, $user_id]);
+
+    $order = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$order) {
+        return null;
+    }
+
+    $sql = "
+        SELECT
+            ci.quantity,
+            p.id AS product_id,
+            p.name AS product_name,
+            p.price,
+            (
+                SELECT pi.image_url
+                FROM product_images pi
+                WHERE pi.product_id = p.id
+                ORDER BY pi.is_primary DESC, pi.id ASC
+                LIMIT 1
+            ) AS product_image,
+            pv.id AS variant_id,
+            pv.size,
+            pv.color
+        FROM cart_items ci
+        INNER JOIN product_variants pv ON pv.id = ci.variant_id
+        INNER JOIN products p ON p.id = pv.product_id
+        WHERE ci.cart_id = ?
+    ";
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute([$order_id]);
+
+    $order["items"] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    return $order;
+}
+
 }

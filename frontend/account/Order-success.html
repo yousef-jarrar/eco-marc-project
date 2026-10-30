@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order placed | Eco Marc</title>
+
+    <link rel="stylesheet" href="../assets/vendor/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/css/index.css">
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="../assets/css/checkout.css">
+</head>
+<body>
+    <main class="checkout-page">
+        <div class="checkout-container" style="max-width:640px;">
+
+            <div class="checkout-top">
+                <p class="checkout-brand">ECO <span>MARC</span></p>
+            </div>
+
+            <div class="panel" style="text-align:center;">
+                <p style="font-size:3rem;margin:0;" aria-hidden="true">✓</p>
+                <p class="eyebrow">THANK YOU</p>
+                <h1>Your order is placed</h1>
+                <p class="muted">
+                    Order <strong id="order-number">#—</strong> is pending.
+                    You pay in cash when it arrives.
+                </p>
+
+                <div id="order-summary" style="text-align:left;margin:1.5rem 0;" hidden>
+                    <div class="total-row"><span>Subtotal</span><span id="os-subtotal"></span></div>
+                    <div class="total-row"><span>Discount</span><span id="os-discount"></span></div>
+                    <div class="total-row"><span>Delivery</span><span id="os-delivery"></span></div>
+                    <div class="total-row grand-total"><span>Total</span><strong id="os-total"></strong></div>
+
+                    <h3 style="font-size:1rem;margin:1.25rem 0 .5rem;">Shipping to</h3>
+                    <div id="os-address" class="muted" style="white-space:pre-line;"></div>
+                </div>
+
+                <a href="my-orders.html" class="place-order-button"
+                   style="display:inline-flex;text-decoration:none;margin-right:.5rem;">
+                    My orders
+                </a>
+                <a href="index.html" class="text-link">Continue shopping</a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const CURRENCY = "JOD";
+        const money = v => `${CURRENCY} ${(Number(v) || 0).toFixed(2)}`;
+
+        const params = new URLSearchParams(window.location.search);
+        let order = null;
+
+        try {
+            order = JSON.parse(sessionStorage.getItem("last_order") || "null");
+        } catch { /* ignore */ }
+
+        const id = params.get("order") || order?.order_id;
+        if (id) document.getElementById("order-number").textContent = `#${id}`;
+
+        if (order) {
+            document.getElementById("os-subtotal").textContent = money(order.subtotal);
+            document.getElementById("os-discount").textContent = `− ${money(order.discount_amount)}`;
+            document.getElementById("os-delivery").textContent =
+                Number(order.delivery_fee) === 0 ? "Free" : money(order.delivery_fee);
+            document.getElementById("os-total").textContent = money(order.total);
+            document.getElementById("os-address").textContent = order.shipping_address || "";
+            document.getElementById("order-summary").hidden = false;
+        }
+    </script>
+</body>
+</html>
