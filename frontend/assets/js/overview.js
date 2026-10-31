@@ -300,6 +300,7 @@ function renderRecentOrders(orders) {
     const status = document.createElement("span");
     status.className = "status overview-order-status";
     status.textContent = String(order.status || "unknown");
+    status.dataset.state = String(order.status || "unknown");
     statusCell.appendChild(status);
 
     const actionCell = row.insertCell();
@@ -328,6 +329,9 @@ function renderOverviewTopProducts(products) {
     const name = document.createElement("span");
     const units = document.createElement("strong");
     name.textContent = product.name;
+    const productId=Number(product.product_id ?? product.id);
+    if(Number.isInteger(productId)&&productId>0){const link=document.createElement("a");link.href="ProductDetails.html?id="+productId;link.textContent=name.textContent;name.replaceChildren(link);}
+    item.dataset.rank=String(overviewTopProducts.children.length+1);
     units.textContent = number(product.units_sold) + (number(product.units_sold) === 1 ? " unit" : " units");
     item.append(name, units);
     overviewTopProducts.appendChild(item);
@@ -350,7 +354,10 @@ function renderInventoryAttention(products, totalCount) {
     const name = document.createElement("span");
     const quantity = document.createElement("strong");
     name.textContent = product.name;
-    quantity.textContent = number(product.minimum_quantity) + " minimum";
+    const productId=Number(product.product_id ?? product.id);
+    if(Number.isInteger(productId)&&productId>0){const link=document.createElement("a");link.href="ProductDetails.html?id="+productId;link.textContent=name.textContent;name.replaceChildren(link);}
+    quantity.textContent = "Lowest variant: " + number(product.minimum_quantity);
+    quantity.dataset.low = String(number(product.minimum_quantity)===0);
     item.append(name, quantity);
     overviewInventoryList.appendChild(item);
   }
@@ -374,7 +381,9 @@ function renderRecentReviews(reviews) {
     const product = document.createElement("strong");
     const rating = document.createElement("strong");
     product.textContent = review.product_name;
-    rating.textContent = number(review.rating) + "/5";
+    rating.className = "overview-review-rating";
+    const star=document.createElement("i"); star.className="fa-solid fa-star"; star.setAttribute("aria-hidden","true");
+    rating.append(star,document.createTextNode(" "+number(review.rating)+"/5"));
     heading.append(product, rating);
 
     const author = document.createElement("p");
@@ -439,9 +448,9 @@ function renderOverview(data) {
   document.getElementById("overview-average").textContent = overviewFormatMoney(summary.average_order_value);
 
   const range = data.period.from + " — " + data.period.to;
-  document.getElementById("overview-revenue-note").textContent = "Selected date range · " + range;
-  document.getElementById("overview-orders-note").textContent = "Selected date range · " + range;
-  document.getElementById("overview-customers-note").textContent = "Customers with eligible orders · selected range";
+  document.getElementById("overview-revenue-note").textContent = "After discounts, including delivery";
+  document.getElementById("overview-orders-note").textContent = "Eligible orders in the selected period";
+  document.getElementById("overview-customers-note").textContent = "Customers with eligible orders";
   document.getElementById("overview-chart-period").textContent = range;
   document.getElementById("overview-status-period").textContent = range;
   document.getElementById("overview-period-note").textContent =
@@ -486,6 +495,8 @@ async function loadOverview() {
   }
 
   overviewLoading = true;
+  setOverviewBusy(true);
+  updateOverviewPresets();
   overviewError.hidden = true;
   overviewStatus.className = "status";
   overviewStatus.textContent = "Updating";
@@ -500,6 +511,7 @@ async function loadOverview() {
     showOverviewError(error.message);
   } finally {
     overviewLoading = false;
+    setOverviewBusy(false);
     overviewForm.querySelectorAll("input, button").forEach(function (control) {
       control.disabled = false;
     });
@@ -535,6 +547,36 @@ document.getElementById("overview-dialog-close").addEventListener("click", funct
 overviewOrderDialog.addEventListener("click", function (event) {
   if (event.target === overviewOrderDialog) overviewOrderDialog.close();
 });
+
+
+function overviewRange(key) {
+  const today=overviewToday();
+  const from=key==='today'?today:key==='week'?overviewShiftDate(today,-6):key==='month'?overviewShiftDate(today,-29):today.slice(0,7)+'-01';
+  return {from,to:today};
+}
+let overviewPreferredPreset = 'current';
+function updateOverviewPresets() {
+  const buttons=[...document.querySelectorAll('[data-overview-range]')];
+  const matches=buttons.filter(button=>{const range=overviewRange(button.dataset.overviewRange);return overviewFrom.value===range.from&&overviewTo.value===range.to;});
+  const active=matches.find(button=>button.dataset.overviewRange===overviewPreferredPreset)||matches[0];
+  buttons.forEach(button=>button.setAttribute('aria-pressed',String(button===active)));
+}
+function setOverviewBusy(busy) {
+  document.querySelector('.overview-main').classList.toggle('is-refreshing',busy);
+  document.querySelector('.overview-metrics').setAttribute('aria-busy',String(busy));
+  document.querySelectorAll('[data-overview-range],#overview-refresh').forEach(button=>button.disabled=busy);
+  const refresh=document.getElementById('overview-refresh');
+  refresh.setAttribute('aria-busy',String(busy));
+  refresh.querySelector('span').textContent=busy?'Refreshing…':'Refresh';
+}
+document.querySelectorAll('[data-overview-range]').forEach(button=>button.addEventListener('click',()=>{
+  overviewPreferredPreset=button.dataset.overviewRange;
+  const range=overviewRange(button.dataset.overviewRange);
+  overviewFrom.value=range.from;overviewTo.value=range.to;loadOverview();
+}));
+document.getElementById('overview-refresh').addEventListener('click',loadOverview);
+overviewFrom.addEventListener('input',updateOverviewPresets);
+overviewTo.addEventListener('input',updateOverviewPresets);
 
 setDefaultOverviewPeriod();
 loadOverview();

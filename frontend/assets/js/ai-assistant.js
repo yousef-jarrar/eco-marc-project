@@ -14,10 +14,8 @@ const toInput = document.getElementById("period-to");
 let sendingMessage = false;
 let loadingInsights = false;
 let messageController = null;
-let revenueChart = null;
 let conversation = [];
 let activePeriod = null;
-let currentStock = [];
 
 function getToday() {
   const parts = new Intl.DateTimeFormat("en", {
@@ -35,6 +33,7 @@ function shiftDate(value, days) {
 }
 
 function choosePreset() {
+  if (periodPreset.value === "custom") return;
   const today = getToday();
   toInput.value = today;
   if (periodPreset.value === "7") fromInput.value = shiftDate(today, -6);
@@ -58,24 +57,29 @@ function getSelectedPeriod() {
 function updateControls() {
   const busy = sendingMessage || loadingInsights;
   questionInput.disabled = busy;
-  sendButton.disabled = busy;
+  sendButton.disabled = busy || !activePeriod || questionInput.value.trim() === "";
   refreshInsightsButton.disabled = busy;
-  clearButton.disabled = sendingMessage;
+  clearButton.disabled = busy;
   cancelButton.hidden = !sendingMessage;
   assistantForm.setAttribute("aria-busy", String(sendingMessage));
 
-  for (const button of document.querySelectorAll("[data-question]")) button.disabled = busy;
+  for (const button of document.querySelectorAll("[data-question]")) button.disabled = busy || !activePeriod;
+  document.getElementById("conversation-state").textContent = sendingMessage ? "Preparing your answer… You can stop this request." : loadingInsights ? "Updating store context…" : activePeriod ? "Store records in context · Ask a follow-up at any time" : "Refresh store context above to start a conversation.";
+  document.getElementById("assistant-workspace").classList.toggle("is-thinking", sendingMessage);
+  refreshInsightsButton.innerHTML = fa(loadingInsights ? "spinner fa-spin" : "rotate") + (loadingInsights ? " Updating…" : " Refresh context");
   for (const control of reportingForm.querySelectorAll("input, select, button")) control.disabled = busy;
 }
 
 function addMessage(role, message, failed = false) {
+  document.getElementById("chat-welcome").hidden = true;
+  messagesBox.hidden = false;
   const article = document.createElement("article");
   article.className = "message " + role;
   if (failed) article.classList.add("failed");
 
   const label = document.createElement("div");
   label.className = "message-label";
-  label.textContent = "Lumeire Business Assistant";
+  label.textContent = "LUMIÈRE Business Assistant";
   if (role === "user") label.textContent = "You";
 
   const text = document.createElement("div");
@@ -85,12 +89,15 @@ function addMessage(role, message, failed = false) {
   article.appendChild(label);
   article.appendChild(text);
   messagesBox.appendChild(article);
-  messagesBox.scrollTop = messagesBox.scrollHeight;
+  if (role === "user") messagesBox.scrollTop = messagesBox.scrollHeight;
   return article;
 }
 
 function updateCharacterCount() {
   document.getElementById("character-count").textContent = Array.from(questionInput.value).length + " / 1000";
+  questionInput.style.height = "auto";
+  questionInput.style.height = Math.min(160, questionInput.scrollHeight) + "px";
+  sendButton.disabled = sendingMessage || loadingInsights || !activePeriod || questionInput.value.trim() === "";
 }
 
  
@@ -105,15 +112,47 @@ function getConversationHistory() {
   return history;
 }
 
+function stockLevel(quantity) {
+  return quantity <= 0 ? "out" : quantity <= 5 ? "low" : "available";
+}
+
+function stockColor(color) {
+  const palette = {black:"#202020",white:"#fff",gray:"#969696",red:"#a43c3c",blue:"#476a8d",navy:"#202e45",green:"#466651",yellow:"#c9ac44",orange:"#bf7e43",pink:"#d599ad",purple:"#8a6b9d",brown:"#775741",beige:"#d6c7b0",other:"#b7b3aa"};
+  return palette[String(color).toLowerCase()] || palette.other;
+}
+
 function showStockDetails(productId, productName, stock) {
-  const lines = [];
-  for (const variant of stock) {
-    if (Number(variant.product_id) === Number(productId)) {
-      lines.push(variant.color + " / " + variant.size + ": " + number(variant.quantity) + " units");
-    }
+  const variants = stock.filter(variant => Number(variant.product_id) === Number(productId)).map(variant => ({...variant, quantity: Math.max(0, number(variant.quantity))}));
+  variants.sort((a, b) => a.quantity - b.quantity || String(a.color).localeCompare(String(b.color)) || String(a.size).localeCompare(String(b.size), undefined, {numeric: true}));
+  const total = variants.reduce((sum, variant) => sum + variant.quantity, 0);
+  const low = variants.filter(variant => stockLevel(variant.quantity) === "low").length;
+  const out = variants.filter(variant => stockLevel(variant.quantity) === "out").length;
+  const html = `<div class="ai-stock-details">
+    <p class="ai-stock-product">${escapeHTML(productName)}</p>
+    <p class="ai-stock-caption">Stock returned with this answer. Low stock means 1–5 units in a variant.</p>
+    <div class="ai-stock-summary"><div><strong>${total}</strong><span>Total units</span></div><div><strong>${variants.length}</strong><span>Variants shown</span></div><div class="stock-summary-low"><strong>${low}</strong><span>Low stock</span></div><div class="stock-summary-out"><strong>${out}</strong><span>Out of stock</span></div></div>
+    <div class="ai-stock-filters"><div><label for="ai-stock-search">Find a variant</label><input type="search" id="ai-stock-search" placeholder="Color or size…"></div><div><label for="ai-stock-status">Availability</label><select id="ai-stock-status"><option value="">All variants</option><option value="out">Out of stock</option><option value="low">Low stock (1–5)</option><option value="available">In stock (6+)</option></select></div></div>
+    <div class="ai-stock-table-wrap"><table class="ai-stock-table"><thead><tr><th>Color</th><th>Size</th><th>Units</th><th>Status</th></tr></thead><tbody id="ai-stock-rows"></tbody></table></div>
+    <p id="ai-stock-count" class="ai-stock-count" role="status"></p>
+    <a class="ai-stock-product-link" href="ProductDetails.html?id=${encodeURIComponent(productId)}">${fa("arrow-up-right-from-square")} Open product details</a>
+  </div>`;
+  const dialog = Alerts.show("Stock details", "", "info", {icon: undefined, html, width: 720, customClass: {popup: "ai-stock-dialog"}, confirmButtonText: "Done", showCloseButton: true, closeButtonAriaLabel: "Close stock details"});
+  const search = document.getElementById("ai-stock-search");
+  const status = document.getElementById("ai-stock-status");
+  function renderStock() {
+    const query = search.value.trim().toLowerCase();
+    const filtered = variants.filter(variant => (String(variant.color) + " " + variant.size).toLowerCase().includes(query) && (!status.value || stockLevel(variant.quantity) === status.value));
+    const rows = document.getElementById("ai-stock-rows");
+    rows.innerHTML = filtered.map(variant => {
+      const level = stockLevel(variant.quantity);
+      return `<tr><td data-label="Color"><span class="ai-stock-color"><span style="background:${stockColor(variant.color)}" aria-hidden="true"></span>${escapeHTML(variant.color || "Not set")}</span></td><td data-label="Size"><span class="ai-stock-size">${escapeHTML(variant.size || "Not set")}</span></td><td data-label="Units"><strong class="ai-stock-quantity">${variant.quantity}</strong></td><td data-label="Status"><span class="ai-stock-status ${level}">${fa(level === "out" ? "circle-xmark" : level === "low" ? "triangle-exclamation" : "check")}${level === "out" ? "Out of stock" : level === "low" ? "Low stock" : "In stock"}</span></td></tr>`;
+    }).join("") || '<tr><td colspan="4"><div class="ai-stock-empty">'+fa("box-open")+'<strong>'+ (variants.length ? "No matching variants" : "No stock details returned") +'</strong><p>'+ (variants.length ? "Try another color, size or availability." : "Ask a new stock question for this product.") +'</p></div></td></tr>';
+    document.getElementById("ai-stock-count").textContent = filtered.length + " of " + variants.length + " variants · Lowest stock first";
   }
-  if (lines.length === 0) lines.push("No stock details were returned for this product.");
-  Alerts.show(productName + " — current stock", lines.join("\n"));
+  search.addEventListener("input", renderStock);
+  status.addEventListener("change", renderStock);
+  renderStock();
+  return dialog;
 }
 
 function addStockButton(container, productId, productName, stock) {
@@ -125,7 +164,8 @@ function addStockButton(container, productId, productName, stock) {
   const button = document.createElement("button");
   button.type = "button";
   button.className = "secondary stock-details-button";
-  button.textContent = "Stock details";
+  button.innerHTML = fa("boxes-stacked") + " Stock details";
+  button.setAttribute("aria-label", "Stock details for " + productName);
   button.addEventListener("click", function () {
     showStockDetails(productId, productName, stock);
   });
@@ -175,7 +215,7 @@ function showAnswerDetails(article, result) {
     name.textContent = row.name;
     if (cards.type === "inventory") detail.textContent = row.color + " / " + row.size + " · " + number(row.quantity) + " left";
     if (cards.type === "products") detail.textContent = number(row.units_sold) + " units sold";
-    if (cards.type === "reviews") detail.textContent = number(row.average_rating).toFixed(2) + " / 5 · " + number(row.total_reviews) + " approved reviews";
+    if (cards.type === "reviews") detail.textContent = number(row.average_rating).toFixed(2) + " / 5 · " + number(row.total_reviews) + " reviews";
     if (cards.type === "orders") {
       name.textContent = row.status;
       detail.textContent = number(row.total) + " orders";
@@ -184,6 +224,15 @@ function showAnswerDetails(article, result) {
     description.appendChild(detail);
     item.appendChild(description);
     if (cards.type === "products" || cards.type === "reviews") addStockButton(item, row.id, row.name, stock);
+    if (cards.type === "inventory") {
+      detail.textContent = "Size " + row.size + " · " + row.color;
+      const badge = document.createElement("span");
+      const quantity = Math.max(0, number(row.quantity));
+      badge.className = "answer-stock-badge " + stockLevel(quantity);
+      badge.textContent = quantity === 0 ? "Out of stock" : quantity + " left";
+      item.appendChild(badge);
+      addStockButton(item, row.product_id, row.name, stock);
+    }
     panel.appendChild(item);
   }
   article.appendChild(panel);
@@ -191,7 +240,7 @@ function showAnswerDetails(article, result) {
 
 async function sendQuestion(question) {
   question = question.trim();
-  if (sendingMessage || loadingInsights || question === "") return;
+  if (sendingMessage || loadingInsights || !activePeriod || question === "") return;
   if (Array.from(question).length > 1000) {
     Alerts.show("Question is too long", "Use up to 1,000 characters.", "warning");
     return;
@@ -208,6 +257,13 @@ async function sendQuestion(question) {
   updateCharacterCount();
   const answerArticle = addMessage("assistant", "Preparing an answer from your store data…");
   const answerText = answerArticle.querySelector(".message-text");
+  const quote = document.createElement("blockquote");
+  quote.className = "answer-question";
+  quote.dir = "auto";
+  quote.textContent = question;
+  answerText.before(quote);
+  answerArticle.classList.add("is-preparing");
+  scrollToAnswer(answerArticle);
   let streamedText = "";
   sendingMessage = true;
   messageController = new AbortController();
@@ -218,12 +274,13 @@ async function sendQuestion(question) {
       if (event.type === "token") {
         streamedText += event.text;
         answerText.textContent = streamedText;
-        messagesBox.scrollTop = messagesBox.scrollHeight;
+        answerArticle.classList.remove("is-preparing");
       }
     });
      
     answerText.textContent = result.answer;
     showAnswerDetails(answerArticle, result);
+    addAnswerTools(answerArticle, result.answer);
     conversation.push({ role: "user", content: question });
     conversation.push({ role: "assistant", content: Array.from(result.answer).slice(0, 4000).join("") });
     conversation = conversation.slice(-10);
@@ -243,132 +300,16 @@ async function sendQuestion(question) {
     }
   } finally {
     sendingMessage = false;
+    answerArticle.classList.remove("is-preparing");
     updateControls();
-    questionInput.focus();
-    messagesBox.scrollTop = messagesBox.scrollHeight;
+    questionInput.focus({preventScroll: true});
+    updateLatestAnswer();
   }
 }
 
 function getList(value) {
   if (Array.isArray(value)) return value;
   return [];
-}
-
-function showEmptyList(list, message) {
-  const item = document.createElement("li");
-  item.className = "muted";
-  item.textContent = message;
-  list.appendChild(item);
-}
-
-function showTopProducts(products) {
-  const list = document.getElementById("top-products");
-  list.innerHTML = "";
-  if (products.length === 0) { showEmptyList(list, "No eligible product sales in this period."); return; }
-  for (const product of products) {
-    const item = document.createElement("li");
-    item.innerHTML = `<span>${escapeHTML(product.name)}</span><strong>${number(product.units_sold)} units</strong>`;
-    list.appendChild(item);
-  }
-}
-
-function showLowStock(products, totalCount) {
-  const list = document.getElementById("low-stock");
-  list.innerHTML = "";
-  let note = "Current inventory · 5 or fewer units.";
-  if (totalCount > 8) note = "Current inventory · showing 8 of " + totalCount + " variants.";
-  document.getElementById("stock-count-note").textContent = note;
-  if (products.length === 0) { showEmptyList(list, "No current variants at or below 5 units."); return; }
-  for (const product of products.slice(0, 8)) {
-    const item = document.createElement("li");
-    item.innerHTML = `<span>${escapeHTML(product.name)}<small>${escapeHTML(product.color)} / ${escapeHTML(product.size)}</small></span><strong>${number(product.quantity)} left</strong>`;
-    list.appendChild(item);
-  }
-}
-
-function showProductRatings(products) {
-  const list = document.getElementById("product-ratings");
-  list.innerHTML = "";
-  if (products.length === 0) { showEmptyList(list, "No approved reviews in this period."); return; }
-  for (const product of products) {
-    const item = document.createElement("li");
-    item.innerHTML = `<span>${escapeHTML(product.name)}<small>${number(product.total_reviews)} approved reviews</small></span><strong>${number(product.average_rating).toFixed(2)} / 5</strong>`;
-    list.appendChild(item);
-  }
-}
-
-function showDailyRevenue(rows) {
-  const tableBody = document.getElementById("daily-body");
-  const canvas = document.getElementById("daily-chart");
-  const emptyMessage = document.getElementById("daily-chart-empty");
-  tableBody.innerHTML = "";
-  if (revenueChart) { revenueChart.destroy(); revenueChart = null; }
-  if (rows.length === 0) {
-    canvas.hidden = true;
-    emptyMessage.hidden = false;
-    emptyMessage.textContent = "No eligible revenue records in this period.";
-    tableBody.innerHTML = '<tr><td colspan="3">No eligible revenue records were returned for this period.</td></tr>';
-    return;
-  }
-
-  const dates = [];
-  const amounts = [];
-  for (const row of rows) {
-    const tableRow = document.createElement("tr");
-    tableRow.innerHTML = `<td>${escapeHTML(displayDate(row.sale_date))}</td><td>${number(row.total_orders)}</td><td>${formatJOD(row.revenue)}</td>`;
-    tableBody.appendChild(tableRow);
-    dates.push(displayDate(row.sale_date));
-    amounts.push(number(row.revenue));
-  }
-  if (!window.Chart) {
-    canvas.hidden = true;
-    emptyMessage.hidden = false;
-    emptyMessage.textContent = "The chart is unavailable. Records are shown in the table.";
-    return;
-  }
-  canvas.hidden = false;
-  emptyMessage.hidden = true;
-  revenueChart = new Chart(canvas, {
-    type: "line",
-    data: { labels: dates, datasets: [{ label: "Revenue (JOD)", data: amounts, borderColor: "#b89569", backgroundColor: "#b8956920", borderWidth: 2, fill: true, tension: 0.25 }] },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: { y: { beginAtZero: true, grid: { color: "#eeeeee" } }, x: { grid: { display: false }, ticks: { maxTicksLimit: 12 } } }
-    }
-  });
-}
-
-function showChange(id, comparison) {
-  const element = document.getElementById(id);
-  element.className = "metric-change";
-  element.textContent = "Comparison unavailable";
-  if (!comparison) return;
-  if (comparison.percent === null) {
-    element.textContent = "No percentage comparison: previous value was zero";
-    return;
-  }
-  const change = number(comparison.percent);
-  if (change > 0) {
-    element.classList.add("up");
-    element.textContent = "+" + change.toFixed(2) + "% vs previous period";
-  } else if (change < 0) {
-    element.classList.add("down");
-    element.textContent = change.toFixed(2) + "% vs previous period";
-  } else element.textContent = "Unchanged vs previous period";
-}
-
-function showSummary(data) {
-  const summary = data.summary;
-  document.getElementById("revenue-value").textContent = formatJOD(summary.revenue);
-  document.getElementById("orders-value").textContent = number(summary.total_orders);
-  document.getElementById("pending-value").textContent = number(summary.pending_orders);
-  document.getElementById("stock-value").textContent = number(data.low_stock_count);
-  document.getElementById("average-order-value").textContent = formatJOD(summary.average_order_value);
-  document.getElementById("customers-value").textContent = number(summary.customers);
-  showChange("revenue-change", data.comparison.revenue);
-  showChange("orders-change", data.comparison.total_orders);
-  showChange("average-change", data.comparison.average_order_value);
 }
 
 async function loadInsights() {
@@ -384,23 +325,17 @@ async function loadInsights() {
   connectionStatus.textContent = "Updating";
   try {
     const data = await AdminAPI.insights(requestedPeriod.from, requestedPeriod.to);
-    if (!data.summary || !data.period || !data.comparison) throw new Error("The store returned an incomplete report.");
+    if (!data.period || !data.period.from || !data.period.to) throw new Error("The store did not return a conversation period.");
     if (activePeriod && (activePeriod.from !== data.period.from || activePeriod.to !== data.period.to)) {
       conversation = [];
       messagesBox.innerHTML = "";
-      addMessage("assistant", "The reporting period changed. Let’s start a fresh conversation about these dates.");
+      showWelcome();
     }
     activePeriod = data.period;
-    currentStock = getList(data.product_stock);
-    showSummary(data);
-    showTopProducts(getList(data.top_selling_products));
-    showLowStock(getList(data.low_stock_products), number(data.low_stock_count));
-    showProductRatings(getList(data.lowest_rated_products));
-    showDailyRevenue(getList(data.daily_revenue));
-    const label = data.period.from + " — " + data.period.to;
-    document.getElementById("active-period").textContent = "Showing " + label + " · Asia/Amman";
-    document.getElementById("daily-period-label").textContent = label;
-    document.getElementById("comparison-period").textContent = "Compared with " + data.period.previous_from + " — " + data.period.previous_to;
+    document.getElementById("chat-period").textContent = "Reporting: " + data.period.from + " — " + data.period.to + " · Inventory: current";
+    document.getElementById("period-draft-note").hidden = true;
+    document.getElementById("active-period").textContent = data.period.from + " — " + data.period.to;
+    updateLatestAnswer();
     connectionStatus.className = "status ready";
     connectionStatus.textContent = "Up to date";
     document.getElementById("last-updated").textContent = "Updated " + new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -409,7 +344,7 @@ async function loadInsights() {
     connectionStatus.textContent = "Update unavailable";
     document.getElementById("insights-error").hidden = false;
     document.getElementById("insights-error-text").textContent = error.message;
-    document.getElementById("last-updated").textContent = "Could not refresh. Any figures shown are from the last successful report.";
+    document.getElementById("last-updated").textContent = "Could not refresh context. The conversation still uses the last loaded period.";
   } finally { loadingInsights = false; updateControls(); }
 }
 
@@ -424,15 +359,60 @@ for (const button of document.querySelectorAll("[data-question]")) {
 }
 clearButton.addEventListener("click", async function () {
   const result = await Alerts.confirm("Clear this conversation?", "This clears the conversation and its follow-up context in this tab.");
-  if (result.isConfirmed) { conversation = []; messagesBox.innerHTML = ""; addMessage("assistant", "A fresh start. Ask about revenue, orders, inventory or customer reviews."); }
+  if (result.isConfirmed) { conversation = []; messagesBox.innerHTML = ""; showWelcome(); updateLatestAnswer(); questionInput.focus({preventScroll: true}); }
 });
 reportingForm.addEventListener("submit", function (event) { event.preventDefault(); loadInsights(); });
-periodPreset.addEventListener("change", choosePreset);
-fromInput.addEventListener("input", function () { periodPreset.value = "custom"; });
-toInput.addEventListener("input", function () { periodPreset.value = "custom"; });
+periodPreset.addEventListener("change", function () { choosePreset(); showPeriodDraft(); });
+fromInput.addEventListener("input", function () { periodPreset.value = "custom"; showPeriodDraft(); });
+toInput.addEventListener("input", function () { periodPreset.value = "custom"; showPeriodDraft(); });
 refreshInsightsButton.addEventListener("click", loadInsights);
 document.getElementById("retry-insights").addEventListener("click", loadInsights);
 fromInput.max = getToday();
 toInput.max = getToday();
 choosePreset();
 loadInsights();
+
+function scrollToAnswer(article) {
+  messagesBox.scrollTop += article.getBoundingClientRect().top - messagesBox.getBoundingClientRect().top - 16;
+}
+
+function updateLatestAnswer() {
+  const last = messagesBox.querySelector(".message:last-child");
+  document.getElementById("latest-answer").hidden = !last || last.getBoundingClientRect().top < messagesBox.getBoundingClientRect().bottom - 40;
+}
+
+function addAnswerTools(article, answer) {
+  const tools = document.createElement("div");
+  tools.className = "answer-tools";
+  const copy = document.createElement("button");
+  copy.className = "secondary";
+  copy.type = "button";
+  copy.innerHTML = fa("copy") + " Copy answer";
+  copy.addEventListener("click", async function () {
+    try {
+      await navigator.clipboard.writeText(answer);
+      Alerts.toast("Answer copied");
+    } catch (error) {
+      Alerts.show("Could not copy", "Select the answer text and copy it manually.", "info");
+    }
+  });
+  tools.appendChild(copy);
+  article.appendChild(tools);
+}
+
+function showPeriodDraft() {
+  document.getElementById("period-draft-note").hidden = !!activePeriod && fromInput.value === activePeriod.from && toInput.value === activePeriod.to;
+}
+
+messagesBox.addEventListener("scroll", updateLatestAnswer, {passive: true});
+document.getElementById("latest-answer").addEventListener("click", function () {
+  const last = messagesBox.querySelector(".message:last-child");
+  if (last) scrollToAnswer(last);
+  updateLatestAnswer();
+});
+
+function showWelcome() {
+  document.getElementById("chat-welcome").hidden = false;
+  messagesBox.hidden = true;
+  document.getElementById("latest-answer").hidden = true;
+}

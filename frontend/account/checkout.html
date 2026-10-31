@@ -77,6 +77,12 @@
                             <div><span class="muted">Email:</span> <strong id="acc-email">—</strong></div>
                             <div><span class="muted">Phone:</span> <strong id="acc-phone">—</strong></div>
                         </div>
+                        <div class="form-field checkout-phone-field" id="checkout-phone-field" style="margin-top:18px;">
+                            <label for="phone">Phone number <span aria-hidden="true">*</span></label>
+                            <input type="tel" id="phone" name="phone" autocomplete="tel" inputmode="tel" maxlength="30" placeholder="e.g. 0791234567 or +962791234567" aria-describedby="phone-help phone-error" required>
+                            <small id="phone-help" class="muted">Required for delivery. We’ll save it to your account when your order is placed.</small>
+                            <small id="phone-error" class="field-error" aria-live="polite"></small>
+                        </div>
                     </section>
 
                     <section class="panel">
@@ -207,5 +213,5 @@
     </main>
 
     
-<script src="../assets/vendor/sweetalert2.all.min.js"></script><script src="../assets/js/alerts.js?v=20261029-pages"></script><script src="../assets/js/checkout.js?v=20261030-checkout"></script><script src="../assets/js/public-header.js?v=20261030-gender"></script></body>
+<script src="../assets/vendor/sweetalert2.all.min.js"></script><script src="../assets/js/alerts.js?v=20261029-pages"></script><script src="../assets/js/checkout.js?v=20261031-phone-required"></script><script src="../assets/js/public-header.js?v=20261030-gender"></script></body>
 </html>

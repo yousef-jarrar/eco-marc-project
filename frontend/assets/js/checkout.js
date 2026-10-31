@@ -27,6 +27,7 @@ const couponMessage = document.getElementById("coupon-message");
 let cartItems = [];
 let cartTotals = null;
 let submitting = false;
+let checkoutPhoneRequired = true;
 
 const currentYear = document.getElementById("current-year");
 if (currentYear) currentYear.textContent = new Date().getFullYear();
@@ -259,7 +260,13 @@ function prefillForm(profile) {
 
     setText("acc-name", fullName || "—");
     setText("acc-email", profile.email || "—");
-    setText("acc-phone", profile.phone || "—");
+    const savedPhone = normalizePhone(profile.phone || "");
+    checkoutPhoneRequired = !savedPhone;
+    setText("acc-phone", savedPhone || "Add your number below");
+    const phoneInput = document.getElementById("phone");
+    phoneInput.required = checkoutPhoneRequired;
+    phoneInput.disabled = !checkoutPhoneRequired;
+    document.getElementById("checkout-phone-field").hidden = !checkoutPhoneRequired;
 
     fillIfEmpty("address", profile.address);
 }
@@ -404,9 +411,11 @@ function validateForm() {
     let valid = true;
 
     const requiredIds = ["address", "city"];
+    if (checkoutPhoneRequired) requiredIds.unshift("phone");
 
     form.querySelectorAll(".form-field").forEach(field => {
         field.classList.remove("invalid");
+        field.querySelector("input")?.removeAttribute("aria-invalid");
         const error = field.querySelector(".field-error");
         if (error) error.textContent = "";
     });
@@ -439,14 +448,15 @@ function validateForm() {
             error = "Enter a valid email address.";
         } else if (
             id === "phone" &&
-            input.value.trim().replace(/[^\d]/g, "").length < 8
+            !normalizePhone(input.value)
         ) {
-            error = "Enter a valid phone number.";
+            error = "Enter a valid phone number with 8–15 digits.";
         }
 
         if (error) {
             valid = false;
             field.classList.add("invalid");
+            input.setAttribute("aria-invalid", "true");
 
             const errorElement = field.querySelector(".field-error");
             if (errorElement) errorElement.textContent = error;
@@ -490,6 +500,7 @@ if (form) {
                 body: JSON.stringify({
                     action: "checkout",
                     shipping_address: buildShippingAddress(),
+                    ...(checkoutPhoneRequired ? {phone: normalizePhone(value("phone"))} : {}),
                     coupon_code: getCoupon()
                 })
             });
@@ -532,6 +543,7 @@ document
 
             if (field) {
                 field.classList.remove("invalid");
+                input.removeAttribute("aria-invalid");
                 const error = field.querySelector(".field-error");
                 if (error) error.textContent = "";
             }
@@ -552,3 +564,13 @@ if (couponInput) {
 }
 
 loadCheckout();
+function normalizePhone(value) {
+    const arabic = "٠١٢٣٤٥٦٧٨٩";
+    const persian = "۰۱۲۳۴۵۶۷۸۹";
+    let phone = String(value).trim().replace(/[٠-٩۰-۹]/g, digit => {
+        const index = arabic.indexOf(digit);
+        return String(index >= 0 ? index : persian.indexOf(digit));
+    });
+    phone = phone.replace(/[\s().-]/g, "");
+    return /^\+?[0-9]{8,15}$/.test(phone) ? phone : "";
+}

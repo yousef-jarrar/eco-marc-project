@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title> Products | Lumeire Admin</title>
+    <title>LUMIÈRE | Products</title>
 
     <link rel="stylesheet" href="../assets/vendor/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/vendor/fontawesome.min.css">
@@ -19,6 +19,10 @@
   <script src="../assets/js/auth.js?v=20261030-simplified-ai"></script>
 <link rel="icon" type="image/svg+xml" href="../../assets/lumiere-icon-light.svg">
 <link rel="stylesheet" href="../assets/css/sticky-header.css?v=20261029-sticky">
+<link rel="stylesheet" href="../assets/css/color-select.css?v=20261031-admincolors">
+<link rel="stylesheet" href="../assets/css/product-editor.css?v=20261031-editor">
+<link rel="stylesheet" href="../assets/css/admin-product-catalog.css?v=20261031-compactcolumns">
+<script src="../assets/js/color-select.js?v=20261031-admincolors"></script>
 </head>
 
 <body data-page="products" class="products-page">
@@ -41,120 +45,39 @@
         <div class="admin-shell">
 
             <header class="admin-topbar">
-                <span class="topbar-path">Lumeire / Products</span>
+                <span class="topbar-path">LUMIÈRE / Products</span>
             </header>
 
             <main class="admin-main" id="main">
 
                 <div class="page-heading">
                     <div>
-                        <h1>A place for every piece.</h1>
-                        <p>Browse, search, and manage your products.</p>
+                        <h1>Products</h1>
+                        <p>Manage your collection, product details and variant stock.</p>
                     </div>
 
-                    <button type="button" id="addProductBtn" style="background:black;color:#fff;padding:10px 18px;">
-                        <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                        Add Product
-                    </button>
+                    <div class="catalog-heading-actions"><button type="button" class="secondary" id="refreshProductsBtn" aria-label="Refresh products"><i class="fa-solid fa-rotate" aria-hidden="true"></i></button><button type="button" id="addProductBtn"><i class="fa-solid fa-plus" aria-hidden="true"></i> Add product</button></div>
                 </div>
 
-                <section class="content-card">
-
-                    <div class="table-heading">
-                        <h2>All Products</h2>
-                    </div>
-
-                    <div class="filter-grid">
-
-                        <div class="filter-item">
-                            <label for="filterProduct">Product Name or ID</label>
-                            <input
-                                type="text"
-                                class="filter-input"
-                                id="filterProduct"
-                                placeholder="Search here...."
-                            >
-                        </div>
-
-                       
-<div class="filter-item">
-    <label for="filterCategory">Category</label>
-    <select class="filter-input" id="filterCategory">
-        <option value="">All Categories</option>
-    </select>
-</div>
-
-<div class="filter-item">
-    <label for="filterColor">Color</label>
-    <select class="filter-input" id="filterColor">
-        <option value="">All Colors</option>
-    </select>
-</div>
-
-<div class="filter-item">
-    <label for="filterSize">Size</label>
-    <select class="filter-input" id="filterSize">
-        <option value="">All Sizes</option>
-    </select>
-</div>
-
-                    </div>
-
-                    <div class="filter-actions">
-                        <button
-                            type="button"
-                            class="secondary-btn"
-                            id="clearFiltersBtn"
-                        >
-                            Clear Filters
-                        </button>
-                    </div>
-
-                    <div
-                        id="tableMessage"
-                        class="message"
-                        role="status"
-                        aria-live="polite"
-                    ></div>
-
-                    <div class="table-wrapper">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Product</th>
-                                    <th>Category</th>
-                                    <th>Price</th>
-                                    <th>Quantity</th>
-                                    <th>Variants</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-
-                            <tbody id="productsTableBody">
-                                <tr>
-                                    <td colspan="6" class="empty-state">
-                                        Loading products...
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="pagination">
-                        <span id="paginationInfo">Showing 0 products</span>
-
-                        <div class="pagination-buttons">
-                            <button type="button" id="prevPageBtn" aria-label="Previous page">
-                                <i class="fa-solid fa-arrow-left"></i>
-                            </button>
-
-                            <button type="button" id="nextPageBtn" aria-label="Next page">
-                               <i class="fa-solid fa-arrow-right"></i>
-                            </button>
-                        </div>
-                    </div>
-
+                <section class="catalog-summary" aria-label="Product summary"><div><i class="fa-solid fa-box" aria-hidden="true"></i><span><strong id="catalogTotal">—</strong> Products</span></div><div><i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i><span><strong id="catalogLow">—</strong> Need restock</span></div><div><i class="fa-solid fa-box-open" aria-hidden="true"></i><span><strong id="catalogOut">—</strong> Out of stock</span></div></section>
+                <section class="content-card catalog-panel">
+                  <div class="catalog-views" role="group" aria-label="Filter by inventory"><button type="button" data-catalog-stock="" aria-pressed="true">All products</button><button type="button" data-catalog-stock="low" aria-pressed="false"><i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i> Needs restock</button><button type="button" data-catalog-stock="out" aria-pressed="false"><i class="fa-solid fa-box-open" aria-hidden="true"></i> Out of stock</button></div>
+                  <input id="filterStock" type="hidden" value="">
+                  <div class="filter-grid">
+                    <div class="filter-item catalog-search"><label for="filterProduct">Search products</label><input type="search" class="filter-input" id="filterProduct" placeholder="Product name or ID…"></div>
+                    <div class="filter-item"><label for="filterCategory">Category</label><select class="filter-input" id="filterCategory"><option value="">All categories</option></select></div>
+                    <div class="filter-item"><label for="filterGender">Collection</label><select class="filter-input" id="filterGender"><option value="">All collections</option><option value="men">Men</option><option value="women">Women</option><option value="unisex">Unisex</option><option value="unset">Not set</option></select></div>
+                    <div class="filter-item"><label for="filterColor">Color</label><select class="filter-input" id="filterColor"><option value="">All colors</option></select></div>
+                    <div class="filter-item"><label for="filterSize">Size</label><select class="filter-input" id="filterSize"><option value="">All sizes</option></select></div>
+                    <div class="filter-item"><label for="filterSort">Sort by</label><select class="filter-input" id="filterSort"><option value="newest">Newest first</option><option value="name">Name A–Z</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option></select></div>
+                    <button type="button" class="secondary-btn" id="clearFiltersBtn"><i class="fa-solid fa-filter-circle-xmark" aria-hidden="true"></i> Reset filters</button>
+                  </div>
+                  <div id="tableMessage" class="message" role="status" aria-live="polite"></div><button type="button" id="retryProductsBtn" class="secondary" hidden>Retry connection</button>
+                  <div class="table-heading"><div><h2>Your collection</h2><p>Stock totals include all sizes and colors. A variant with 5 or fewer units needs attention.</p></div><span id="catalogResultCount" role="status">Loading…</span></div>
+                  <div class="table-wrapper"><table><thead><tr><th>Product</th><th>Price</th><th>Inventory</th><th>Variants</th><th>Actions</th></tr></thead><tbody id="productsTableBody" aria-live="polite"><tr><td colspan="5" class="empty-state">Loading products…</td></tr></tbody></table></div>
+                  <div class="pagination"><span id="paginationInfo" role="status">Loading products…</span><div class="catalog-pagination-controls"><label for="catalogPageSize">Per page</label><select id="catalogPageSize"><option value="10">10</option><option value="20">20</option><option value="50">50</option></select><div class="pagination-buttons"><button type="button" id="prevPageBtn" aria-label="Previous page" disabled><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button><button type="button" id="nextPageBtn" aria-label="Next page" disabled><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button></div></div></div>
                 </section>
+                <p class="catalog-footnote" id="catalogUpdated" role="status"></p>
 
             </main>
 
@@ -173,7 +96,7 @@
         <div class="modal-content">
 
             <div class="modal-header">
-                <h2 id="modalTitle">Add Product</h2>
+                <div><h2 id="modalTitle">Add Product</h2><p class="editor-modal-subtitle">Build a clear, complete product listing.</p></div>
 
                 <button
                     type="button"
@@ -193,153 +116,40 @@
             ></div>
 
             <form id="productForm" enctype="multipart/form-data">
-
                 <input type="hidden" id="productId" name="id">
-
-                <div class="form-grid">
-
-                    <div class="form-group">
-                        <label for="productName">Product Name *</label>
-                        <input
-                            class="field"
-                            type="text"
-                            id="productName"
-                            name="name"
-                            required
-                        >
+                <section class="editor-section" aria-labelledby="editor-details-title">
+                    <div class="editor-section-heading"><span class="editor-section-icon"><i class="fa-solid fa-tag" aria-hidden="true"></i></span><div><h3 id="editor-details-title">Product details</h3><p>Give your product a name and a place in the collection.</p></div><span class="editor-required">* Required</span></div>
+                    <div class="form-grid">
+                        <div class="form-group full-width"><label for="productName">Product name *</label><input class="field" type="text" id="productName" name="name" maxlength="255" placeholder="e.g. Cotton Crewneck Tee" required></div>
+                        <div class="form-group"><label for="productCategory">Category *</label><select class="field" id="productCategory" name="category_id" required><option value="">Select category</option></select></div>
+                        <div class="form-group"><label for="productGender">Collection</label><select class="field" id="productGender" name="gender"><option value="">Not set</option><option value="men">Men</option><option value="women">Women</option><option value="unisex">Unisex</option></select><small class="hint">Unisex appears in both Men and Women.</small></div>
+                        <div class="form-group"><label for="productPrice">Price (JOD) *</label><input class="field" type="number" id="productPrice" name="price" min="0" step="0.01" placeholder="49.90" required></div>
+                        <div class="form-group"><label for="productDiscount">Product discount</label><select class="field" id="productDiscount" name="discount_id"><option value="">No discount</option></select><small class="hint">Optional. Select an existing product promotion.</small></div>
+                        <div class="form-group full-width"><label for="productDescription">Description *</label><textarea class="field" id="productDescription" name="description" rows="4" placeholder="Describe the style, fit and details your customer should know." required></textarea></div>
                     </div>
-
-                    <div class="form-group">
-                        <label for="productCategory">Category *</label>
-                        <select
-                            class="field"
-                            id="productCategory"
-                            name="category_id"
-                            required
-                        >
-                            <option value="">Select category</option>
-                        </select>
+                </section>
+                <section class="editor-section" aria-labelledby="editor-photos-title">
+                    <div class="editor-section-heading"><span class="editor-section-icon"><i class="fa-regular fa-images" aria-hidden="true"></i></span><div><h3 id="editor-photos-title">Product photos</h3><p>Clear photos help customers see the details.</p></div><span id="editorImageCount" class="editor-count" aria-live="polite">No images selected</span></div>
+                    <label class="editor-upload" id="editorUpload" for="productImages"><i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i><strong>Choose images or drop them here</strong><span>JPG, PNG, WebP or GIF · Up to 5 new images, 5 MB each</span><input type="file" id="productImages" name="images[]" accept="image/jpeg,image/png,image/webp,image/gif" multiple></label>
+                    <p class="hint">Your current photos stay when editing. Add or remove photos before saving.</p>
+                    <div class="image-preview" id="imagePreview"></div>
+                </section>
+                <section class="editor-section editor-stock" aria-labelledby="editor-stock-title">
+                    <div class="editor-section-heading"><span class="editor-section-icon"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span><div><h3 id="editor-stock-title">Sizes, colors &amp; stock</h3><p>One row for each size and color. Total stock is calculated for you.</p></div></div>
+                    <div class="editor-bulk">
+                        <div class="form-group"><label for="variantDefaultColor">Quick-add color</label><select id="variantDefaultColor"><option value="">Choose color</option></select></div>
+                        <div class="form-group"><label for="variantPreset">Size range</label><select class="field" id="variantPreset"><option value="clothing">Clothing · XS–XXL</option><option value="shoes">Footwear · 36–46</option><option value="one">One size</option></select></div>
+                        <div class="form-group"><label for="variantDefaultQuantity">Units per size</label><input class="field" type="number" id="variantDefaultQuantity" min="0" step="1" value="0"></div>
+                        <button type="button" id="addSizesBtn" class="secondary-btn"><i class="fa-solid fa-plus" aria-hidden="true"></i> Add sizes</button>
                     </div>
-
-                    <div class="form-group"><label for="productGender">Collection</label><select class="field" id="productGender" name="gender"><option value="">Not set</option><option value="men">Men</option><option value="women">Women</option><option value="unisex">Unisex</option></select><small class="muted">Unisex appears in both Men and Women. Unclassified products appear under All products.</small></div>
-                    <div class="form-group">
-                        <label for="productPrice">Price *</label>
-                        <input
-                            class="field"
-                            type="number"
-                            id="productPrice"
-                            name="price"
-                            min="0"
-                            step="0.01"
-                            required
-                        >
+                    <div id="variantsContainer"></div>
+                    <button type="button" class="secondary-btn" id="addVariantBtn"><i class="fa-solid fa-plus" aria-hidden="true"></i> Add a size / color</button>
+                    <div class="editor-stock-footer">
+                        <div class="stock-summary" id="stockSummary"><span><i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i> Stock summary</span><strong id="totalVariantQuantity" aria-live="polite">0 units</strong></div>
+                        <div class="form-group"><label for="productQuantity">Total stock</label><input class="field" type="number" id="productQuantity" name="quantity" value="0" min="0" step="1" readonly required><small class="hint">Calculated from the rows above.</small></div>
                     </div>
-
-                    <div class="form-group">
-                        <label for="productQuantity">
-                            Total Product Quantity *
-                        </label>
-
-                        <input
-                            class="field"
-                            type="number"
-                            id="productQuantity"
-                            name="quantity"
-                            min="0"
-                            step="1"
-                            required
-                        >
-
-                        <p class="hint">
-                            The sum of all variant quantities must match
-                            this number.
-                        </p>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="productDiscount">Discount</label>
-
-                        <select
-                            class="field"
-                            id="productDiscount"
-                            name="discount_id"
-                        >
-                            <option value="">No discount</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label for="productDescription">Description *</label>
-
-                        <textarea
-                            class="field"
-                            id="productDescription"
-                            name="description"
-                            required
-                        ></textarea>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label for="productImages">Product Images</label>
-
-                        <input
-                            class="field"
-                            type="file"
-                            id="productImages"
-                            name="images[]"
-                            accept="image/*"
-                            multiple
-                        >
-
-                        <p class="hint">
-                            When editing, leave this empty if you do not
-                            want to upload additional images.
-                        </p>
-
-                        <div class="image-preview" id="imagePreview"></div>
-                    </div>
-
-                </div>
-
-                <h3 class="section-title">Product Variants</h3>
-
-                <p class="hint">
-                    Add each size and color combination and its quantity.
-                </p>
-
-                <div class="stock-summary" id="stockSummary">
-                    <span>Variants total / Product quantity</span>
-                    <strong id="totalVariantQuantity">0 / 0</strong>
-                </div>
-
-                <div id="variantsContainer"></div>
-
-                <button
-                    type="button"
-                    class="secondary-btn"
-                    id="addVariantBtn"
-                >
-                    + Add Variant
-                </button>
-
-                <div class="form-actions">
-                    <button
-                        type="button"
-                        class="secondary-btn"
-                        id="cancelBtn"
-                    >
-                        Cancel
-                    </button>
-
-                    <button
-                        type="submit"
-                        class="primary-btn"
-                        id="saveProductBtn"
-                    >
-                        Save Product
-                    </button>
-                </div>
-
+                </section>
+                <div class="form-actions"><span class="editor-save-note"><i class="fa-solid fa-lock" aria-hidden="true"></i> Changes apply when you save.</span><button type="button" class="secondary-btn" id="cancelBtn">Cancel</button><button type="submit" class="primary-btn" id="saveProductBtn">Save Product</button></div>
             </form>
 
         </div>
@@ -361,6 +171,7 @@
 <script src="../assets/js/admin-api.js?v=20261029-scriptfix"></script>
 <script src="../assets/js/alerts.js?v=20261029-scriptfix"></script>
 <script src="../assets/js/admin-layout.js?v=20261030-audit"></script>
-<script type="module" src="../assets/js/products.js?v=20261030-gender"></script>
+<script type="module" src="../assets/js/products.js?v=20261031-catalogux"></script>
 </body>
 </html>
+

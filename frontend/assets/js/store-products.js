@@ -7,7 +7,7 @@
   const prev = document.getElementById("prev-page");
   const next = document.getElementById("next-page");
   const categoriesList = document.getElementById("categoriesList");
-  const pageSize = 10;
+  const pageSize = 12;
   let products = [];
   let categories = [];
   let currentPage = 1;
@@ -38,6 +38,7 @@
       if (variant.size) sizes.push(String(variant.size).toUpperCase() === "ONE_SIZE" ? "One size" : variant.size);
     }));
     fillSelect(filters.color, colors, "All colors");
+    ColorSelect.enhance(filters.color);
     fillSelect(filters.size, sizes, "All sizes");
     categoriesList.innerHTML = categories.length ? categories.map(category => {
       const id = String(category.id ?? category.category_id ?? "");
@@ -112,6 +113,7 @@
   });
   document.getElementById("clear-filters").addEventListener("click", () => {
     Object.values(filters).forEach(input => input.value = "");
+    ColorSelect.refresh(filters.color);
     selectedCategories.clear();
     query.delete("gender"); query.delete("sale"); query.delete("category"); query.delete("q"); history.replaceState(null,"",location.pathname);
     categoriesList.querySelectorAll("[data-category-filter]").forEach(input => input.checked = false);

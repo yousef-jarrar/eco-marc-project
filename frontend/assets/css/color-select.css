@@ -1,0 +1,29 @@
+:is(.shop-page,.products-page) .eco-color-select { position:relative; width:100%; min-width:0; }
+:is(.shop-page,.products-page) .eco-color-select select[hidden], :is(.shop-page,.products-page) .eco-color-options[hidden] { display:none!important; }
+:is(.shop-page,.products-page) .eco-color-trigger {
+  display:flex; align-items:center; gap:11px; width:100%; min-height:46px; padding:9px 12px;
+  border:1px solid var(--color-input-border); border-radius:4px; background:var(--color-background); color:var(--color-text);
+  font:400 13px/1.5 var(--font-body); text-align:left; cursor:pointer;
+}
+:is(.shop-page,.products-page) .eco-color-trigger > i { margin-left:auto; font-size:12px; transition:transform .15s; }
+:is(.shop-page,.products-page) .eco-color-select.is-open .eco-color-trigger > i { transform:rotate(180deg); }
+:is(.shop-page,.products-page) .eco-color-value { flex:1; min-width:0; }
+:is(.shop-page,.products-page) .eco-color-swatch { display:inline-grid; place-items:center; flex:0 0 24px; width:24px; height:24px; border-radius:4px; border:1px solid #17171720; font-size:12px; color:var(--color-text-secondary); }
+:is(.shop-page,.products-page) .eco-color-swatch.is-any { border-style:dashed; background:var(--color-surface); }
+:is(.shop-page,.products-page) .eco-color-swatch.is-unknown { background:var(--color-surface-alt); }
+:is(.shop-page,.products-page) .eco-color-options {
+  position:absolute; left:0; right:0; top:calc(100% + 3px); z-index:90;
+  max-height:260px; overflow-y:auto; overscroll-behavior:contain;
+  border:1px solid var(--color-border); border-radius:6px; background:var(--color-background); box-shadow:0 8px 20px #17171726;
+  padding:5px 0;
+}
+:is(.shop-page,.products-page) .eco-color-select.opens-up .eco-color-options { top:auto; bottom:calc(100% + 3px); }
+:is(.shop-page,.products-page) .eco-color-option { display:flex; align-items:center; gap:11px; min-height:42px; padding:8px 12px; cursor:pointer; color:var(--color-text); font:400 13px/1.5 var(--font-body); }
+:is(.shop-page,.products-page) .eco-color-option:hover, :is(.shop-page,.products-page) .eco-color-option.is-highlighted { background:var(--color-accent-light); }
+:is(.shop-page,.products-page) .eco-color-option[aria-selected="true"] { background:var(--color-primary-hover); color:var(--color-text-inverse); }
+:is(.shop-page,.products-page) .eco-color-trigger:focus-visible { outline:var(--focus-ring); outline-offset:var(--focus-offset); }
+:is(.shop-page,.products-page) .eco-color-trigger:disabled { opacity:.5; cursor:not-allowed; }
+@media(prefers-reduced-motion:reduce) { :is(.shop-page,.products-page) .eco-color-trigger > i { transition:none; } }
+
+
+:is(.shop-page,.products-page) .eco-color-value { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }

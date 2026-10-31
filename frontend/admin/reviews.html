@@ -10,14 +10,14 @@
     <link rel="stylesheet" href="../assets/css/index.css">
     <link rel="stylesheet" href="../assets/css/global.css">
     <link rel="stylesheet" href="../assets/css/admin.css?v=20261030-audit">
-    <link rel="stylesheet" href="../assets/css/reviews.css">
+    <link rel="stylesheet" href="../assets/css/reviews.css?v=20261031-reviewux">
     <style>html.auth-checking body { visibility: hidden; }</style>
     
   <script src="../assets/js/auth.js?v=20261030-simplified-ai"></script>
 <link rel="icon" type="image/svg+xml" href="../../assets/lumiere-icon-light.svg">
 <link rel="stylesheet" href="../assets/css/sticky-header.css?v=20261029-sticky">
 </head>
-  <body data-page="reviews">
+  <body class="reviews-page" data-page="reviews">
     <a class="sr-only" href="#main">Skip to content</a>
     <button class="sidebar-backdrop" id="sidebar-backdrop" aria-label="Close navigation" hidden>
     </button>
@@ -39,8 +39,8 @@
       <main class="admin-main" id="main">
         <div class="page-heading">
           <div>
-            <h1>What your community is saying.</h1>
-            <p class="muted">Thoughtful feedback. A better experience for everyone.</p>
+            <h1>Customer reviews</h1>
+            <p class="muted">Read customer feedback and manage what appears on your storefront.</p>
           </div>
           <button class="secondary" id="refresh-reviews">
             <i class="fa-solid fa-rotate" aria-hidden="true">
@@ -75,19 +75,29 @@
             <div class="kpi-note">Reviews marked pending</div>
           </article>
           <article class="kpi">
-            <div class="kpi-label">Approved reviews<i class="fa-solid fa-circle-check" aria-hidden="true">
+            <div class="kpi-label">Published reviews<i class="fa-solid fa-circle-check" aria-hidden="true">
               </i>
             </div>
             <div class="kpi-value" id="approved-reviews">—</div>
-            <div class="kpi-note">Approved for storefront use</div>
+            <div class="kpi-note">Visible on product pages</div>
           </article>
         </section>
+        <section class="review-insights" aria-label="Rating breakdown">
+          <div><h2>The customer perspective</h2><p class="muted">Ratings across all submitted feedback.</p><div id="rating-breakdown" class="rating-breakdown"></div></div>
+          <div class="review-guide"><i class="fa-regular fa-message" aria-hidden="true"></i><h3>Keep feedback useful.</h3><p>Approve reviews to show them on product pages. Hide feedback to remove it from view without deleting it.</p><button class="secondary" id="view-pending">Review pending feedback <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></div>
+        </section>
+        <div class="review-views" role="group" aria-label="Filter reviews by status">
+          <button type="button" data-review-status="" aria-pressed="true">All reviews <span data-status-count="">—</span></button>
+          <button type="button" data-review-status="pending" aria-pressed="false"><i class="fa-regular fa-clock" aria-hidden="true"></i> Pending <span data-status-count="pending">—</span></button>
+          <button type="button" data-review-status="approved" aria-pressed="false"><i class="fa-solid fa-check" aria-hidden="true"></i> Published <span data-status-count="approved">—</span></button>
+          <button type="button" data-review-status="hidden" aria-pressed="false"><i class="fa-regular fa-eye-slash" aria-hidden="true"></i> Hidden <span data-status-count="hidden">—</span></button>
+        </div>
         <div class="reviews-toolbar">
           <div class="search-field">
             <label for="review-search">Search feedback</label>
             <input type="search" id="review-search" placeholder="Product, customer or review…">
           </div>
-          <div class="filter-field">
+          <div class="filter-field" hidden>
             <label for="review-status">Status</label>
             <select id="review-status">
               <option value="">All statuses</option>
@@ -116,11 +126,11 @@
               <option value="rating-high">Highest rating</option>
             </select>
           </div>
-          <button class="secondary" id="clear-filters">Clear filters</button>
+          <button class="secondary" id="clear-filters"><i class="fa-solid fa-filter-circle-xmark" aria-hidden="true"></i> Reset</button>
         </div>
         <section class="panel reviews-panel">
           <div class="panel-heading">
-            <h2>Customer feedback</h2>
+            <div><h2>Customer feedback</h2><p class="muted review-table-help">Review, publish or hide individual submissions.</p></div>
             <span class="tiny muted" id="review-count" aria-live="polite">Loading…</span>
           </div>
           <div class="table-scroll">
@@ -139,7 +149,7 @@
             </table>
           </div>
           <div class="pagination-footer">
-            <span id="pagination-label">Page 1</span>
+            <span id="pagination-label" aria-live="polite">Loading reviews…</span>
             <div class="pagination-buttons">
               <button class="secondary" id="previous-page" disabled>Previous</button>
               <button class="secondary" id="next-page" disabled>Next</button>
@@ -156,12 +166,11 @@
 <script src="../assets/js/admin-api.js?v=20261029-scriptfix"></script>
 <script src="../assets/js/alerts.js?v=20261029-scriptfix"></script>
 <script src="../assets/js/admin-layout.js?v=20261030-audit"></script>
-<script src="../assets/vendor/chart.umd.min.js">
-    </script>
+
     
     
     
-    <script src="../assets/js/reviews.js?v=20261029-session2">
+    <script src="../assets/js/reviews.js?v=20261031-reviewux">
     </script>
   </body>
 </html>

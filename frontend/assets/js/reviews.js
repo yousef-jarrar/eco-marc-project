@@ -76,7 +76,7 @@ function createReviewButton(action, icon, label, disabled) {
   const button = document.createElement("button");
   button.className = "secondary";
   button.dataset.action = action;
-  button.innerHTML = fa(icon);
+  button.innerHTML = fa(icon) + "<span>" + ({approved: "Publish", hidden: "Hide", pending: "Pending", delete: "Delete"}[action] || action) + "</span>";
   button.title = label;
   button.setAttribute("aria-label", label);
   button.disabled = disabled;
@@ -101,22 +101,39 @@ function createReviewRow(review) {
 
    
   row.innerHTML = `
-    <td>
+    <td class="review-person-cell">
       <div class="review-product">${escapeHTML(review.product_name)}</div>
       <div class="review-customer">
         ${escapeHTML(customerName)}<br>
         Review #${escapeHTML(review.id)}
       </div>
     </td>
-    <td>
+    <td class="review-content-cell">
       ${createReviewStars(review.rating)}
-      <div class="review-comment" dir="auto">${escapeHTML(review.comment)}</div>
+      <div class="review-comment" dir="auto">${escapeHTML(review.comment || "No written feedback.")}</div>
     </td>
     <td class="review-date">${escapeHTML(displayDate(review.created_at))}</td>
-    <td><span class="status ${statusClass}">${escapeHTML(review.status)}</span></td>
-    <td><div class="review-actions"></div></td>
+    <td class="review-status-cell"><span class="status ${statusClass}">${escapeHTML(({approved: "Published", pending: "Pending", hidden: "Hidden"})[review.status] || "Unknown")}</span></td>
+    <td class="review-actions-cell"><div class="review-actions"></div></td>
   `;
 
+  if (String(review.comment || "").length > 220) {
+    const comment = row.querySelector(".review-comment");
+    comment.classList.add("is-collapsed");
+    const toggle = document.createElement("button");
+    toggle.className = "review-read-more";
+    toggle.type = "button";
+    toggle.textContent = "Read full review";
+    toggle.setAttribute("aria-expanded", "false");
+    comment.id = "review-comment-" + Number(review.id);
+    toggle.setAttribute("aria-controls", comment.id);
+    toggle.addEventListener("click", function () {
+      const collapsed = comment.classList.toggle("is-collapsed");
+      toggle.setAttribute("aria-expanded", String(!collapsed));
+      toggle.textContent = collapsed ? "Read full review" : "Show less";
+    });
+    comment.after(toggle);
+  }
   const actions = row.querySelector(".review-actions");
   actions.appendChild(createReviewButton("approved", "check", "Approve review " + review.id, review.status === "approved"));
   actions.appendChild(createReviewButton("hidden", "eye-slash", "Hide review " + review.id, review.status === "hidden"));
@@ -132,9 +149,10 @@ function showReviews() {
   currentReviewPage = Math.min(currentReviewPage, totalPages);
 
   setReviewText("review-count", filteredReviews.length + " of " + allReviews.length + " reviews");
-  setReviewText("pagination-label", "Page " + currentReviewPage + " of " + totalPages);
+  setReviewText("pagination-label", (filteredReviews.length ? ((currentReviewPage - 1) * reviewsPerPage + 1) + "–" + Math.min(currentReviewPage * reviewsPerPage, filteredReviews.length) : "0") + " of " + filteredReviews.length + " · Page " + currentReviewPage + " of " + totalPages);
   previousButton.disabled = reviewsLoading || currentReviewPage <= 1;
   nextButton.disabled = reviewsLoading || currentReviewPage >= totalPages;
+  updateReviewOverview();
   reviewsBody.innerHTML = "";
 
   if (filteredReviews.length === 0) {
@@ -184,7 +202,7 @@ async function loadReviewStatistics() {
     setReviewText("average-rating", number(statistics.average_rating).toFixed(1) + " / 5");
     setReviewText("pending-reviews", number(statistics.pending_reviews));
     setReviewText("approved-reviews", number(statistics.approved_reviews));
-    setReviewText("stats-note", "Statistics cover all reviews, independent of the filters below.");
+    setReviewText("stats-note", "Statistics cover all reviews, independent of the filters above.");
   } catch (error) {
     clearReviewStatistics();
     setReviewText("stats-note", "Reviews loaded, but statistics are unavailable. Refresh to retry.");
@@ -194,6 +212,10 @@ async function loadReviewStatistics() {
 function setReviewsLoading(loading) {
   reviewsLoading = loading;
   refreshButton.disabled = loading;
+  document.querySelector(".reviews-panel").setAttribute("aria-busy", String(loading));
+  refreshButton.innerHTML = fa(loading ? "spinner fa-spin" : "rotate") + (loading ? " Updating…" : " Refresh");
+  document.querySelectorAll(".reviews-toolbar input, .reviews-toolbar select, .reviews-toolbar button, [data-review-status], #view-pending").forEach(function (control) { control.disabled = loading; });
+  document.querySelectorAll(".rating-breakdown-row").forEach(function (button) { button.disabled = loading; });
   previousButton.disabled = true;
   nextButton.disabled = true;
 
@@ -233,6 +255,8 @@ async function loadReviews() {
     showReviews();
   } catch (error) {
     allReviews = [];
+    updateReviewOverview();
+    setReviewText("pagination-label", "Reviews unavailable");
     setReviewsLoading(false);
     clearReviewStatistics();
     document.getElementById("reviews-error").hidden = false;
@@ -265,7 +289,7 @@ async function handleReviewAction(event) {
 
   if (action === "delete" || action === "hidden") {
     let title = "Hide this review?";
-    let message = "The review will no longer be approved for storefront display.";
+    let message = "The review will no longer appear on product pages. You can publish it again later.";
     if (action === "delete") {
       title = "Delete this review?";
       message = "This permanently removes the review from your database.";
@@ -285,7 +309,7 @@ async function handleReviewAction(event) {
       Alerts.toast("Review deleted");
     } else {
       await AdminAPI.setReviewStatus(reviewId, action);
-      Alerts.toast("Review status updated");
+      Alerts.toast(action === "approved" ? "Review published" : action === "hidden" ? "Review hidden" : "Review marked pending");
     }
 
     setReviewsLoading(false);
@@ -336,3 +360,45 @@ refreshButton.addEventListener("click", loadReviews);
 document.getElementById("retry-reviews").addEventListener("click", loadReviews);
 
 loadReviews();
+
+function updateReviewOverview() {
+  document.querySelectorAll("[data-status-count]").forEach(function (counter) {
+    const status = counter.dataset.statusCount;
+    counter.textContent = status ? allReviews.filter(function (review) { return review.status === status; }).length : allReviews.length;
+  });
+  document.querySelectorAll("[data-review-status]").forEach(function (button) {
+    button.setAttribute("aria-pressed", String(button.dataset.reviewStatus === statusFilter.value));
+  });
+  const breakdown = document.getElementById("rating-breakdown");
+  breakdown.replaceChildren();
+  for (let rating = 5; rating >= 1; rating--) {
+    const count = allReviews.filter(function (review) { return number(review.rating) === rating; }).length;
+    const percentage = allReviews.length ? Math.round(count / allReviews.length * 100) : 0;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "rating-breakdown-row";
+    button.disabled = reviewsLoading;
+    button.setAttribute("aria-label", rating + " stars, " + count + " reviews. Filter by this rating");
+    button.setAttribute("aria-pressed", String(ratingFilter.value === String(rating)));
+    button.innerHTML = '<span>' + rating + ' ' + fa("star") + '</span><span class="rating-track"><span style="width:' + percentage + '%"></span></span><span>' + count + '</span>';
+    button.addEventListener("click", function () {
+      ratingFilter.value = ratingFilter.value === String(rating) ? "" : String(rating);
+      applyReviewFilters();
+    });
+    breakdown.appendChild(button);
+  }
+}
+
+document.querySelectorAll("[data-review-status]").forEach(function (button) {
+  button.addEventListener("click", function () {
+    statusFilter.value = button.dataset.reviewStatus;
+    applyReviewFilters();
+  });
+});
+document.getElementById("view-pending").addEventListener("click", function () {
+  searchInput.value = "";
+  ratingFilter.value = "";
+  statusFilter.value = "pending";
+  applyReviewFilters();
+  document.querySelector(".review-views").scrollIntoView({block: "center"});
+});

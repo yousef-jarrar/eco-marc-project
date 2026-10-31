@@ -34,7 +34,8 @@
         let discounts = [];
 
         let currentPage = 1;
-        const pageSize = 4;
+        let pageSize = 10;
+        let catalogLoading = false;
 
         let existingImages = [];
         let selectedImages = [];
@@ -136,7 +137,8 @@
     
 
         function quantityOf(product) {
-            return Number(product.quantity) || 0;
+            const variants = getVariants(product);
+            return variants.length ? variants.reduce((total, variant) => total + (Number(variant.quantity) || 0), 0) : Number(product.quantity) || 0;
         }
 
         function getProductImages(product) {
@@ -280,52 +282,45 @@
 
        
 
-        async function loadProducts() {
-            productsTableBody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="empty-state">
-                        Loading products...
-                    </td>
-                </tr>
-            `;
-
-            hideMessage(tableMessage);
-
-            try {
-                const data = await getJson(PRODUCTS_API);
-
-             
-                products = getArray(data);
-
-                currentPage = 1;
-
-                renderProducts();
-            } catch (error) {
-                products = [];
-
-                productsTableBody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="empty-state">
-                            ${escapeHtml(error.message)}
-                        </td>
-                    </tr>
-                `;
-
-                document.getElementById("paginationInfo").textContent =
-                    "Showing 0 products";
-
-                document.getElementById("prevPageBtn").disabled = true;
-                document.getElementById("nextPageBtn").disabled = true;
-
-                showMessage(
-                    tableMessage,
-                    error.message,
-                    "error"
-                );
+        function setCatalogBusy(busy) {
+            catalogLoading = busy;
+            document.querySelectorAll('.catalog-heading-actions button,.catalog-panel input,.catalog-panel select,.catalog-panel button').forEach(control => control.disabled = busy);
+            document.querySelector('.catalog-panel').setAttribute('aria-busy', String(busy));
+            if (!busy) {
+                const pages = Math.max(1, Math.ceil(getFilteredProducts().length / pageSize));
+                document.getElementById('prevPageBtn').disabled = currentPage <= 1;
+                document.getElementById('nextPageBtn').disabled = currentPage >= pages;
             }
         }
 
-       
+        function stockState(product) {
+            if (quantityOf(product) <= 0) return 'out';
+            return getVariants(product).some(variant => Number(variant.quantity) <= 5) ? 'low' : 'available';
+        }
+
+        async function loadProducts() {
+            if (catalogLoading) return;
+            setCatalogBusy(true);
+            productsTableBody.innerHTML = '<tr><td colspan="5" class="empty-state"><span class="spinner"></span><p>Loading your collection…</p></td></tr>';
+            hideMessage(tableMessage);
+            document.getElementById('retryProductsBtn').hidden = true;
+            try {
+                const data = await getJson(PRODUCTS_API);
+                products = getArray(data);
+                currentPage = 1;
+                renderProducts();
+                document.getElementById('catalogUpdated').textContent = 'Active product listings · Updated ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+            } catch (error) {
+                products = [];
+                productsTableBody.innerHTML = '<tr><td colspan="5" class="empty-state"><h3>Products could not load</h3><p>Retry the connection to continue.</p></td></tr>';
+                tableMessage.textContent = error.message;
+                tableMessage.className = 'message show error';
+                document.getElementById('retryProductsBtn').hidden = false;
+                document.getElementById('paginationInfo').textContent = 'Products unavailable';
+                document.getElementById('catalogResultCount').textContent = 'Unavailable';
+                ['catalogTotal','catalogLow','catalogOut'].forEach(id => document.getElementById(id).textContent = '—');
+            } finally {setCatalogBusy(false);}
+        }
 
         function getFilteredProducts() {
             const productSearch =
@@ -366,29 +361,20 @@
 
                 const matchesCategory =
                     !categorySearch ||
-                    categoryName.includes(categorySearch) ||
-                    categoryId.includes(categorySearch);
+                    categoryId === categorySearch;
 
-                const matchesColor =
-                    !colorSearch ||
-                    variants.some(function (variant) {
-                        return String(variant.color ?? "")
-                            .toLowerCase()
-                            .includes(colorSearch);
-                    });
+                const matchesVariant = (!colorSearch && !sizeSearch) || variants.some(variant =>
+                    (!colorSearch || String(variant.color || '').toLowerCase() === colorSearch) &&
+                    (!sizeSearch || String(variant.size || '').toLowerCase() === sizeSearch)
+                );
 
-                const matchesSize =
-                    !sizeSearch ||
-                    variants.some(function (variant) {
-                        return String(variant.size ?? "")
-                            .toLowerCase()
-                            .includes(sizeSearch);
-                    });
-
-                return matchesProduct &&
+                const stock = document.getElementById('filterStock').value;
+                const gender = document.getElementById('filterGender').value;
+                const matchesStock = !stock || stockState(product) === stock;
+                const matchesGender = !gender || (gender === 'unset' ? !product.gender : product.gender === gender);
+                return matchesStock && matchesGender && matchesProduct &&
                     matchesCategory &&
-                    matchesColor &&
-                    matchesSize;
+                    matchesVariant;
             });
         }
 
@@ -407,160 +393,46 @@
                 select.replaceChildren(new Option(id === "filterCategory" ? "All Categories" : id === "filterColor" ? "All Colors" : "All Sizes", ""));
                 for (const [key, label] of options[id]) select.add(new Option(label, key));
                 select.value = options[id].some(option => option[0] === value) ? value : "";
+                if (id === "filterColor") ColorSelect.enhance(select);
             }
         }
 
         function renderProducts() {
             populateProductFilters();
-            const filteredProducts = getFilteredProducts();
-
-            const totalPages = Math.max(
-                1,
-                Math.ceil(filteredProducts.length / pageSize)
-            );
-
-            if (currentPage > totalPages) {
-                currentPage = totalPages;
-            }
-
+            const filtered = getFilteredProducts();
+            const sort = document.getElementById('filterSort').value;
+            filtered.sort((a,b) => sort === 'name' ? String(a.name).localeCompare(String(b.name)) : sort === 'price-low' ? Number(a.price)-Number(b.price) : sort === 'price-high' ? Number(b.price)-Number(a.price) : Number(b.id)-Number(a.id));
+            const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
+            currentPage = Math.min(currentPage, pages);
             const start = (currentPage - 1) * pageSize;
-
-            const pageProducts = filteredProducts.slice(
-                start,
-                start + pageSize
-            );
-
-            if (pageProducts.length === 0) {
-                productsTableBody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="empty-state">
-                            No products found matching your filters.
-                        </td>
-                    </tr>
-                `;
-            } else {
-                productsTableBody.innerHTML =
-                    pageProducts.map(function (product) {
-                        const images = getProductImages(product);
-
-                        const firstImage = images.length
-                            ? imageUrl(images[0])
-                            : "";
-
-                        const variants = getVariants(product);
-
-                        return `
-                            <tr>
-                                <td>
-                                    <div class="product-cell">
-                                        ${
-                                            firstImage
-                                                ? `
-                                                    <img
-                                                        class="product-image"
-                                                        src="${escapeHtml(firstImage)}"
-                                                        alt="${escapeHtml(product.name)}"
-                                                    >
-                                                `
-                                                : `
-                                                    <div class="product-image"></div>
-                                                `
-                                        }
-
-                                        <div>
-                                            <div class="product-name">
-                                                ${escapeHtml(product.name)}
-                                            </div>
-
-                                            <div class="product-id">
-                                                ID: ${escapeHtml(product.id)}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-
-                                <td>
-                                    ${escapeHtml(getCategoryName(product))}
-                                </td>
-
-                                <td>
-                                    ${Number(product.price || 0).toFixed(2)}
-                                </td>
-
-                                <td>
-                                    ${quantityOf(product)}
-                                </td>
-
-                                <td>
-                                    ${variants.length}
-                                </td>
-
-                                <td>
-                                    <div class="actions">
-                                        <button
-                                            type="button"
-                                            class="action-btn view-btn"
-                                            aria-label="View ${escapeHtml(product.name)}" title="View product" data-action="view"
-                                            data-id="${escapeHtml(product.id)}"
-                                        >
-                                            <i class="fa-regular fa-eye"></i>
-                                        </button>
-
-                                        <button
-                                            type="button"
-                                            class="action-btn"
-                                            aria-label="Edit ${escapeHtml(product.name)}" title="Edit product" data-action="edit"
-                                            data-id="${escapeHtml(product.id)}"
-                                        >
-                                            <i class="fa-solid fa-pen"></i>
-                                        </button>
-
-                                        <button
-                                            type="button"
-                                            class="action-btn"
-                                            aria-label="Delete ${escapeHtml(product.name)}" title="Delete product" data-action="delete"
-                                            data-id="${escapeHtml(product.id)}"
-                                        >
-                                           <i class="fa-solid fa-trash-can"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                    }).join("");
-
-              
-                productsTableBody
-                    .querySelectorAll(".product-image[src]")
-                    .forEach(function (image) {
-                        image.addEventListener("error", function () {
-                            image.style.display = "none";
-                        });
-                    });
-            }
-
-            const firstItem = filteredProducts.length
-                ? start + 1
-                : 0;
-
-            const lastItem = Math.min(
-                start + pageSize,
-                filteredProducts.length
-            );
-
-            document.getElementById("paginationInfo").textContent =
-                `Showing ${firstItem}-${lastItem} of ${filteredProducts.length} products`;
-
-            document.getElementById("prevPageBtn").disabled =
-                currentPage <= 1;
-
-            document.getElementById("nextPageBtn").disabled =
-                currentPage >= totalPages;
+            const palette = {black:'#202020',white:'#fff',gray:'#969696',red:'#a43c3c',blue:'#476a8d',navy:'#202e45',green:'#466651',yellow:'#c9ac44',orange:'#bf7e43',pink:'#d599ad',purple:'#8a6b9d',brown:'#775741',beige:'#d6c7b0',other:'#b7b3aa'};
+            productsTableBody.innerHTML = filtered.slice(start, start+pageSize).map(product => {
+                const images = getProductImages(product);
+                const src = images[0] ? imageUrl(images[0]) : '';
+                const variants = getVariants(product);
+                const colors = [...new Set(variants.map(variant => String(variant.color || '').toLowerCase()).filter(Boolean))];
+                const sizes = [...new Set(variants.map(variant => variant.size).filter(Boolean))];
+                const state = stockState(product);
+                const low = variants.filter(variant => Number(variant.quantity) <= 5).length;
+                const gender = {men:'Men',women:'Women',unisex:'Unisex'}[product.gender] || 'Not set';
+                return `<tr data-product-id="${Number(product.id)}">
+                    <td data-label="Product"><div class="product-cell"><span class="catalog-thumb"><i class="fa-regular fa-image" aria-hidden="true"></i>${src ? `<img class="product-image" src="${escapeHtml(src)}" alt="" loading="lazy">` : ''}</span><div><a href="ProductDetails.html?id=${Number(product.id)}" class="product-name">${escapeHtml(product.name)}</a><div class="product-category">${escapeHtml(getCategoryName(product))}</div><div class="product-id">#${Number(product.id)} · ${gender}</div></div></div></td>
+                    <td data-label="Price"><strong class="catalog-price">${Number(product.price || 0).toFixed(2)}</strong><span class="catalog-currency">JOD · Base price</span></td>
+                    <td data-label="Inventory"><span class="catalog-stock ${state}">${state === 'out' ? 'Out of stock' : state === 'low' ? 'Needs restock' : 'In stock'}</span><span class="catalog-stock-note">${quantityOf(product)} units${state === 'low' ? ' · '+low+' low-stock '+(low === 1 ? 'variant' : 'variants') : ''}</span></td>
+                    <td data-label="Variants"><span class="catalog-variant-count">${variants.length} ${variants.length === 1 ? 'variant' : 'variants'}</span><div class="catalog-swatches">${colors.slice(0,5).map(color => `<span style="background:${palette[color] || palette.other}" title="${escapeHtml(color)}" role="img" aria-label="${escapeHtml(color)}"></span>`).join('')}${colors.length>5 ? '<small>+'+(colors.length-5)+'</small>' : ''}</div><span class="catalog-size-note">${escapeHtml(sizes.slice(0,4).join(' · '))}${sizes.length>4 ? ' +'+(sizes.length-4) : ''}</span></td>
+                    <td data-label="Actions"><div class="actions"><button type="button" class="action-btn view-btn" aria-label="View ${escapeHtml(product.name)}" title="View product" data-action="view" data-id="${Number(product.id)}"><i class="fa-regular fa-eye" aria-hidden="true"></i></button><button type="button" class="action-btn" aria-label="Edit ${escapeHtml(product.name)}" title="Edit product" data-action="edit" data-id="${Number(product.id)}"><i class="fa-solid fa-pen" aria-hidden="true"></i><span>Edit</span></button><button type="button" class="action-btn catalog-delete" aria-label="Delete ${escapeHtml(product.name)}" title="Delete product" data-action="delete" data-id="${Number(product.id)}"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button></div></td>
+                </tr>`;
+            }).join('') || '<tr><td colspan="5" class="empty-state"><i class="fa-solid fa-box-open" aria-hidden="true"></i><h3>'+ (products.length ? 'No products match this view' : 'Start your collection') +'</h3><p>'+ (products.length ? 'Try another search or reset your filters.' : 'Add your first product to get started.') +'</p></td></tr>';
+            productsTableBody.querySelectorAll('img').forEach(image => image.addEventListener('error', () => image.hidden = true));
+            document.getElementById('catalogTotal').textContent = products.length;
+            document.getElementById('catalogLow').textContent = products.filter(product => stockState(product) === 'low').length;
+            document.getElementById('catalogOut').textContent = products.filter(product => stockState(product) === 'out').length;
+            document.getElementById('catalogResultCount').textContent = filtered.length+' of '+products.length+' products';
+            document.querySelectorAll('[data-catalog-stock]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.catalogStock === document.getElementById('filterStock').value)));
+            document.getElementById('paginationInfo').textContent = `${filtered.length ? start+1 : 0}–${Math.min(start+pageSize,filtered.length)} of ${filtered.length} · Page ${currentPage} of ${pages}`;
+            document.getElementById('prevPageBtn').disabled = catalogLoading || currentPage <= 1;
+            document.getElementById('nextPageBtn').disabled = catalogLoading || currentPage >= pages;
         }
-
-         
-         
-         
 
         function readVariants() {
             const rows =
@@ -592,6 +464,8 @@
             const quantityInput =
                 document.getElementById("productQuantity");
 
+            quantityInput.value = String(totalVariants);
+
             const productQuantity =
                 quantityInput.value.trim() === ""
                     ? 0
@@ -602,7 +476,7 @@
 
             document.getElementById(
                 "totalVariantQuantity"
-            ).textContent = `${totalVariants} / ${productQuantity}`;
+            ).textContent = `${totalVariants} units · ${variants.length} ${variants.length === 1 ? "variant" : "variants"}`;
 
             summary.classList.remove("match", "mismatch");
 
@@ -665,13 +539,7 @@
                 <div class="form-group">
                     <label>Color *</label>
 
-                    <input
-                        type="text"
-                        class="field variant-color"
-                        value="${escapeHtml(color)}"
-                        placeholder="e.g. Black"
-                        required
-                    >
+                    <select class="field variant-color" required>${colorOptions(color)}</select>
                 </div>
 
                 <div class="form-group">
@@ -698,6 +566,9 @@
             `;
 
             variantsContainer.appendChild(row);
+            const rowId = ++variantRowId;
+            row.querySelectorAll(".form-group").forEach((group,index)=>{const input=group.querySelector("input,select");input.id="variant-"+rowId+"-"+index;group.querySelector("label").htmlFor=input.id;});
+            ColorSelect.enhance(row.querySelector(".variant-color"));
 
             row.querySelector(".variant-quantity").addEventListener(
                 "input",
@@ -710,7 +581,7 @@
             );
 
             row.querySelector(".variant-color").addEventListener(
-                "input",
+                "change",
                 updateTotalVariantQuantity
             );
 
@@ -735,7 +606,7 @@
 
             for (const variant of variants) {
                 if (!variant.size || !variant.color.trim()) {
-                    return "Please select a size and enter a color for every variant.";
+                    return "Please select a size and color for every variant.";
                 }
 
                 if (!allowedColors.includes(variant.color)) {
@@ -796,6 +667,9 @@
                 "mismatch"
             );
 
+            previewUrls.forEach(url=>URL.revokeObjectURL(url)); previewUrls=[];
+            ColorSelect.refresh(defaultColor);
+            renderImagePreview();
             hideMessage(formMessage);
 
             isSaving = false;
@@ -804,15 +678,20 @@
         }
 
         function openModal() {
+            editorReturnFocus=document.activeElement;
+            editorInitialState=editorState();
             productModal.classList.add("open");
+            document.body.classList.add("product-editor-open");
+            requestAnimationFrame(()=>document.getElementById("productName").focus());
         }
 
-        function closeModal() {
-            if (isSaving) {
-                return;
+        async function closeModal() {
+            if (isSaving || Swal.isVisible()) return;
+            if (editorState() !== editorInitialState) {
+                const answer=await Alerts.confirm("Discard changes?", "Your product changes have not been saved.");
+                if (!answer.isConfirmed) return;
             }
-
-            productModal.classList.remove("open");
+            finishEditorClose();
         }
 
         function openAddForm() {
@@ -841,7 +720,6 @@
             }
 
             resetForm();
-
             document.getElementById("modalTitle").textContent =
                 "Edit Product";
 
@@ -899,6 +777,8 @@
             const preview =
                 document.getElementById("imagePreview");
 
+            previewUrls.forEach(url=>URL.revokeObjectURL(url)); previewUrls=[];
+            document.getElementById("editorImageCount").textContent = existingImages.length+selectedImages.length ? `${existingImages.length+selectedImages.length} images · ${selectedImages.length} new` : "No images selected";
             const existingHtml = existingImages.map(
                 function (image, index) {
                     return `
@@ -906,7 +786,7 @@
                             <img
                                 src="${escapeHtml(imageUrl(image))}"
                                 alt="Product image"
-                            >
+                            ><span class="preview-caption">Current image ${index+1}</span>
 
                             <button
                                 type="button"
@@ -924,13 +804,14 @@
             const selectedHtml = selectedImages.map(
                 function (file, index) {
                     const localUrl = URL.createObjectURL(file);
+                    previewUrls.push(localUrl);
 
                     return `
                         <div class="preview-item">
                             <img
                                 src="${localUrl}"
                                 alt="${escapeHtml(file.name)}"
-                            >
+                            ><span class="preview-caption" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</span>
 
                             <button
                                 type="button"
@@ -1086,7 +967,7 @@
                     body: formData
                 });
 
-                productModal.classList.remove("open");
+                finishEditorClose();
 
                 resetForm();
 
@@ -1208,7 +1089,7 @@
         document.getElementById("addVariantBtn").addEventListener(
             "click",
             function () {
-                addVariantRow();
+                addVariantRow({color:defaultColor.value});
             }
         );
 
@@ -1229,11 +1110,14 @@
             "filterProduct",
             "filterCategory",
             "filterColor",
-            "filterSize"
+            "filterSize",
+            "filterGender",
+            "filterSort"
         ].forEach(function (id) {
             document.getElementById(id).addEventListener(
-                "input",
+                id === "filterColor" ? "change" : "input",
                 function () {
+                    if (catalogLoading) return;
                     currentPage = 1;
                     renderProducts();
                 }
@@ -1248,6 +1132,9 @@
                 document.getElementById("filterCategory").value = "";
                 document.getElementById("filterColor").value = "";
                 document.getElementById("filterSize").value = "";
+                document.getElementById("filterGender").value = "";
+                document.getElementById("filterStock").value = "";
+                document.getElementById("filterSort").value = "newest";
 
                 currentPage = 1;
 
@@ -1313,11 +1200,7 @@
         productImagesInput.addEventListener(
             "change",
             function (event) {
-                selectedImages = Array.from(
-                    event.target.files || []
-                );
-
-                renderImagePreview();
+                addSelectedImages(Array.from(event.target.files || []));
             }
         );
 
@@ -1376,4 +1259,86 @@
             await loadProducts();
         }
 
+        const allowedProductColors = ['black','white','gray','red','blue','navy','green','yellow','orange','pink','purple','brown','beige','other'];
+        let variantRowId = 0, previewUrls = [], editorInitialState = '', editorReturnFocus = null;
+        const defaultColor = document.getElementById('variantDefaultColor');
+        function colorOptions(selected = '') {
+            return '<option value="">Choose color</option>' + allowedProductColors.map(color => '<option value="' + color + '"' + (color === selected.toLowerCase() ? ' selected' : '') + '>' + color[0].toUpperCase() + color.slice(1) + '</option>').join('');
+        }
+        defaultColor.innerHTML = colorOptions();
+        ColorSelect.enhance(defaultColor);
+        function editorState() {
+            const fields = ['productName','productCategory','productGender','productPrice','productDescription','productDiscount'].map(id => document.getElementById(id).value);
+            return JSON.stringify({fields, variants:readVariants(), existing:existingImages, selected:selectedImages.map(file=>[file.name,file.size,file.lastModified])});
+        }
+        function finishEditorClose() {
+            ColorSelect.close();
+            productModal.classList.remove('open');
+            document.body.classList.remove('product-editor-open');
+            if (editorReturnFocus?.isConnected) editorReturnFocus.focus();
+        }
+        function syncSelectedFiles() {
+            const transfer = new DataTransfer();
+            selectedImages.forEach(file => transfer.items.add(file));
+            productImagesInput.files = transfer.files;
+        }
+        function addSelectedImages(files) {
+            const combined = [...selectedImages];
+            for (const file of files) {
+                if (!['image/jpeg','image/png','image/webp','image/gif'].includes(file.type) || file.size > 5 * 1024 * 1024) {
+                    syncSelectedFiles();
+                    Alerts.show('Check your images','Use JPG, PNG, WebP or GIF images, each 5 MB or less.','error');
+                    return;
+                }
+                if (!combined.some(old=>old.name===file.name&&old.size===file.size&&old.lastModified===file.lastModified)) combined.push(file);
+            }
+            if (combined.length > 5) { syncSelectedFiles(); Alerts.show('Too many images','Add up to 5 new images at a time. Remove a selected image to choose another.','warning'); return; }
+            selectedImages = combined;
+            syncSelectedFiles();
+            renderImagePreview();
+        }
+        const uploadArea = document.getElementById('editorUpload');
+        uploadArea.addEventListener('dragover', event => { event.preventDefault(); uploadArea.classList.add('is-dragging'); });
+        uploadArea.addEventListener('dragleave', event => { if (!uploadArea.contains(event.relatedTarget)) uploadArea.classList.remove('is-dragging'); });
+        uploadArea.addEventListener('drop', event => { event.preventDefault(); uploadArea.classList.remove('is-dragging'); addSelectedImages(Array.from(event.dataTransfer.files)); });
+        document.getElementById('productCategory').addEventListener('change', event => {
+            const name = event.target.selectedOptions[0]?.textContent.toLowerCase() || '';
+            document.getElementById('variantPreset').value = /footwear|shoe/.test(name) ? 'shoes' : /accessor|fragrance|bag|watch|jewel/.test(name) ? 'one' : 'clothing';
+        });
+        document.getElementById('addSizesBtn').addEventListener('click', () => {
+            const color = defaultColor.value;
+            const input = document.getElementById('variantDefaultQuantity');
+            const quantity = Number(input.value);
+            if (!color) { Alerts.show('Choose a color','Select the color to use for these sizes.','info').then(()=>defaultColor.parentElement.querySelector('.eco-color-trigger').focus()); return; }
+            if (input.value.trim()==='' || !Number.isInteger(quantity) || quantity < 0) { Alerts.show('Check the quantity','Units per size must be a whole number of zero or more.','error').then(()=>input.focus()); return; }
+            const ranges = { clothing:['XS','S','M','L','XL','XXL'], shoes:['36','37','38','39','40','41','42','43','44','45','46'], one:['ONE_SIZE'] };
+            const sizes = ranges[document.getElementById('variantPreset').value];
+            const existing = new Set(readVariants().map(variant=>variant.size+'|'+variant.color));
+            [...variantsContainer.querySelectorAll('.variant-row')].forEach(row=>{if(!row.querySelector('.variant-size').value&&!row.querySelector('.variant-color').value&&!Number(row.querySelector('.variant-quantity').value))row.remove();});
+            let added = 0;
+            sizes.forEach(size=>{if(!existing.has(size+'|'+color)){addVariantRow({size,color,quantity});added++;}});
+            updateTotalVariantQuantity();
+            if (!added) Alerts.toast('These sizes and this color are already added.','info');
+        });
+        document.addEventListener('keydown', event => {
+            if (!productModal.classList.contains('open') || event.defaultPrevented || Swal.isVisible()) return;
+            if (event.key === 'Escape') { event.preventDefault(); closeModal(); return; }
+            if (event.key !== 'Tab') return;
+            const elements = [...productModal.querySelectorAll('button,input,select,textarea,a[href]')].filter(el=>!el.disabled&&el.tabIndex>=0&&el.getClientRects().length);
+            const first = elements[0], last = elements[elements.length-1];
+            if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+            else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+        });
+
         initPage();
+
+
+
+document.querySelectorAll('[data-catalog-stock]').forEach(button => button.addEventListener('click', () => {
+    document.getElementById('filterStock').value = button.dataset.catalogStock;
+    currentPage = 1;
+    renderProducts();
+}));
+document.getElementById('catalogPageSize').addEventListener('change', event => {pageSize = Number(event.target.value); currentPage = 1; renderProducts();});
+document.getElementById('refreshProductsBtn').addEventListener('click', loadProducts);
+document.getElementById('retryProductsBtn').addEventListener('click', initPage);

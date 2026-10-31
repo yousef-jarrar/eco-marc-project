@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en" class="auth-checking">
 <head>
@@ -12,10 +11,10 @@
   <link rel="stylesheet" href="../assets/css/index.css">
   <link rel="stylesheet" href="../assets/css/global.css">
   <link rel="stylesheet" href="../assets/css/admin.css?v=20261030-audit">
-  <link rel="stylesheet" href="../assets/css/discounts.css?v=20261030-coupon-editor">
+  <link rel="stylesheet" href="../assets/css/discounts.css?v=20261031-productpicker">
 <style>html.auth-checking body { visibility: hidden; }</style><script src="../assets/js/auth.js?v=20261030-simplified-ai"></script><link rel="icon" type="image/svg+xml" href="../../assets/lumiere-icon-light.svg"><link rel="stylesheet" href="../assets/css/sticky-header.css?v=20261029-sticky"></head>
 
-<body data-page="discounts">
+<body class="discounts-page" data-page="discounts">
   <a class="sr-only" href="#main">Skip to content</a>
 
   <button
@@ -49,7 +48,7 @@
     </header>
 
     <main class="admin-main" id="main">
-      <!-- Page heading -->
+
       <div class="page-heading">
         <div>
           <h1>Discounts &amp; coupons</h1>
@@ -58,13 +57,10 @@
           </p>
         </div>
 
-        <button class="secondary" id="add-discount" type="button">
-          <i class="fa-solid fa-plus" aria-hidden="true"></i>
-          Add discount
-        </button>
+        <div class="discount-heading-actions"><button class="secondary" id="refresh-discounts" type="button" aria-label="Refresh discounts"><i class="fa-solid fa-rotate" aria-hidden="true"></i></button><button class="secondary" id="add-coupon" type="button"><i class="fa-solid fa-ticket" aria-hidden="true"></i> Create coupon</button><button id="add-discount" type="button"><i class="fa-solid fa-plus" aria-hidden="true"></i> Create discount</button></div>
       </div>
 
-      <!-- Error message -->
+
       <div
         class="error-banner"
         id="discounts-error"
@@ -79,7 +75,7 @@
         </button>
       </div>
 
-      <!-- Discount statistics -->
+
       <section class="kpis" aria-label="Discount statistics">
         <article class="kpi">
           <div class="kpi-label">
@@ -87,7 +83,7 @@
             <i class="fa-solid fa-tags" aria-hidden="true"></i>
           </div>
           <div class="kpi-value" id="total-discounts">—</div>
-          <div class="kpi-note">Active discounts</div>
+          <div class="kpi-note">Available in the current offer period</div>
         </article>
 
         <article class="kpi">
@@ -109,40 +105,23 @@
         </article>
       </section>
 
-      <!-- Search and date filters -->
-      <div class="discounts-toolbar"><div class="discount-date-field"><label for="discount-type">Type</label><select id="discount-type"><option value="">All types</option><option value="normal">Product discounts</option><option value="coupon">Coupons</option></select></div><div class="discount-date-field"><label for="discount-state">Status</label><select id="discount-state"><option value="">All statuses</option><option value="active">Active</option><option value="scheduled">Scheduled</option><option value="expired">Expired</option><option value="inactive">Inactive</option></select></div>
-        <div class="discount-search-field">
-          <label for="discount-search">Search discounts</label>
-          <input
-            id="discount-search"
-            type="search"
-            placeholder="Name or coupon code..."
-          >
-        </div>
 
-        <div class="discount-date-field">
-          <label for="discount-start-filter">Start date from</label>
-          <input id="discount-start-filter" type="date">
-        </div>
-
-        <div class="discount-date-field">
-          <label for="discount-end-filter">End date until</label>
-          <input id="discount-end-filter" type="date">
-        </div>
-
-        <button
-          class="secondary filter-clear-btn"
-          id="clear-discount-filters"
-          type="button"
-        >
-          Clear
-        </button>
+      <div class="discount-views" role="group" aria-label="Promotion type">
+        <button type="button" data-discount-view="" aria-pressed="true">All promotions <span data-discount-count="">—</span></button>
+        <button type="button" data-discount-view="normal" aria-pressed="false"><i class="fa-solid fa-tags" aria-hidden="true"></i> Product discounts <span data-discount-count="normal">—</span></button>
+        <button type="button" data-discount-view="coupon" aria-pressed="false"><i class="fa-solid fa-ticket" aria-hidden="true"></i> Coupons <span data-discount-count="coupon">—</span></button>
       </div>
-
-      <!-- Discounts table -->
-      <section class="panel reviews-panel">
+      <div class="discounts-toolbar">
+        <select id="discount-type" aria-label="Promotion type" hidden><option value="">All</option><option value="normal">Products</option><option value="coupon">Coupons</option></select>
+        <div class="discount-search-field"><label for="discount-search">Search promotions</label><input id="discount-search" type="search" placeholder="Offer name or coupon code…"></div>
+        <div class="discount-date-field"><label for="discount-state">Status</label><select id="discount-state"><option value="">All statuses</option><option value="active">Live</option><option value="scheduled">Scheduled</option><option value="expired">Expired</option><option value="inactive">Inactive</option></select></div>
+        <div class="discount-date-field"><label for="discount-sort">Sort by</label><select id="discount-sort"><option value="newest">Newest first</option><option value="percentage">Highest discount</option><option value="ending">Ending soon</option></select></div>
+        <button class="secondary" id="clear-discount-filters" type="button"><i class="fa-solid fa-filter-circle-xmark" aria-hidden="true"></i> Reset</button>
+      </div>
+      <details class="discount-date-filters"><summary><i class="fa-regular fa-calendar" aria-hidden="true"></i> Filter by schedule <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary><div><div><label for="discount-start-filter">Starts on or after</label><input id="discount-start-filter" type="date"></div><div><label for="discount-end-filter">Ends on or before</label><input id="discount-end-filter" type="date"></div></div><p>Only offers with matching scheduled dates are included.</p></details>
+      <section class="panel discounts-panel">
         <div class="panel-heading">
-          <h2>All discounts</h2>
+          <div><h2>Your promotions</h2><p class="discount-panel-hint">Product offers change prices automatically. Coupon codes are entered at checkout.</p></div>
 
           <span
             class="tiny muted"
@@ -155,54 +134,13 @@
 
         <div class="table-scroll">
           <table>
-            <thead>
-              <tr>
-                <th>Discount</th>
-                <th>Type</th><th>Applies to</th>
-                <th>Percentage</th>
-                <th>Coupon code</th>
-                <th>Start date</th>
-                <th>End date</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-
+            <thead><tr><th>Promotion</th><th>Offer</th><th>Applies to</th><th>Schedule</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody id="discounts-body" aria-live="polite"></tbody>
           </table>
         </div>
 
-        <!-- Pagination -->
-        <div class="pagination-footer">
-          <span id="discount-pagination-label" aria-live="polite">
-            Page 1
-          </span>
 
-<div class="pagination-footer">
-  <div class="pagination-buttons">
-    <button
-      type="button"
-      class="secondary"
-      id="discount-previous"
-      aria-label="Previous page"
-      title="Previous page"
-      disabled
-    >
-      <i class="fa-solid fa-chevron-left"></i>
-    </button>
-
-    <button
-      type="button"
-      class="secondary"
-      id="discount-next"
-      aria-label="Next page"
-      title="Next page"
-      disabled
-    >
-      <i class="fa-solid fa-chevron-right"></i>
-    </button>
-  </div>
-</div>
+        <div class="pagination-footer"><span id="discount-pagination-label" aria-live="polite">Loading…</span><div class="pagination-buttons"><button type="button" class="secondary" id="discount-previous" disabled><i class="fa-solid fa-chevron-left" aria-hidden="true"></i> Previous</button><button type="button" class="secondary" id="discount-next" disabled>Next <i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button></div></div>
       </section>
 
       <span
@@ -213,11 +151,11 @@
     </main>
   </div>
 
-  <!-- JavaScript -->
+
   <script src="../assets/vendor/sweetalert2.all.min.js"></script>
   <script src="../assets/js/admin-api.js"></script>
-  <script src="../assets/js/alerts.js?v=20261030-coupon-editor"></script>
+  <script src="../assets/js/alerts.js?v=20261031-productpicker"></script>
   <script src="../assets/js/admin-layout.js?v=20261030-audit"></script>
-  <script src="../assets/js/discounts.js?v=20261030-date-validation"></script>
+  <script src="../assets/js/discounts.js?v=20261031-productpicker"></script>
 </body>
 </html>

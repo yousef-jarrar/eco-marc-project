@@ -506,10 +506,20 @@ private function calculateTotals(int $cart_id, ?string $coupon_code = null): arr
         return $delivery_fee;
     }
 
+ private function normalizeCheckoutPhone(?string $value): string {
+    $phone = strtr(trim($value ?? ''), array_combine(
+        ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩','۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'],
+        ['0','1','2','3','4','5','6','7','8','9','0','1','2','3','4','5','6','7','8','9']
+    ));
+    $phone = preg_replace('/[\s().-]/u', '', $phone);
+    return is_string($phone) && preg_match('/^\+?[0-9]{8,15}$/D', $phone) ? $phone : '';
+ }
+
  public function checkout(
     int $user_id,
     string $shipping_address,
-    ?string $coupon_code = null
+    ?string $coupon_code = null,
+    ?string $phone = null
 ): array {
 
     
@@ -524,6 +534,21 @@ private function calculateTotals(int $cart_id, ?string $coupon_code = null): arr
         $this->db->beginTransaction();
 
         try {
+            $profileStatement = $this->db->prepare("SELECT phone FROM users WHERE id = ? FOR UPDATE");
+            $profileStatement->execute([$user_id]);
+            $profile = $profileStatement->fetch(PDO::FETCH_ASSOC);
+            if (!$profile) {
+                throw new InvalidArgumentException("Your account could not be found. Please sign in again.");
+            }
+            if ($this->normalizeCheckoutPhone($profile["phone"] ?? null) === '') {
+                $checkoutPhone = $this->normalizeCheckoutPhone($phone);
+                if ($checkoutPhone === '') {
+                    throw new InvalidArgumentException("A valid phone number is required for delivery. Enter a number with 8–15 digits.");
+                }
+                $phoneStatement = $this->db->prepare("UPDATE users SET phone = ? WHERE id = ?");
+                $phoneStatement->execute([$checkoutPhone, $user_id]);
+            }
+
             $sql = "SELECT id
                     FROM carts
                     WHERE user_id = ?

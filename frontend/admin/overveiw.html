@@ -10,13 +10,13 @@
     <link rel="stylesheet" href="../assets/css/index.css">
     <link rel="stylesheet" href="../assets/css/global.css">
     <link rel="stylesheet" href="../assets/css/admin.css?v=20261030-audit">
-    <link rel="stylesheet" href="../assets/css/overview.css?v=20261029-mergefix2">
+    <link rel="stylesheet" href="../assets/css/overview.css?v=20261031-stripedrows">
   <style>html.auth-checking body { visibility: hidden; }</style>
 <script src="../assets/js/auth.js?v=20261030-simplified-ai"></script>
 <link rel="icon" type="image/svg+xml" href="../../assets/lumiere-icon-light.svg">
 <link rel="stylesheet" href="../assets/css/sticky-header.css?v=20261029-sticky">
 </head>
-  <body data-page="overview">
+  <body data-page="overview" class="overview-page">
     <a class="sr-only" href="#main">Skip to content</a>
     <button class="sidebar-backdrop" id="sidebar-backdrop" aria-label="Close navigation" hidden></button>
     <aside class="admin-sidebar" id="admin-sidebar">
@@ -36,14 +36,12 @@
         <section class="page-heading overview-heading">
           <div>
             <h1>Your store, at a glance.</h1>
-            <p class="muted">A considered view of how business is moving.</p>
+            <p class="muted">Sales, orders and inventory, together in one place.</p>
           </div>
-          <a class="button secondary assistant-link" href="ai-assistant.html">
-            <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
-            Ask your assistant
-          </a>
+          <div class="overview-heading-actions"><button type="button" class="button secondary" id="overview-refresh"><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i><span>Refresh</span></button><a class="button secondary assistant-link" href="ai-assistant.html"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Ask your assistant</a></div>
         </section>
 
+        <section class="overview-reportbar" aria-label="Reporting period"><div class="overview-reportbar-top"><h2><i class="fa-regular fa-calendar" aria-hidden="true"></i> Reporting period</h2><div class="overview-presets" role="group" aria-label="Quick reporting periods"><button type="button" data-overview-range="today" aria-pressed="false">Today</button><button type="button" data-overview-range="week" aria-pressed="false">Last 7 days</button><button type="button" data-overview-range="month" aria-pressed="false">Last 30 days</button><button type="button" data-overview-range="current" aria-pressed="true">This month</button></div></div>
         <form class="overview-period" id="overview-period">
           <div class="date-field">
             <label for="overview-from">From</label>
@@ -54,9 +52,10 @@
             <input id="overview-to" type="date" required>
           </div>
           <button type="submit">Apply dates</button>
-          <button type="button" class="secondary" id="overview-all-dates" title="Show the longest supported reporting period (up to 366 days)">All dates</button>
+          <button type="button" class="secondary" id="overview-all-dates" title="Show the longest supported reporting period (up to 366 days)">Past year</button>
         </form>
         <p class="overview-period-note" id="overview-period-note" aria-live="polite"></p>
+        </section>
 
         <div class="error-banner" id="overview-error" role="alert" hidden>
           <strong>Store data is unavailable.</strong>
@@ -65,7 +64,7 @@
         </div>
 
         <section class="overview-metrics" aria-label="Store overview metrics" aria-live="polite">
-          <article class="overview-card">
+          <article class="overview-card overview-card-revenue">
             <div class="overview-card-label">Revenue<i class="fa-solid fa-coins" aria-hidden="true"></i></div>
             <div class="overview-card-value" id="overview-revenue">—</div>
             <div class="overview-card-note" id="overview-revenue-note">Selected date range</div>
@@ -80,16 +79,8 @@
             <div class="overview-card-value" id="overview-customers">—</div>
             <div class="overview-card-note" id="overview-customers-note">Customers with eligible orders</div>
           </article>
-          <article class="overview-card">
-            <div class="overview-card-label">Products<i class="fa-solid fa-box" aria-hidden="true"></i></div>
-            <div class="overview-card-value" id="overview-products">—</div>
-            <div class="overview-card-note">Active catalog</div>
-          </article>
-          <article class="overview-card">
-            <div class="overview-card-label">Categories<i class="fa-solid fa-layer-group" aria-hidden="true"></i></div>
-            <div class="overview-card-value" id="overview-categories">—</div>
-            <div class="overview-card-note">Full catalog</div>
-          </article>
+
+
           <article class="overview-card">
             <div class="overview-card-label">Average order value<i class="fa-solid fa-chart-column" aria-hidden="true"></i></div>
             <div class="overview-card-value" id="overview-average">—</div>
@@ -97,9 +88,8 @@
           </article>
         </section>
 
-        <aside class="overview-definition">
-          Revenue shows eligible order totals after discounts and including shipping. Category revenue is estimated from current item prices before discounts and shipping. Product and category counts reflect the current catalog; no growth percentages are inferred.
-        </aside>
+        <div class="overview-catalog-strip"><a href="Products.html"><i class="fa-solid fa-box" aria-hidden="true"></i><strong id="overview-products">—</strong><span>Active products</span><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a><a href="categories.html"><i class="fa-solid fa-layer-group" aria-hidden="true"></i><strong id="overview-categories">—</strong><span>Categories</span><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a></div>
+        <details class="overview-definition"><summary><i class="fa-solid fa-circle-info" aria-hidden="true"></i> How these figures are calculated</summary><p>Revenue includes confirmed, processing, shipped and delivered orders after discounts and including delivery. Average order value uses those same orders. Category revenue uses current item prices before discounts and shipping. Product and category counts reflect the current catalog.</p></details>
 
         <div class="overview-details">
           <section class="panel overview-chart-panel">
@@ -165,7 +155,7 @@
         <section class="panel overview-orders-panel" id="recent-orders">
           <div class="panel-heading">
             <h2>Recent orders</h2>
-            <span class="tiny muted">Latest 6 orders in this period</span>
+            <div class="overview-panel-actions"><span class="tiny muted">Latest 6 in this period</span><a class="overview-section-link" href="orders.html">All orders <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></div>
           </div>
           <div class="table-scroll">
             <table class="overview-record-table">
@@ -200,7 +190,7 @@
           </section>
           <section class="panel overview-inventory-panel">
             <div class="panel-heading">
-              <h2>Inventory needs attention</h2>
+              <div><h2>Inventory needs attention</h2><p class="tiny muted">Products with a size or color at 5 units or fewer.</p></div>
               <span class="status" id="overview-inventory-count">— products</span>
             </div>
             <ul class="insight-list" id="overview-inventory-list">
@@ -236,6 +226,6 @@
     <script src="../assets/js/admin-api.js?v=20261029-scriptfix"></script>
     <script src="../assets/js/alerts.js?v=20261029-scriptfix"></script>
     <script src="../assets/js/admin-layout.js?v=20261030-audit"></script>
-    <script src="../assets/js/overview.js?v=20261029-mergefix2"></script>
+    <script src="../assets/js/overview.js?v=20261031-overviewux"></script>
   </body>
 </html>
