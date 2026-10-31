@@ -34,7 +34,7 @@
         let discounts = [];
 
         let currentPage = 1;
-        const pageSize = 4;
+        const pageSize = 10;
 
         let existingImages = [];
         let selectedImages = [];
