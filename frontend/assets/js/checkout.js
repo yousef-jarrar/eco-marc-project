@@ -490,6 +490,16 @@ if (form) {
 
         submitting = true;
         placeOrderButton.disabled = true;
+        placeOrderButton.classList.add("is-placing");
+        placeOrderButton.setAttribute("aria-busy", "true");
+        Alerts.show("Placing your order", "", "info", {
+            icon: undefined,
+            html: '<div class="checkout-order-motion" aria-hidden="true"><svg viewBox="0 0 96 96" fill="none"><circle class="checkout-orbit" cx="48" cy="48" r="43"/><path class="checkout-bag" d="M28 34h40l4 38H24l4-38Zm11 1V25a9 9 0 0 1 18 0v10"/></svg></div><p class="checkout-motion-copy" role="status">Confirming your items and delivery details…</p><p class="checkout-motion-note">Please keep this page open.</p>',
+            customClass: {popup: "checkout-progress-dialog"},
+            showConfirmButton: false,
+            allowOutsideClick: false,
+            allowEscapeKey: false
+        });
 
         const buttonLabel = placeOrderButton.querySelector(".button-label");
         if (buttonLabel) buttonLabel.textContent = "Placing order...";
@@ -521,6 +531,9 @@ if (form) {
                 `Order-success.html${orderId ? `?order=${encodeURIComponent(orderId)}` : ""}`;
             return;
         } catch (error) {
+            Swal.close();
+            placeOrderButton.classList.remove("is-placing");
+            placeOrderButton.removeAttribute("aria-busy");
             showMessage(
                 error.message || "We couldn't place your order. Please try again."
             );

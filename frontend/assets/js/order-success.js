@@ -18,6 +18,11 @@
     document.getElementById('os-address').textContent = order.shipping_address || 'Address not provided';
     document.getElementById('order-summary').hidden = false;
     message.hidden = true;
+    const confirmation = document.getElementById('order-confirmation-mark');
+    if (order.status !== 'cancelled' && confirmation) {
+      confirmation.hidden = false;
+      confirmation.classList.add('is-confirmed');
+    }
     sessionStorage.removeItem('last_order');
   } catch (error) {
     message.textContent = error.message || 'Open My orders to check your order.';
