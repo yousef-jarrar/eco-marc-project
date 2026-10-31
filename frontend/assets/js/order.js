@@ -138,8 +138,8 @@ function renderOrders(orders) {
         const actionCell = document.createElement("td");
         const viewButton = document.createElement("button");
         viewButton.type = "button";
-        viewButton.className = "secondary";
-        viewButton.textContent = "View";
+        viewButton.className = "view-order-btn";
+    viewButton.innerHTML = '<i class="fa-solid fa-eye"></i>';
         viewButton.addEventListener("click", () => {
             window.location.href =
                 `order-details.html?id=${encodeURIComponent(order.order_id)}`;
