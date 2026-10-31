@@ -128,7 +128,7 @@ You don't need any complex backend environment to test this out. Just follow the
 ### Product Details
 ![Login](Docs/login.png)
 ### Product Details
-![Admin AI](Docs/adminAi)
+![Admin AI](Docs/adminAi.png)
 ### Product Details
 ![Chatbot](Docs/chatbot.png)
 
