@@ -119,23 +119,21 @@ You don't need any complex backend environment to test this out. Just follow the
 
 ### Landing Page
 ![Landing Page](Docs/landing.png)
-
+### Register
+![Register](Docs/register.png)
+### Login
+![Login](Docs/login.png)
+### Admin overview
+![Overview](Docs/overview.png)
+### Admin AI model
+![Admin AI](Docs/adminAi.png)
 ### Shop Page
 ![Shop Page](Docs/shop.png)
-
-### Product Details
-![Register](Docs/register.png)
-### Product Details
-![Login](Docs/login.png)
-### Product Details
-![Admin AI](Docs/adminAi.png)
-### Product Details
+### Chat bot
 ![Chatbot](Docs/chatbot.png)
 
-### Product Details
-![Overview](Docs/overview.png)
 
-### Product Details
+### Visual Serach AI model
 ![Visual Search](Docs/visualSearch.png)
 
 ## 📐 Project Documentation
