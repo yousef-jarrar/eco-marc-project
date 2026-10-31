@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="../assets/css/index.css">
   <link rel="stylesheet" href="../assets/vendor/fontawesome.min.css">
   <link rel="stylesheet" href="../assets/css/site-footer.css?v=20261029-landing">
-  <link rel="stylesheet" href="../assets/css/profile.css?v=20261029-profile1">
+  <link rel="stylesheet" href="../assets/css/profile.css?v=20261031-stickynav">
   <script src="../assets/js/auth.js?v=20261030-simplified-ai"></script>
 <link rel="stylesheet" href="../assets/css/public-header.css?v=20261031-adminlink">
 <link rel="stylesheet" href="../assets/css/product-cards.css?v=20261030-cards">
@@ -55,13 +55,7 @@
     </div>
 
     <div class="profile-layout">
-      <aside class="profile-sidebar" aria-label="Account navigation">
-        <a class="profile-nav-link" href="index.html">Account overview</a>
-        <a class="profile-nav-link is-current" href="profile.html" aria-current="page">Personal information</a>
-        <a class="profile-nav-link" href="my-orders.html">My orders</a>
-        <a class="profile-nav-link" href="../customers/wishlist.html">Wishlist</a>
-        <button class="profile-logout" id="profile-logout" type="button">Log out</button>
-      </aside>
+      <aside class="profile-sidebar" data-account-page="personal" aria-label="Account navigation"></aside>
 
       <div class="profile-content">
         <section class="profile-card" aria-labelledby="personal-title">
@@ -147,7 +141,8 @@
   <script src="../assets/js/site-footer.js?v=20261030-simplified-ai"></script>
   <script src="../assets/vendor/sweetalert2.all.min.js"></script>
   <script src="../assets/js/alerts.js?v=20261029-session2"></script>
-  <script src="../assets/js/pages/profile.js?v=20261030-audit" defer></script>
+<script src="../assets/js/account-navigation.js?v=20261031-stickynav"></script>
+  <script src="../assets/js/pages/profile.js?v=20261031-sharedaccount" defer></script>
 <script src="../assets/js/public-header.js?v=20261031-adminlink"></script>
 </body>
 </html>

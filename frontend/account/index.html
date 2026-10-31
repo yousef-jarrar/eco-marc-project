@@ -6,8 +6,8 @@
   <title>My account | LUMIÈRE</title>
   <link rel="stylesheet" href="../assets/css/fonts.css">
   <link rel="stylesheet" href="../assets/css/index.css">
-  <link rel="stylesheet" href="../assets/css/profile.css?v=20261029-profile1">
-  <link rel="stylesheet" href="../assets/css/account-overview.css?v=20261031-accountclean">
+  <link rel="stylesheet" href="../assets/css/profile.css?v=20261031-stickynav">
+  <link rel="stylesheet" href="../assets/css/account-overview.css?v=20261031-accountnav">
   <script src="../assets/js/auth.js?v=20261030-simplified-ai"></script>
   <link rel="stylesheet" href="../assets/css/site-footer.css?v=20261029-landing">
 <link rel="icon" type="image/svg+xml" href="../../assets/lumiere-icon-light.svg">
@@ -53,14 +53,7 @@
       <p>Your orders, saved favourites and account essentials.</p>
     </div>
     <div class="profile-layout">
-      <aside class="profile-sidebar" aria-label="Account navigation">
-        <a class="profile-nav-link is-current" href="index.html" aria-current="page"><i class="fa-solid fa-house" aria-hidden="true"></i>Account overview</a>
-        <a class="profile-nav-link" href="profile.html"><i class="fa-regular fa-user" aria-hidden="true"></i>Personal information</a>
-        <a class="profile-nav-link" href="my-orders.html"><i class="fa-solid fa-box" aria-hidden="true"></i>My orders</a>
-        <a class="profile-nav-link" href="../customers/wishlist.html"><i class="fa-regular fa-heart" aria-hidden="true"></i>Wishlist</a>
-        <a id="admin-link" class="profile-nav-link" href="../admin/overveiw.html" hidden><i class="fa-solid fa-gauge-high" aria-hidden="true"></i>Admin dashboard</a>
-        <button class="profile-logout" id="account-logout" type="button"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>Log out</button>
-      </aside>
+      <aside class="profile-sidebar" data-account-page="overview" aria-label="Account navigation"></aside>
       <div class="profile-content">
         <nav class="account-shortcuts" aria-label="Shopping shortcuts">
           <a href="my-orders.html"><i class="fa-solid fa-box-open" aria-hidden="true"></i><strong>My orders</strong><span>Follow your recent purchases</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
@@ -93,7 +86,8 @@
   <script src="../assets/js/site-footer.js?v=20261030-simplified-ai"></script>
   <script src="../assets/vendor/sweetalert2.all.min.js"></script>
   <script src="../assets/js/alerts.js?v=20261029-session2"></script>
-  <script src="../assets/js/login.js?v=20261031-accountclean"></script>
+<script src="../assets/js/account-navigation.js?v=20261031-stickynav"></script>
+  <script src="../assets/js/login.js?v=20261031-sharedaccount"></script>
   <script src="../assets/js/pages/account-overview.js?v=20261031-accountoverview"></script>
 
 <script src="../assets/js/public-header.js?v=20261031-adminlink"></script>

@@ -70,3 +70,35 @@ a { color: inherit; }
   .profile-main { width: calc(100% - 24px); }
   .profile-card { padding: 20px 16px; }
 }
+
+.profile-sidebar {top:130px;}
+.profile-sidebar .profile-nav-link,.profile-sidebar .profile-logout {gap:11px;}
+.profile-sidebar .profile-nav-link[hidden] {display:none;}
+.profile-sidebar i {width:16px;text-align:center;flex-shrink:0;}
+@media(max-width:640px) {
+ .profile-sidebar {position:static;}
+ .profile-sidebar .profile-nav-link,.profile-sidebar .profile-logout {font-size:12px;padding-inline:8px;gap:7px;}
+}
+
+.profile-content {grid-template-columns:minmax(0,1fr);}
+.profile-sidebar :focus-visible {outline:2px solid var(--color-accent,#ba9771);outline-offset:3px;}
+.wishlist-page .profile-main #wishlist-grid {grid-template-columns:repeat(3,minmax(0,1fr));gap:28px 18px;}
+@media(max-width:1050px) {.wishlist-page .profile-main #wishlist-grid {grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:380px) {.wishlist-page .profile-main #wishlist-grid {grid-template-columns:minmax(0,1fr);}}
+.wishlist-page {background:#fff;}
+
+.profile-sidebar {
+ position:sticky;top:calc(var(--account-header-height,109px) + 20px);align-self:start;
+ max-height:calc(100dvh - var(--account-header-height,109px) - 40px);overflow-y:auto;
+ background:#fff;scrollbar-width:thin;
+}
+@media(max-width:640px) {
+ .profile-sidebar {
+  top:var(--account-header-height,109px);z-index:25;display:flex;gap:6px;
+  max-height:none;overflow-x:auto;overflow-y:hidden;padding:8px 0;
+  border-bottom:1px solid #e5e5e5;overscroll-behavior-x:contain;
+ }
+ .profile-sidebar .profile-nav-link,.profile-sidebar .profile-logout {
+  flex:0 0 auto;min-height:44px;margin:0;white-space:nowrap;padding:10px 12px;
+ }
+}
