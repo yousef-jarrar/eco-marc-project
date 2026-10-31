@@ -85,6 +85,7 @@
     const size = sizes.includes(preferredSize) ? preferredSize : (sizeSelect.value && sizes.includes(sizeSelect.value) ? sizeSelect.value : sizes[0] || "");
     sizeSelect.innerHTML = '<option value="">Choose size</option>' + sizes.map(value => `<option value="${C.escapeHtml(value)}">${C.escapeHtml(value.toUpperCase() === "ONE_SIZE" ? "One size" : value)}</option>`).join("");
     sizeSelect.value = size;
+    ColorSelect.enhance(colorSelect);
     updateStock();
   }
   function updateStock() {

@@ -215,7 +215,11 @@ if ($action === "my_order_details") {
                     fail(400, "Shipping address is required");
                 }
 
-                ok($cart->checkout($user_id, $shipping_address, $coupon));
+                $phone = $body["phone"] ?? null;
+                if ($phone !== null && !is_string($phone)) {
+                    fail(422, "Enter a valid phone number.");
+                }
+                ok($cart->checkout($user_id, $shipping_address, $coupon, $phone));
             }
 
             fail(400, "Invalid action");

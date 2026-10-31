@@ -1,0 +1,66 @@
+body.products-page.product-editor-open { overflow:hidden; }
+body.products-page #productModal.modal { padding:24px; background:#17171785; }
+.products-page #productModal .modal-content { max-width:980px; overflow:visible; border-radius:12px; background:var(--color-background); }
+.products-page #productModal .modal-header { position:sticky; top:-24px; z-index:4; padding:22px 28px; background:var(--color-background); border-bottom:1px solid var(--color-border); border-radius:12px 12px 0 0; }
+.products-page #productModal .modal-header h2 { color:var(--color-text); font:600 22px/1.3 var(--font-heading); margin:0 0 4px; }
+.products-page #productModal .editor-modal-subtitle { margin:0; color:var(--color-text-secondary); font-size:12px; }
+.products-page #productModal #productForm { margin:0; padding:0; }
+.products-page #productModal .editor-section { padding:28px; border-bottom:1px solid var(--color-border); }
+.products-page #productModal .editor-section-heading { display:flex; align-items:flex-start; gap:13px; margin-bottom:24px; }
+.products-page #productModal .editor-section-heading h3 { margin:0 0 6px; color:var(--color-text); font:600 15px/1.4 var(--font-heading); }
+.products-page #productModal .editor-section-heading p { margin:0; color:var(--color-text-secondary); font-size:12px; line-height:1.7; }
+.products-page #productModal .editor-section-icon { display:grid; place-items:center; width:36px; height:36px; flex-shrink:0; background:var(--color-accent-light); color:var(--color-accent-hover); border-radius:8px; }
+.products-page #productModal .editor-required,.products-page #productModal .editor-count { margin-left:auto; color:var(--color-text-secondary); font-size:11px; white-space:nowrap; padding-top:8px; }
+.products-page #productModal .form-group { margin-bottom:0; min-width:0; }
+.products-page #productModal .form-grid { gap:20px; }
+.products-page #productModal .form-group label { display:block; color:var(--color-text); font-size:12px; margin-bottom:8px; }
+.products-page #productModal .field { border:1px solid var(--color-input-border); border-radius:5px; color:var(--color-text); background:var(--color-background); min-height:46px; box-shadow:none; font:400 13px/1.5 var(--font-body); }
+.products-page #productModal textarea.field { min-height:110px; resize:vertical; }
+.products-page #productModal .field:focus { border-color:var(--color-accent-hover); box-shadow:none; outline:2px solid var(--color-accent-light); outline-offset:1px; }
+.products-page #productModal .hint { display:block; font-size:11px; color:var(--color-text-secondary); line-height:1.7; margin:7px 0 0; }
+.products-page #productModal .editor-upload { position:relative; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:10px; padding:30px 18px; border:1px dashed var(--color-accent); border-radius:8px; background:var(--color-surface); cursor:pointer; text-align:center; }
+.products-page #productModal .editor-upload > i { font-size:22px; color:var(--color-accent-hover); }
+.products-page #productModal .editor-upload strong { font-size:13px; font-weight:500; color:var(--color-text); }
+.products-page #productModal .editor-upload > span { font-size:11px; color:var(--color-text-secondary); }
+.products-page #productModal .editor-upload input { position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+.products-page #productModal .editor-upload:focus-within,.products-page #productModal .editor-upload.is-dragging { outline:2px solid var(--color-accent-hover); outline-offset:3px; background:var(--color-accent-light); }
+.products-page #productModal .image-preview { display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:12px; margin-top:16px; }
+.products-page #productModal .preview-item { position:relative; width:auto; height:145px; border-radius:6px; overflow:hidden; background:var(--color-surface); }
+.products-page #productModal .preview-item img { width:100%; height:118px; object-fit:cover; }
+.products-page #productModal .preview-caption { display:block; padding:6px 8px; font-size:10px; color:var(--color-text-secondary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.products-page #productModal .preview-item button { width:28px; height:28px; display:grid; place-items:center; top:6px; right:6px; border-radius:50%; background:var(--color-background); color:var(--color-text); border:1px solid var(--color-border); font-size:18px; }
+.products-page #productModal .editor-bulk { display:grid; grid-template-columns:1.1fr 1.1fr .7fr auto; gap:12px; align-items:end; padding:16px; background:var(--color-accent-light); border-radius:8px; margin-bottom:20px; }
+.products-page #productModal .editor-bulk button { min-height:46px; padding:9px 14px; }
+.products-page #variantsContainer { margin-top:0; }
+.products-page #variantsContainer .variant-row { grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) minmax(0,.8fr) 36px; align-items:end; gap:12px; padding:15px; border:1px solid var(--color-border); border-radius:8px; background:var(--color-surface); overflow:visible; }
+.products-page #variantsContainer .variant-row:hover { border-color:var(--color-border-strong); }
+.products-page #variantsContainer .remove-variant { width:36px; height:44px; border-radius:5px; background:transparent; color:var(--color-text-secondary); border:1px solid var(--color-border); }
+.products-page #productModal #addVariantBtn { margin-top:6px; }
+.products-page #productModal .editor-stock-footer { display:grid; grid-template-columns:1fr 180px; align-items:center; gap:24px; margin-top:24px; padding-top:22px; border-top:1px solid var(--color-border); }
+.products-page #productModal .stock-summary { margin:0; padding:16px; background:var(--color-accent-light); color:var(--color-text); border:0; border-radius:6px; display:flex; flex-direction:column; align-items:flex-start; gap:8px; }
+.products-page #productModal .stock-summary strong { color:var(--color-text); font-size:15px; }
+.products-page #productModal .stock-summary span { font-size:11px; }
+.products-page #productModal .stock-summary i { margin-right:7px; color:var(--color-accent-hover); }
+.products-page #productModal #productQuantity { background:var(--color-surface); }
+.products-page #productModal .form-actions { position:sticky; bottom:-24px; z-index:3; padding:18px 28px; margin:0; display:flex; align-items:center; gap:10px; background:var(--color-background); border-top:1px solid var(--color-border); border-radius:0 0 12px 12px; }
+.products-page #productModal .editor-save-note { margin-right:auto; color:var(--color-text-secondary); font-size:11px; }
+.products-page #productModal .editor-save-note i { margin-right:6px; }
+body.products-page #productModal .primary-btn { background:var(--color-primary); border:1px solid var(--color-primary); color:var(--color-text-inverse); border-radius:5px; }
+body.products-page #productModal .secondary-btn { background:var(--color-background); border:1px solid var(--color-border-strong); color:var(--color-text); border-radius:5px; }
+.products-page #productModal :focus-visible { outline:var(--focus-ring); outline-offset:var(--focus-offset); }
+@media(max-width:700px) {
+  body.products-page #productModal.modal { padding:12px; }
+  .products-page #productModal .modal-header { top:-12px; padding:18px; }
+  .products-page #productModal .editor-section { padding:22px 18px; }
+  .products-page #productModal .editor-bulk { grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
+  .products-page #variantsContainer .variant-row { grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
+  .products-page #variantsContainer .remove-variant { margin-left:auto; }
+  .products-page #productModal .editor-stock-footer { grid-template-columns:minmax(0,1fr) 125px; gap:12px; }
+  .products-page #productModal .form-actions { bottom:-12px; padding:14px 18px; flex-wrap:wrap; }
+  .products-page #productModal .form-actions button { flex:1; min-width:0; }
+  .products-page #productModal .editor-save-note { flex:0 0 100%; }
+  .products-page #productModal .editor-required { display:none; }
+  .products-page #productModal .editor-section-heading { gap:10px; flex-wrap:wrap; }
+  .products-page #productModal .editor-count { margin-left:46px; padding:0; }
+}
+

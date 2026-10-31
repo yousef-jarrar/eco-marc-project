@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="../assets/css/index.css">
   <link rel="stylesheet" href="../assets/css/global.css">
   <link rel="stylesheet" href="../assets/css/admin.css?v=20261030-audit">
-  <link rel="stylesheet" href="../assets/css/admin-categories.css?v=20261029-actions">
+  <link rel="stylesheet" href="../assets/css/admin-categories.css?v=20261031-categoryfocus">
   <style>html.auth-checking body { visibility: hidden; }</style>
     
   <script src="../assets/js/auth.js?v=20261030-simplified-ai"></script>
@@ -28,46 +28,14 @@
       <span class="topbar-path">LUMIÈRE / Categories</span>
     </header>
     <main class="admin-main" id="main">
-<div class="page-heading">
-                <div>
-                    <h1>A place for every piece.</h1>
-                    <p>Organize the collection without losing its point of view.</p>
-                </div>
-
-                <button type="button" id="addCategoryBtn">
-                    <i class="fa-solid fa-plus" aria-hidden="true"></i> Add category
-                </button>
-            </div>
-
-            <div class="categories-card">
-
-                <div class="categories-search"><button class="secondary" type="button" id="restore-hidden-categories" hidden>Show hidden categories</button>
-                    <input
-                        type="search"
-                        id="searchCategory"
-                        placeholder="Search categories..."
-                        aria-label="Search categories"
-                    >
-                </div>
-
-                <div class="table-scroll">
-                    <table class="categories-table">
-
-                        <thead>
-                            <tr>
-                                <th>Category</th>
-                                <th>Products</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-
-                        <tbody id="categoriesTableBody" aria-live="polite"><tr><td colspan="4">Loading categories…</td></tr></tbody>
-
-                    </table>
-                </div>
-
-            </div>
+      <div class="page-heading"><div><h1>Categories</h1><p class="muted">Give every product a place in your collection.</p></div><div class="category-heading-actions"><button class="secondary" type="button" id="refreshCategoriesBtn" aria-label="Refresh categories"><i class="fa-solid fa-rotate" aria-hidden="true"></i></button><button type="button" id="addCategoryBtn"><i class="fa-solid fa-plus" aria-hidden="true"></i> Add category</button></div></div>
+      <div class="error-banner" id="categoriesError" role="alert" hidden><strong>Categories could not refresh.</strong><p id="categoriesErrorText"></p><button type="button" class="secondary" id="retryCategoriesBtn">Retry connection</button></div>
+      <section class="category-summary" aria-label="Category summary"><div><i class="fa-solid fa-layer-group" aria-hidden="true"></i><span><strong id="categoryTotal">—</strong> Categories</span></div><div><i class="fa-regular fa-circle-check" aria-hidden="true"></i><span><strong id="categoryActive">—</strong> Active</span></div><div><i class="fa-regular fa-image" aria-hidden="true"></i><span><strong id="categoryMissingImages">—</strong> Without an image</span></div></section>
+      <div class="category-toolbar"><div class="category-search"><label for="searchCategory">Search categories</label><div><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input type="search" id="searchCategory" placeholder="Name or category ID…"></div></div><div><label for="categoryStatusFilter">Status</label><select id="categoryStatusFilter"><option value="">All statuses</option><option value="active">Active</option><option value="inactive">Inactive</option></select></div><div><label for="categorySort">Sort by</label><select id="categorySort"><option value="newest">Newest first</option><option value="name">Name A–Z</option></select></div><button type="button" class="secondary" id="clearCategoryFilters">Reset</button><div class="category-view-toggle" role="group" aria-label="Category layout"><button type="button" data-category-view="grid" aria-pressed="true" aria-label="Card layout" title="Card layout"><i class="fa-solid fa-grip" aria-hidden="true"></i></button><button type="button" data-category-view="list" aria-pressed="false" aria-label="Compact layout" title="Compact layout"><i class="fa-solid fa-list" aria-hidden="true"></i></button></div></div>
+      <div class="category-hidden-note" id="categoryHiddenNote" hidden><span><i class="fa-regular fa-eye-slash" aria-hidden="true"></i> <span id="categoryHiddenCount"></span> hidden on this browser only.</span><button class="secondary" type="button" id="restore-hidden-categories">Show hidden categories</button></div>
+      <div class="category-results-heading"><h2>Your collection</h2><span id="categoryResultCount" role="status">Loading categories…</span></div>
+      <section id="categoriesTableBody" class="category-grid" aria-label="Categories" aria-live="polite" aria-busy="true"><div class="category-empty"><span class="spinner"></span><p>Loading your categories…</p></div></section>
+      <div class="category-footer"><p>Hiding a category only changes this browser’s view. Use Activate or Deactivate to change its saved status.</p><span id="categoriesUpdated" role="status"></span></div>
     </main>
   </div>
 
@@ -79,6 +47,7 @@
   <script src="../assets/js/admin-api.js?v=20261029-scriptfix"></script>
   <script src="../assets/js/alerts.js?v=20261029-scriptfix"></script>
   <script src="../assets/js/admin-layout.js?v=20261030-audit"></script>
-  <script type="module" src="../assets/js/categories.js?v=20261030-audit"></script>
+  <script type="module" src="../assets/js/categories.js?v=20261031-categoryux"></script>
 </body>
 </html>
+

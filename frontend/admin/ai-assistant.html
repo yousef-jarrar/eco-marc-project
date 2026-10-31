@@ -10,14 +10,14 @@
     <link rel="stylesheet" href="../assets/css/index.css">
     <link rel="stylesheet" href="../assets/css/global.css">
     <link rel="stylesheet" href="../assets/css/admin.css?v=20261030-audit">
-    <link rel="stylesheet" href="../assets/css/ai-assistant.css">
+    <link rel="stylesheet" href="../assets/css/ai-assistant.css?v=20261031-stockdetails">
     <style>html.auth-checking body { visibility: hidden; }</style>
     
   <script src="../assets/js/auth.js?v=20261030-simplified-ai"></script>
 <link rel="icon" type="image/svg+xml" href="../../assets/lumiere-icon-light.svg">
 <link rel="stylesheet" href="../assets/css/sticky-header.css?v=20261029-sticky">
 </head>
-  <body data-page="ai">
+  <body class="assistant-page" data-page="ai">
     <a class="sr-only" href="#main">Skip to content</a>
     <button class="sidebar-backdrop" id="sidebar-backdrop" aria-label="Close navigation" hidden>
     </button>
@@ -39,187 +39,81 @@
       <main class="admin-main" id="main">
         <div class="page-heading">
           <div>
-            <h1>A clearer view of your business.</h1>
-            <p class="muted">Ask better questions. Make more considered decisions.</p>
+            <h1>Business assistant</h1>
+            <p class="muted">Ask about your store. Turn the answer into your next step.</p>
           </div>
-          <button class="secondary" id="refresh-insights">
-            <i class="fa-solid fa-rotate" aria-hidden="true">
-            </i> Refresh</button>
+          <div class="assistant-heading-actions"><a class="button secondary" href="overveiw.html"><i class="fa-solid fa-chart-line" aria-hidden="true"></i> Open overview</a><button class="secondary" id="refresh-insights"><i class="fa-solid fa-rotate" aria-hidden="true"></i> Refresh context</button></div>
         </div>
 
         
-        <section class="panel reporting-panel" aria-label="Reporting period">
+        <details class="panel reporting-panel">
+          <summary class="reporting-heading"><span><i class="fa-regular fa-calendar" aria-hidden="true"></i> Conversation period <small id="active-period">Loading context…</small></span><span class="period-summary-end"><span class="status" id="connection-status" role="status">Connecting</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></span></summary>
           <form id="reporting-form" class="reporting-form">
-            <div><label for="period-preset">Reporting period</label><select id="period-preset">
-              <option value="7">Last 7 days</option><option value="30">Last 30 days</option>
-              <option value="month">This month</option><option value="last-month">Last month</option>
-              <option value="custom">Custom dates</option>
-            </select></div>
+            <div><label for="period-preset">Period</label><select id="period-preset"><option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="month">This month</option><option value="last-month">Last month</option><option value="custom">Custom dates</option></select></div>
             <div><label for="period-from">From</label><input type="date" id="period-from" required></div>
             <div><label for="period-to">To</label><input type="date" id="period-to" required></div>
             <button id="apply-period">Apply period</button>
           </form>
-          <div class="reporting-caption"><span id="active-period">Loading reporting period…</span><span id="comparison-period"></span></div>
-        </section>
+          <p id="period-draft-note" class="period-draft-note" hidden>Apply these dates to start a fresh conversation about this period.</p>
+          <p class="reporting-caption">Sales and reviews follow this period. Inventory uses current stock.</p>
+        </details>
         <div class="error-banner" id="insights-error" role="alert" hidden>
-          <strong>Insights are unavailable.</strong>
+          <strong>Store context is unavailable.</strong>
           <div id="insights-error-text">
           </div>
           <button class="secondary" id="retry-insights">Retry connection</button>
         </div>
-        <section class="kpis assistant-kpis" aria-label="Store performance">
-          <article class="kpi">
-            <div class="kpi-label">Total revenue<i class="fa-solid fa-coins" aria-hidden="true">
-              </i>
-            </div>
-            <div class="kpi-value" id="revenue-value">—</div>
-            <div class="kpi-note">Confirmed through delivered orders</div>
-            <div class="metric-change" id="revenue-change"></div>
-          </article>
-          <article class="kpi">
-            <div class="kpi-label">Orders<i class="fa-solid fa-bag-shopping" aria-hidden="true">
-              </i>
-            </div>
-            <div class="kpi-value" id="orders-value">—</div>
-            <div class="kpi-note">Checkouts in the selected period</div>
-            <div class="metric-change" id="orders-change"></div>
-          </article>
-          <article class="kpi">
-            <div class="kpi-label">Pending orders<i class="fa-solid fa-clock" aria-hidden="true">
-              </i>
-            </div>
-            <div class="kpi-value" id="pending-value">—</div>
-            <div class="kpi-note">Awaiting confirmation</div>
-          </article>
-          <article class="kpi">
-            <div class="kpi-label">Low-stock variants<i class="fa-solid fa-box" aria-hidden="true">
-              </i>
-            </div>
-            <div class="kpi-value" id="stock-value">—</div>
-            <div class="kpi-note">Current inventory · 5 or fewer units</div>
-          </article>
-          <article class="kpi">
-            <div class="kpi-label">Average order value<i class="fa-solid fa-receipt" aria-hidden="true"></i></div>
-            <div class="kpi-value" id="average-order-value">—</div>
-            <div class="kpi-note">Eligible orders in selected period</div>
-            <div class="metric-change" id="average-change"></div>
-          </article>
-          <article class="kpi">
-            <div class="kpi-label">Purchasing customers<i class="fa-solid fa-users" aria-hidden="true"></i></div>
-            <div class="kpi-value" id="customers-value">—</div>
-            <div class="kpi-note">Distinct customers with eligible orders</div>
-          </article>
-        </section>
         <div class="assistant-layout">
-          <section class="panel conversation-panel" aria-label="Business assistant conversation">
+          <section class="panel conversation-panel" id="assistant-workspace" aria-label="Business assistant conversation">
             <div class="conversation-heading">
               <div>
                 <h2>
                   <span class="assistant-mark">
                     <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true">
                     </i>
-                  </span>Business assistant</h2>
-                <p class="tiny muted" style="margin:6px 0 0">Ask a follow-up. Your selected period stays in context.</p>
+                  </span>Store advisor</h2>
+                <p class="tiny muted" id="chat-period">Loading your reporting context…</p>
               </div>
-              <button class="icon-button" id="clear-conversation" aria-label="Clear conversation" title="Clear conversation">
+              <button class="secondary" id="clear-conversation" aria-label="Start a new conversation" title="Start a new conversation">
                 <i class="fa-solid fa-rotate-left" aria-hidden="true">
-                </i>
+                </i><span>New chat</span>
               </button>
             </div>
-            <div class="suggestions">
-              <button data-question="What is our total revenue?">What is our total revenue?</button>
-              <button data-question="Which products sell the most?">Which products sell the most?</button>
-              <button data-question="Which products have low stock?">Which products have low stock?</button>
-              <button data-question="How many orders are pending?">How many orders are pending?</button>
-              <button data-question="Which products have the lowest ratings?">Which products have the lowest ratings?</button>
-            </div>
-            <div class="messages" id="messages" role="log" aria-live="polite" aria-relevant="additions text">
-              <article class="message assistant">
-                <div class="message-label">Lumeire Business Assistant</div>
-                <div class="message-text">Let’s look at the data behind your store. Ask about sales, inventory, orders or customer reviews.</div>
-              </article>
+            <div class="message-viewport">
+              <div class="chat-welcome" id="chat-welcome">
+                <div class="welcome-mark"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i></div>
+                <h3>What can we work on today?</h3>
+                <p>Find an opportunity, check your stock or understand what your customers are saying.</p>
+                <div class="suggestions" role="group" aria-label="Suggested business questions">
+                  <button data-question="What is our total revenue?"><i class="fa-solid fa-coins" aria-hidden="true"></i><span><strong>Understand sales</strong><small>How is revenue looking?</small></span><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></button>
+                  <button data-question="Which products sell the most?"><i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i><span><strong>Find best sellers</strong><small>See which products lead sales.</small></span><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></button>
+                  <button data-question="Which products have low stock?"><i class="fa-solid fa-box" aria-hidden="true"></i><span><strong>Check inventory</strong><small>Find items that need attention.</small></span><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></button>
+                  <button data-question="Which products have the lowest ratings?"><i class="fa-regular fa-star" aria-hidden="true"></i><span><strong>Listen to customers</strong><small>Explore products with low ratings.</small></span><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></button>
+                  <button data-question="How many orders are pending?"><i class="fa-regular fa-clock" aria-hidden="true"></i><span><strong>Check pending orders</strong><small>See what is awaiting confirmation.</small></span><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></button>
+                </div>
+              </div>
+              <div class="messages" id="messages" role="log" aria-live="polite" aria-relevant="additions text" hidden></div>
+            <button type="button" class="secondary latest-answer" id="latest-answer" hidden><i class="fa-solid fa-arrow-down" aria-hidden="true"></i> Latest reply</button>
             </div>
             <form class="composer" id="assistant-form">
               <label for="question" class="sr-only">Your business question</label>
               <div class="composer-row">
-                <textarea id="question" maxlength="1000" rows="2" placeholder="Ask about your business…" required></textarea>
+                <textarea id="question" maxlength="1000" rows="2" dir="auto" placeholder="What would you like to know about your store?" required></textarea>
                 <button id="send-question" aria-label="Send question">
                   <i class="fa-solid fa-arrow-up" aria-hidden="true">
                   </i>
                 </button>
-                <button id="cancel-question" class="secondary" type="button" hidden>Cancel</button>
+                <button id="cancel-question" class="secondary" type="button" hidden><i class="fa-solid fa-stop" aria-hidden="true"></i> Stop</button>
               </div>
+              <div class="conversation-state" id="conversation-state" role="status">Loading store context…</div>
               <div class="composer-meta">
                 <span>Enter to send · Shift + Enter for a new line</span>
                 <span id="character-count">0 / 1000</span>
               </div>
             </form>
           </section>
-          <aside class="context-stack">
-            <section class="panel">
-              <div class="panel-heading">
-                <h2>Top selling pieces</h2>
-                <i class="fa-solid fa-arrow-trend-up muted" aria-hidden="true">
-                </i>
-              </div>
-              <ul class="insight-list" id="top-products">
-                <li class="muted">Waiting for store data…</li>
-              </ul>
-            </section>
-            <section class="panel">
-              <div class="panel-heading">
-                <h2>Inventory attention</h2>
-                <i class="fa-solid fa-box muted" aria-hidden="true">
-                </i>
-              </div>
-              <ul class="insight-list" id="low-stock">
-                <li class="muted">Waiting for store data…</li>
-              </ul>
-              <p class="tiny muted" id="stock-count-note" style="margin-top:12px">
-              </p>
-            </section>
-            <section class="panel">
-              <div class="panel-heading">
-                <h2>Lowest approved ratings</h2>
-              </div>
-              <ul class="insight-list" id="product-ratings">
-                <li class="muted">Waiting for store data…</li>
-              </ul>
-            </section>
-          </aside>
         </div>
-        <section class="panel daily-panel">
-          <div class="panel-heading">
-            <div>
-              <h2>Daily revenue</h2>
-              <p class="tiny muted"><span id="daily-period-label">Selected reporting period</span></p>
-            </div>
-            <span class="status" id="connection-status">Connecting</span>
-          </div>
-          <div class="chart-wrap">
-            <canvas id="daily-chart" role="img" aria-label="Daily revenue in Jordanian dinar" hidden>
-            </canvas>
-            <p id="daily-chart-empty" class="muted tiny">Revenue records will appear after loading.</p>
-          </div>
-          <div class="table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Orders</th>
-                  <th>Revenue</th>
-                </tr>
-              </thead>
-              <tbody id="daily-body">
-                <tr>
-                  <td colspan="3">Waiting for store data…</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <span id="last-updated" class="last-updated" aria-live="polite">
-          </span>
-        </section>
+        <span id="last-updated" class="sr-only" aria-live="polite"></span>
       </main>
     </div>
     
@@ -227,12 +121,11 @@
 <script src="../assets/js/admin-api.js?v=20261029-scriptfix"></script>
 <script src="../assets/js/alerts.js?v=20261029-scriptfix"></script>
 <script src="../assets/js/admin-layout.js?v=20261030-audit"></script>
-<script src="../assets/vendor/chart.umd.min.js">
-    </script>
+
     
     
     
-    <script src="../assets/js/ai-assistant.js?v=20261029-session2">
+    <script src="../assets/js/ai-assistant.js?v=20261031-stockdetails">
     </script>
   </body>
 </html>

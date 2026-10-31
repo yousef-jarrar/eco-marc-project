@@ -1,3 +1,8 @@
+document.body.classList.add('admin-notifications');
+const adminNoticeStyles = document.createElement('link');
+adminNoticeStyles.rel = 'stylesheet';
+adminNoticeStyles.href = new URL('../css/admin-notifications.css?v=20261031-notices', document.currentScript.src).href;
+document.head.append(adminNoticeStyles);
  
 function escapeHTML(value) {
   if (value === null || value === undefined) {
@@ -207,24 +212,42 @@ function searchAdminPages() {
 }
 
 async function showInventoryNotifications() {
-  const button = document.getElementById("inventory-notifications");
+  const button = document.getElementById('inventory-notifications');
   button.disabled = true;
+  button.setAttribute('aria-busy', 'true');
+  button.innerHTML = fa('spinner fa-spin');
   try {
     const data = await AdminAPI.insights();
-    const total = number(data.low_stock_count);
-    const lines = [];
+    const total = Math.max(0, number(data.low_stock_count));
+    const variants = Array.isArray(data.low_stock_products) ? data.low_stock_products.slice(0, 8) : [];
+    button.removeAttribute('aria-busy');
+    button.innerHTML = fa('bell');
+    let html;
     if (total === 0) {
-      lines.push("No active product variants have 5 or fewer units.");
+      html = '<div class="inventory-empty"><span>' + fa('check') + '</span><h3>Your stock is looking good.</h3><p>No active product variants have 5 or fewer units.</p></div>';
     } else {
-      lines.push(total + " variants need inventory attention.");
-      for (const variant of data.low_stock_products.slice(0, 5)) {
-        lines.push(variant.name + " — " + variant.color + " / " + variant.size + ": " + number(variant.quantity));
-      }
+      const rows = variants.map(variant => {
+        const quantity = Math.max(0, number(variant.quantity));
+        const id = Number(variant.product_id);
+        const name = escapeHTML(variant.name || 'Product');
+        const size = String(variant.size || '').toUpperCase() === 'ONE_SIZE' ? 'One size' : String(variant.size || '');
+        const details = escapeHTML([variant.color, size].filter(Boolean).join(' · '));
+        const content = '<span class="inventory-alert-icon' + (quantity === 0 ? ' is-empty' : '') + '">' + fa(quantity === 0 ? 'box-open' : 'boxes-stacked') + '</span><span class="inventory-alert-copy"><strong>' + name + '</strong><span>' + details + '</span></span><span class="inventory-stock-badge' + (quantity === 0 ? ' is-empty' : '') + '">' + (quantity === 0 ? 'Out of stock' : quantity + ' left') + '</span>';
+        return '<li>' + (Number.isInteger(id) && id > 0 ? '<a href="ProductDetails.html?id=' + id + '" aria-label="Review ' + name + ', ' + details + '">' + content + '</a>' : '<div class="inventory-alert-row">' + content + '</div>') + '</li>';
+      }).join('');
+      html = '<div class="inventory-summary"><strong>' + total + '</strong><div><span>Low-stock ' + (total === 1 ? 'variant' : 'variants') + '</span><p>Review items with 5 or fewer units available.</p></div></div><ul class="inventory-alert-list">' + rows + '</ul><div class="inventory-alert-footer"><span>Showing ' + variants.length + ' of ' + total + '</span><a href="Products.html">Manage products ' + fa('arrow-right') + '</a></div>';
     }
-    await Alerts.show("Inventory notifications", lines.join("\n"));
+    await Alerts.show('Inventory notifications', '', 'info', {
+      icon: undefined, html, width: 600, showCloseButton: true,
+      confirmButtonText: 'Done', customClass: { popup: 'admin-inventory-popup' }
+    });
   } catch (error) {
-    Alerts.show("Notifications unavailable", error.message, "error");
-  } finally { button.disabled = false; }
+    await Alerts.show('Notifications unavailable', error.message, 'error');
+  } finally {
+    button.disabled = false;
+    button.removeAttribute('aria-busy');
+    button.innerHTML = fa('bell');
+  }
 }
 
 loadAdminMenu();
@@ -287,3 +310,4 @@ EcoAuth.ready.then(function (session) {
   document.querySelector(".admin-identity-text strong").textContent = name;
   document.querySelector(".admin-identity .avatar").textContent = session.user.first_name.slice(0, 1).toUpperCase();
 }).catch(function () { });
+
