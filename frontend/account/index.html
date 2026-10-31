@@ -6,7 +6,8 @@
   <title>My account | LUMIÈRE</title>
   <link rel="stylesheet" href="../assets/css/fonts.css">
   <link rel="stylesheet" href="../assets/css/index.css">
-  <link rel="stylesheet" href="../assets/css/auth.css?v=20261029-sizing">
+  <link rel="stylesheet" href="../assets/css/profile.css?v=20261029-profile1">
+  <link rel="stylesheet" href="../assets/css/account-overview.css?v=20261031-accountclean">
   <script src="../assets/js/auth.js?v=20261030-simplified-ai"></script>
   <link rel="stylesheet" href="../assets/css/site-footer.css?v=20261029-landing">
 <link rel="icon" type="image/svg+xml" href="../../assets/lumiere-icon-light.svg">
@@ -17,7 +18,8 @@
 <link rel="stylesheet" href="../assets/css/product-cards.css?v=20261030-cards">
 <script src="../assets/js/product-cards.js?v=20261030-cards"></script>
 </head>
-<body id="top" class="has-public-header">
+<body id="top" class="has-public-header account-overview-page">
+  <a class="profile-skip" href="#main">Skip to content</a>
   <header class="public-header">
   <div class="ph-announcement"><span class="ph-announcement-text">Considered style. Everyday movement.</span></div>
   <div class="ph-inner wrap">
@@ -33,7 +35,6 @@
       <a class="ph-mobile-link" href="../customers/wishlist.html"><i class="fa-regular fa-heart" aria-hidden="true"></i> Wishlist</a>
       <a class="ph-mobile-link" data-ph-user href="../account/profile.html" hidden><i class="fa-regular fa-user" aria-hidden="true"></i> My account</a>
       <a class="ph-mobile-link" data-ph-guest href="../account/login.html">Sign in</a><a class="ph-mobile-link" data-ph-guest href="../account/register.html">Create an account</a>
-      <button id="ph-mobile-logout" type="button"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i> Log out</button>
     </nav>
     <div class="ph-actions">
       <button class="ph-icon ph-search-toggle" type="button" aria-label="Search products" aria-controls="public-search" aria-expanded="false"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
@@ -41,33 +42,59 @@
       <a class="ph-icon ph-desktop-action ph-account" href="../account/login.html" aria-label="Sign in" title="My account"><i class="fa-regular fa-user" aria-hidden="true"></i></a>
       <a class="ph-icon ph-desktop-action" href="../customers/wishlist.html" aria-label="Wishlist" title="Wishlist"><i class="fa-regular fa-heart" aria-hidden="true"></i></a>
       <a class="ph-icon"  href="../account/cart.html" aria-label="Open cart" title="Shopping bag"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i><b class="ph-badge" id="store-cart-count" hidden>0</b></a>
-      <button class="ph-logout" id="account-logout" type="button">Log out</button>
     </div>
   </div>
   <div class="ph-search" id="public-search" hidden><form action="../shop.html"><label for="public-search-input">Search the collection</label><input id="public-search-input" name="q" type="search" placeholder="Search the collection…" autocomplete="off"><button type="submit" class="ph-search-submit"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><span>Search</span></button><button type="button" class="ph-search-close" aria-label="Close search"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></form></div>
 </header>
-  <main class="account-main">
-    <p class="account-intro">Your account</p>
-    <h1 id="account-name">Welcome</h1>
-    <p>Keep your sign-in details in one place.</p>
-    <section class="account-details" aria-labelledby="profile-title">
-      <h2 id="profile-title">Profile</h2>
-      <dl><dt>Email</dt><dd id="account-email"></dd><dt>Account type</dt><dd id="account-role"></dd></dl>
-      <a id="admin-link" class="auth-primary" href="../admin/ai-assistant.html" hidden>Open administration</a>
-    </section>
-    <section class="account-details" aria-labelledby="google-title">
-      <h2 id="google-title">Google sign-in</h2>
-      <p>Link your Google account to use it the next time you sign in.</p>
-      <div id="google-button" class="google-button"></div>
-      <p id="google-status" class="field-hint" aria-live="polite"></p>
-    </section>
-
+  <main class="profile-main" id="main">
+    <div class="profile-heading">
+      <p class="profile-eyebrow">YOUR ACCOUNT</p>
+      <h1 id="account-name">Welcome.</h1>
+      <p>Your orders, saved favourites and account essentials.</p>
+    </div>
+    <div class="profile-layout">
+      <aside class="profile-sidebar" aria-label="Account navigation">
+        <a class="profile-nav-link is-current" href="index.html" aria-current="page"><i class="fa-solid fa-house" aria-hidden="true"></i>Account overview</a>
+        <a class="profile-nav-link" href="profile.html"><i class="fa-regular fa-user" aria-hidden="true"></i>Personal information</a>
+        <a class="profile-nav-link" href="my-orders.html"><i class="fa-solid fa-box" aria-hidden="true"></i>My orders</a>
+        <a class="profile-nav-link" href="../customers/wishlist.html"><i class="fa-regular fa-heart" aria-hidden="true"></i>Wishlist</a>
+        <a id="admin-link" class="profile-nav-link" href="../admin/overveiw.html" hidden><i class="fa-solid fa-gauge-high" aria-hidden="true"></i>Admin dashboard</a>
+        <button class="profile-logout" id="account-logout" type="button"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>Log out</button>
+      </aside>
+      <div class="profile-content">
+        <nav class="account-shortcuts" aria-label="Shopping shortcuts">
+          <a href="my-orders.html"><i class="fa-solid fa-box-open" aria-hidden="true"></i><strong>My orders</strong><span>Follow your recent purchases</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+          <a href="../customers/wishlist.html"><i class="fa-regular fa-heart" aria-hidden="true"></i><strong>Wishlist</strong><span>Revisit your favourites</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+          <a href="cart.html"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i><strong>Shopping bag</strong><span>Pick up where you left off</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+        </nav>
+        <section class="profile-card" aria-labelledby="recent-orders-title">
+          <div class="account-section-heading"><h2 id="recent-orders-title">Recent orders</h2><a href="my-orders.html">View all orders <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></div>
+          <p id="account-orders-status" class="account-load-status" role="status">Loading your recent orders…</p>
+          <button id="account-orders-retry" class="profile-button" type="button" hidden>Try again</button>
+          <div id="account-recent-orders" class="account-recent-orders"></div>
+        </section>
+        <section class="profile-card" aria-labelledby="account-details-title">
+          <div class="account-section-heading"><h2 id="account-details-title">Your details</h2><a href="profile.html">Edit details <i class="fa-regular fa-pen-to-square" aria-hidden="true"></i></a></div>
+          <div class="account-contact-grid">
+            <div><h3><i class="fa-regular fa-user" aria-hidden="true"></i>Contact information</h3><p id="account-email"></p><p id="account-phone">Loading phone…</p></div>
+            <div><h3><i class="fa-solid fa-location-dot" aria-hidden="true"></i>Saved address</h3><p id="account-address">Loading your address…</p><a href="profile.html#address-title" class="account-inline-link">Manage address</a></div>
+          </div>
+          <p id="account-profile-status" class="account-load-status" role="status" hidden></p>
+          <button id="account-profile-retry" class="profile-button" type="button" hidden>Reload details</button>
+        </section>
+        <section class="profile-card account-google" aria-labelledby="google-title">
+          <div><h2 id="google-title"><i class="fa-brands fa-google" aria-hidden="true"></i>Google sign-in</h2><p class="profile-card-copy">Link your Google account for an easier sign-in next time.</p></div>
+          <div class="account-google-control"><div id="google-button" class="google-button"></div><p id="google-status" class="profile-card-copy" aria-live="polite"></p></div>
+        </section>
+      </div>
+    </div>
   </main>
   <footer class="site-footer" id="site-footer" aria-label="Site footer"></footer>
   <script src="../assets/js/site-footer.js?v=20261030-simplified-ai"></script>
   <script src="../assets/vendor/sweetalert2.all.min.js"></script>
   <script src="../assets/js/alerts.js?v=20261029-session2"></script>
-  <script src="../assets/js/login.js?v=20261029-template"></script>
+  <script src="../assets/js/login.js?v=20261031-accountclean"></script>
+  <script src="../assets/js/pages/account-overview.js?v=20261031-accountoverview"></script>
 
 <script src="../assets/js/public-header.js?v=20261031-adminlink"></script>
 </body>
