@@ -1,6 +1,7 @@
 <?php
 
 header("Content-Type: application/json; charset=UTF-8");
+header("Cache-Control: no-store");
 
 require_once __DIR__ . "/../classes/Products.php";
 
@@ -32,6 +33,8 @@ try {
 
      
     if ($method === "GET") {
+        $adminCatalog = ($_GET["admin"] ?? "") === "1";
+        if ($adminCatalog) requireAdmin();
         $gender = Product::validateGender($_GET["gender"] ?? null);
 
         if (isset($_GET["category_id"])) {
@@ -47,13 +50,13 @@ try {
             }
 
             echo json_encode(
-                array_values(array_filter($products->getProductsByCategory($categoryId), static fn($product) => $gender === null || $product["gender"] === $gender || $product["gender"] === "unisex"))
+                array_values(array_filter($products->getProductsByCategory($categoryId, $adminCatalog), static fn($product) => $gender === null || $product["gender"] === $gender || $product["gender"] === "unisex"))
             );
             exit;
         }
 
         if ($id > 0) {
-            $product = $products->getProduct($id);
+            $product = $products->getProduct($id, $adminCatalog);
 
             if (!$product) {
                 http_response_code(404);
@@ -65,7 +68,7 @@ try {
             exit;
         }
 
-        echo json_encode($products->getProducts($gender));
+        echo json_encode($products->getProducts($gender, $adminCatalog));
         exit;
     }
 

@@ -13,7 +13,7 @@ class ShoppingData {
             FROM products p JOIN categories c ON c.id=p.category_id
             LEFT JOIN discounts d ON d.id=p.discount_id AND d.type='normal' AND " . DiscountRules::ACTIVE_SQL . "
             LEFT JOIN (SELECT product_id,AVG(rating) AS average_rating,COUNT(*) AS review_count FROM reviews WHERE status='approved' GROUP BY product_id) ratings ON ratings.product_id=p.id
-            WHERE p.is_active=1 ORDER BY p.id";
+            WHERE p.is_active=1 AND c.status='active' ORDER BY p.id";
         $rows = $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
         $variants = [];
         foreach ($this->db->query('SELECT v.product_id,v.size,v.color FROM product_variants v JOIN products p ON p.id=v.product_id WHERE p.is_active=1 AND v.quantity>0 ORDER BY v.id')->fetchAll(PDO::FETCH_ASSOC) as $variant) {

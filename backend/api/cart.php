@@ -45,6 +45,7 @@ function validDate($date): bool
 
 function getLatest(Cart $cart, array $body): array
 {
+    if (!is_string($body["username"] ?? "")) fail(400, "Enter a valid order search.");
     $username   = trim($body["username"] ?? "");
     $start_date = $body["start_date"] ?? null;
     $end_date   = $body["end_date"] ?? null;
@@ -65,11 +66,20 @@ function getLatest(Cart $cart, array $body): array
         fail(400, "Start date must be before or equal to end date");
     }
 
+    $status = $body["status"] ?? null;
+    if ($status === "") $status = null;
+    if ($status !== null && !in_array($status, ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"], true)) fail(400, "Choose a valid order status.");
+    $limit = filter_var($body["limit"] ?? 10, FILTER_VALIDATE_INT);
+    if ($limit === false || $limit < 1 || $limit > 50) fail(400, "Choose a page size from 1 to 50.");
+    if (($body["lookahead"] ?? false) === true) $limit++;
+
     return $cart->getLatestOrders(
         $username,
         $start_date ?: null,
         $end_date ?: null,
-        $page
+        $page,
+        $limit,
+        $status
     );
 }
 

@@ -32,7 +32,7 @@ async function loadProductDetails() {
     }
 
     try {
-        const response = await EcoAuth.fetch(`${API_PRODUCTS}?id=${encodeURIComponent(id)}`);
+        const response = await EcoAuth.fetch(`${API_PRODUCTS}?id=${encodeURIComponent(id)}&admin=1`);
         const product = await response.json();
 
         if (!response.ok || !product || !product.id) {

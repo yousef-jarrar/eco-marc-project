@@ -11,7 +11,9 @@ async function categoryRequest(method, data = null, query = "") {
         else { options.headers["Content-Type"] = "application/json"; options.body = JSON.stringify(data); }
     }
 
-    const response = await EcoAuth.fetch(API_URL + query, options);
+    const url = new URL(API_URL + query);
+    if (method === "GET") url.searchParams.set("admin", "1");
+    const response = await EcoAuth.fetch(url.href, options);
     let result;
     try {
         result = await response.json();

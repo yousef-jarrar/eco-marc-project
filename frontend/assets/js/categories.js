@@ -1,12 +1,9 @@
-import {getAllCategories, getCategoryProducts, createCategory, updateCategory} from "./services/categories-services.js?v=20261029-mergefix";
+import {getAllCategories, getCategoryProducts, createCategory, updateCategory} from "./services/categories-services.js?v=20261031-visibility";
 
 const grid = document.getElementById("categoriesTableBody");
 const searchInput = document.getElementById("searchCategory");
 const statusFilter = document.getElementById("categoryStatusFilter");
 const sortInput = document.getElementById("categorySort");
-const hiddenStorageKey = "eco-marc-hidden-categories";
-let hiddenCategoryIds = new Set();
-try { hiddenCategoryIds = new Set((localStorage.getItem(hiddenStorageKey) || "").split(",").filter(id => /^[1-9]\d*$/.test(id))); } catch (error) {}
 let categories = [];
 let changingCategory = false;
 let loadVersion = 0;
@@ -27,9 +24,7 @@ function updateSummary() {
     document.getElementById("categoryTotal").textContent = categories.length;
     document.getElementById("categoryActive").textContent = categories.filter(category => category.status === "active").length;
     document.getElementById("categoryMissingImages").textContent = categories.filter(category => !category.image_url).length;
-    const hidden = categories.filter(category => hiddenCategoryIds.has(String(category.id))).length;
-    document.getElementById("categoryHiddenNote").hidden = hidden === 0;
-    document.getElementById("categoryHiddenCount").textContent = hidden + (hidden === 1 ? " category" : " categories");
+
 }
 
 function button(icon, label, action) {
@@ -47,14 +42,14 @@ function button(icon, label, action) {
 
 function showFilteredCategories() {
     const query = searchInput.value.trim().toLowerCase();
-    const filtered = categories.filter(category => !hiddenCategoryIds.has(String(category.id)) && (category.name + " " + category.id).toLowerCase().includes(query) && (!statusFilter.value || category.status === statusFilter.value));
+    const filtered = categories.filter(category => (category.name + " " + category.id).toLowerCase().includes(query) && (!statusFilter.value || category.status === statusFilter.value));
     filtered.sort((a, b) => sortInput.value === "name" ? a.name.localeCompare(b.name) : Number(b.id) - Number(a.id));
     grid.replaceChildren();
     document.getElementById("categoryResultCount").textContent = filtered.length + " of " + categories.length + " categories";
     if (!filtered.length) {
         const empty = document.createElement("div");
         empty.className = "category-empty";
-        empty.innerHTML = fa("layer-group") + "<h3>" + (categories.length ? "No categories in this view" : "Start your collection") + "</h3><p>" + (categories.length ? "Try a different search, reset the filters or restore hidden categories." : "Add your first category to organize your products.") + "</p>";
+        empty.innerHTML = fa("layer-group") + "<h3>" + (categories.length ? "No categories in this view" : "Start your collection") + "</h3><p>" + (categories.length ? "Try a different search or reset the filters." : "Add your first category to organize your products.") + "</p>";
         grid.appendChild(empty);
     }
     for (const category of filtered) {
@@ -85,11 +80,6 @@ function showFilteredCategories() {
         const actions = card.querySelector(".category-card-actions");
         actions.appendChild(button("pen", "Edit", () => openCategoryForm(category)));
         actions.appendChild(button(active ? "pause" : "play", active ? "Deactivate" : "Activate", () => changeCategoryStatus(category)));
-        const hide = button("eye-slash", "", () => hideCategory(category));
-        hide.classList.add("category-hide-button");
-        hide.title = "Hide on this browser";
-        hide.setAttribute("aria-label", "Hide " + category.name + " on this browser");
-        actions.appendChild(hide);
         grid.appendChild(card);
     }
     updateSummary();
@@ -213,7 +203,7 @@ async function changeCategoryStatus(category) {
     const active = category.status !== "active";
     setCategoryBusy(true);
     try {
-        const confirmation = await Alerts.confirm(active ? "Activate this category?" : "Deactivate this category?", 'Change the saved status of "' + category.name + '" to ' + (active ? "active" : "inactive") + '?');
+        const confirmation = await Alerts.confirm(active ? "Activate this category?" : "Deactivate this category?", active ? category.name + ' and its active products will appear in the store again.' : category.name + ' and its products will be hidden from the store. You can activate it again later.');
         if (!confirmation.isConfirmed) return;
         await updateCategory(category.id, category.name, category.image_url || "", null, active ? "active" : "inactive");
         Alerts.toast(active ? "Category activated" : "Category deactivated");
@@ -222,26 +212,6 @@ async function changeCategoryStatus(category) {
     finally { setCategoryBusy(false); }
 }
 
-async function hideCategory(category) {
-    if (changingCategory) return;
-    setCategoryBusy(true);
-    try {
-        const result = await Alerts.confirm("Hide on this browser?", category.name + " will be hidden in this browser’s category list. Its saved status and products will stay the same.");
-        if (!result.isConfirmed) return;
-        const next = new Set(hiddenCategoryIds);
-        next.add(String(category.id));
-        localStorage.setItem(hiddenStorageKey, [...next].join(","));
-        hiddenCategoryIds = next;
-        showFilteredCategories();
-        Alerts.toast("Category hidden on this browser");
-    } catch (error) { Alerts.show("Could not hide category", "Browser storage is unavailable. Please retry.", "error"); }
-    finally { setCategoryBusy(false); }
-}
-
-document.getElementById("restore-hidden-categories").addEventListener("click", () => {
-    try { localStorage.removeItem(hiddenStorageKey); hiddenCategoryIds.clear(); showFilteredCategories(); Alerts.toast("Hidden categories restored"); }
-    catch (error) { Alerts.show("Could not restore categories", "Browser storage is unavailable. Please retry.", "error"); }
-});
 for (const input of [searchInput, statusFilter, sortInput]) input.addEventListener(input === searchInput ? "input" : "change", showFilteredCategories);
 document.getElementById("clearCategoryFilters").addEventListener("click", () => {searchInput.value = ""; statusFilter.value = ""; sortInput.value = "newest"; showFilteredCategories();});
 document.querySelectorAll("[data-category-view]").forEach(button => button.addEventListener("click", () => {

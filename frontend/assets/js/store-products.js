@@ -89,7 +89,7 @@
     try {
       const [productData, categoryData] = await Promise.all([C.request("Products.php"), C.request("categories.php")]);
       products = C.getArray(productData).filter(product => Number(product.is_active ?? 1) === 1);
-      categories = C.getArray(categoryData);
+      categories = C.getArray(categoryData).filter(category => category.status === undefined || category.status === "active");
       if (query.get("sort") === "new") products.sort((a,b)=>(Date.parse(b.created_at)||0)-(Date.parse(a.created_at)||0)||Number(b.id)-Number(a.id));
       populateFilters();
       const category = query.get("category") || "";

@@ -17,9 +17,9 @@ class Category
         return $this->removedImages;
     }
 
-    public function getAllCategories(): array
+    public function getAllCategories(bool $includeInactive = true): array
     {
-        return $this->conn->query('SELECT * FROM categories ORDER BY id DESC')->fetchAll(PDO::FETCH_ASSOC);
+        return $this->conn->query("SELECT * FROM categories" . ($includeInactive ? "" : " WHERE status = 'active'") . " ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getCategoriesById(int $id): array|false
