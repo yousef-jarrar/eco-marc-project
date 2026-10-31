@@ -19,3 +19,80 @@ header.public-header .ph-inner{height:78px;max-width:1440px;margin:0 auto;paddin
 .public-header .ph-admin-dashboard:hover {background:#e8ddcd;}
 .public-header .ph-nav .ph-admin-mobile {background:#f2eadf;margin-bottom:8px;}
 @media(max-width:1100px) {.public-header .ph-admin-dashboard {display:none;}}
+
+/* Cookie Consent Banner */
+
+.cookie-banner {
+  position: fixed;
+  bottom: 22px;
+  left: 22px;
+  z-index: 99999;
+  width: min(540px, calc(100% - 44px));
+  padding: 22px;
+  background: #fff;
+  border: 1px solid #e2dfd7;
+  box-shadow: 0 8px 30px rgba(0,0,0,.10);
+  font-family: Inter, Arial, sans-serif;
+}
+
+.cookie-text h3 {
+  margin: 0 0 9px;
+  font-size: 16px;
+  color: #171717;
+}
+
+.cookie-text p {
+  margin: 0 0 10px;
+  color: #777;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.cookie-policy {
+  color: #72542f;
+  font-size: 11px;
+}
+
+.cookie-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.cookie-actions button {
+  padding: 11px 16px;
+  font-size: 11px;
+  cursor: pointer;
+  border: 1px solid #171717;
+}
+
+.cookie-accept {
+  background: #171717;
+  color: white;
+}
+
+.cookie-reject {
+  background: white;
+  color: #171717;
+  border-color: #ddd !important;
+}
+
+.cookie-hiding {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: .25s;
+}
+
+@media(max-width: 550px) {
+  .cookie-banner {
+    left: 12px;
+    bottom: 12px;
+    width: calc(100% - 24px);
+    padding: 17px;
+  }
+
+  .cookie-actions {
+    flex-direction: column;
+  }
+}
+
