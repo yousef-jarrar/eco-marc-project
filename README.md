@@ -124,7 +124,7 @@ You don't need any complex backend environment to test this out. Just follow the
 ![Shop Page](Docs/shop.png)
 
 ### Product Details
-![Register](Docs/register.png.png)
+![Register](Docs/register.png)
 ### Product Details
 ![Login](Docs/login.png)
 ### Product Details
