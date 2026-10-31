@@ -14,3 +14,8 @@ header.public-header .ph-inner{height:78px;max-width:1440px;margin:0 auto;paddin
 .public-header #ph-mobile-logout{display:none}@media(max-width:600px){.public-header .ph-actions .ph-logout{display:none}.public-header #ph-mobile-logout{display:flex;align-items:center;min-height:44px;padding:12px;background:transparent;border:0;color:#171717;font-size:12px}.has-public-header .cat-preview{display:none!important}}
 
 .ph-skip{position:fixed;top:8px;left:8px;z-index:1000;transform:translateY(-160%);background:#171717;color:white;padding:12px 18px}.ph-skip:focus{transform:none;color:white}.has-public-header main{scroll-margin-top:130px}.public-header a:focus-visible,.public-header button:focus-visible{outline:2px solid #9c7b50;outline-offset:3px}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}.public-header *{transition:none!important}}
+
+.public-header .ph-admin-dashboard {display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:38px;padding:9px 12px;margin-right:9px;border:1px solid #d8cfbf;border-radius:4px;background:#f2eadf;color:#171717;font-size:11px;white-space:nowrap;}
+.public-header .ph-admin-dashboard:hover {background:#e8ddcd;}
+.public-header .ph-nav .ph-admin-mobile {background:#f2eadf;margin-bottom:8px;}
+@media(max-width:1100px) {.public-header .ph-admin-dashboard {display:none;}}

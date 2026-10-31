@@ -26,6 +26,7 @@
 
 .wordmark span { color: var(--color-accent); }
 .wordmark-small { display: none; }
+.wordmark-small img { display: block; width: 35px; height: 35px; margin-inline: auto; object-fit: contain; }
 .nav-caption { margin: 18px 12px 10px; color: var(--color-text-secondary); font-size: 10px; }
 .admin-sidebar nav { flex-shrink: 0; }
 

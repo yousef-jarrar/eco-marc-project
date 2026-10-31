@@ -92,9 +92,9 @@ function createMenuItem(item) {
 function loadAdminMenu() {
   const content = document.getElementById("sidebar-content");
   content.innerHTML = `
-    <a class="wordmark" href="ai-assistant.html" aria-label="Lumeire administration">
+    <a class="wordmark" href="ai-assistant.html" aria-label="LUMIÈRE administration">
       <strong class="wordmark-full"> <span><img src="../../assets/lumiere-icon-light.svg" alt="LUMIÈRE" width="35"></span>LUMIÈRE</strong>
-      <strong class="wordmark-small">e<span>.</span></strong>
+      <strong class="wordmark-small"><img src="../../assets/lumiere-icon-light.svg" alt="LUMIÈRE" width="35" height="35"></strong>
     </a>
     <p class="nav-caption">Store management</p>
     <nav id="admin-navigation" aria-label="Admin navigation"></nav>
