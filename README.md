@@ -124,7 +124,7 @@ You don't need any complex backend environment to test this out. Just follow the
 ### Login
 ![Login](Docs/login.png)
 ### Accept Cookie
-![ Accept Cookie](Docs/AcceptCookie.png)
+![ Accept Cookie](Docs/Cookie.png)
 ### Admin overview
 ![Overview](Docs/overview.png)
 ### Admin AI model
