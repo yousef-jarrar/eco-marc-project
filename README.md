@@ -123,6 +123,8 @@ You don't need any complex backend environment to test this out. Just follow the
 ![Register](Docs/register.png)
 ### Login
 ![Login](Docs/login.png)
+### Accept Cookie
+![ Accept Cookie](Docs/AcceptCookie.png)
 ### Admin overview
 ![Overview](Docs/overview.png)
 ### Admin AI model
