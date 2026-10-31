@@ -1,6 +1,105 @@
 (function(){
   const scriptUrl=document.currentScript.src;
   const root=new URL('../../../',scriptUrl);
+  
+  // ================= COOKIE CONSENT =================
+
+  function getCookie(name) {
+    const cookies = document.cookie.split("; ");
+
+    for (const cookie of cookies) {
+      const [key, ...value] = cookie.split("=");
+
+      if (key === name) {
+        return decodeURIComponent(value.join("="));
+      }
+    }
+
+    return null;
+  }
+
+  function setCookie(name, value, days) {
+    const maxAge = days * 24 * 60 * 60;
+    const secure = location.protocol === "https:" ? "; Secure" : "";
+
+    document.cookie =
+      name + "=" + encodeURIComponent(value) +
+      "; Max-Age=" + maxAge +
+      "; Path=" + root.pathname +
+      "; SameSite=Lax" +
+      secure;
+  }
+
+  function initCookieConsent() {
+    const cookieName = "ecomarc_cookie_consent";
+
+    // Don't show the banner if consent already exists
+    if (getCookie(cookieName)) return;
+
+    const banner = document.createElement("section");
+    banner.className = "cookie-banner";
+
+    banner.innerHTML = `
+      <div class="cookie-content">
+        <div class="cookie-text">
+          <h3>We Value Your Privacy</h3>
+
+          <p>
+            We use cookies to improve your browsing experience,
+            analyze website traffic, and personalize your experience.
+            You can choose which cookies to accept.
+          </p>
+
+          <a href="#" class="cookie-policy">Cookie Policy</a>
+        </div>
+
+        <div class="cookie-actions">
+          <button type="button" class="cookie-accept">
+            Accept All Cookies
+          </button>
+
+          <button type="button" class="cookie-reject">
+            Reject Optional
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(banner);
+
+    function saveConsent(analytics, marketing) {
+      const consent = {
+        necessary: true,
+        analytics: analytics,
+        marketing: marketing,
+        updatedAt: new Date().toISOString()
+      };
+
+      setCookie(cookieName, JSON.stringify(consent), 180);
+
+      banner.classList.add("cookie-hiding");
+
+      setTimeout(() => banner.remove(), 250);
+    }
+
+    banner.querySelector(".cookie-accept").addEventListener("click", () => {
+      saveConsent(true, true);
+    });
+
+    banner.querySelector(".cookie-reject").addEventListener("click", () => {
+      saveConsent(false, false);
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initCookieConsent, {
+      once: true
+    });
+  } else {
+    initCookieConsent();
+  }
+
+
   const header=document.querySelector('.public-header');if(!header)return;
   const nav=header.querySelector('.ph-nav');const menu=header.querySelector('.ph-menu-toggle');
   const search=header.querySelector('.ph-search');const toggle=header.querySelector('.ph-search-toggle');
@@ -75,4 +174,5 @@
   if(main&&!document.querySelector('a[href="#'+(main.id||'main')+'"]')){if(!main.id)main.id='main';const skip=document.createElement('a');skip.className='ph-skip';skip.href='#'+main.id;skip.textContent='Skip to content';document.body.prepend(skip);}
   load("frontend/assets/js/product-cards.js?v=20261030-cards").then(()=>(footer?load('frontend/assets/js/site-footer.js?v=20261030-audit'):Promise.resolve()))
     .then(()=>load('frontend/assets/js/customer-chat.js?v=20261030-simplified-ai')).catch(()=>{});
+    
 })();
