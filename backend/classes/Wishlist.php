@@ -32,7 +32,7 @@ class Wishlist
 
         $items = [];
         foreach ($rows as $productId) {
-            $product = $this->products->getProduct((int) $productId);
+            $product = $this->products->getProduct((int) $productId, false);
             if ($product && (int) ($product['is_active'] ?? 0) === 1) {
                 $items[] = $product;
             }
@@ -44,7 +44,7 @@ class Wishlist
     public function add(int $userId, int $productId): bool
     {
         $check = $this->db->prepare(
-            'SELECT id FROM products WHERE id = ? AND is_active = 1 LIMIT 1'
+            'SELECT id FROM products WHERE id = ? AND is_active = 1 AND EXISTS (SELECT 1 FROM categories c WHERE c.id=products.category_id AND c.status=\'active\') LIMIT 1'
         );
         $check->execute([$productId]);
 

@@ -376,7 +376,7 @@ async function openDiscountForm(discount = null, initialType = "normal") {
   if (isLoading) return;
   setLoading(true);
   try {
-    const result = await apiRequest(AdminConfig.apiBase + 'Products.php');
+    const result = await apiRequest(AdminConfig.apiBase + 'Products.php?admin=1');
     discountProducts = Array.isArray(result) ? result : result.data;
     if (!Array.isArray(discountProducts)) throw new Error('Products could not be loaded. Please retry.');
   } catch (error) {

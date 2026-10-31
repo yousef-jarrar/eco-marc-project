@@ -98,7 +98,7 @@ public function getCard(int $user_id): array
             $sql = "SELECT pv.id, pv.quantity AS stock
                     FROM product_variants pv
                     JOIN products p ON p.id = pv.product_id
-                    WHERE pv.id = ? AND p.is_active = 1
+                    WHERE pv.id = ? AND p.is_active = 1 AND EXISTS (SELECT 1 FROM categories category WHERE category.id=p.category_id AND category.status='active')
                     FOR UPDATE";
 
             $stmt = $this->db->prepare($sql);
@@ -185,6 +185,7 @@ public function getCard(int $user_id): array
                     AND c.user_id = ?
                     AND c.status = 'active'
                     AND p.is_active = 1
+                    AND EXISTS (SELECT 1 FROM categories category WHERE category.id=p.category_id AND category.status='active')
                     FOR UPDATE";
 
             $stmt = $this->db->prepare($sql);
@@ -257,7 +258,7 @@ public function getCard(int $user_id): array
             $sql = "SELECT pv.id, pv.quantity AS stock
                     FROM product_variants pv
                     JOIN products p ON p.id = pv.product_id
-                    WHERE pv.id = ? AND p.is_active = 1
+                    WHERE pv.id = ? AND p.is_active = 1 AND EXISTS (SELECT 1 FROM categories category WHERE category.id=p.category_id AND category.status='active')
                     FOR UPDATE";
 
             $stmt = $this->db->prepare($sql);
@@ -569,10 +570,11 @@ private function calculateTotals(int $cart_id, ?string $coupon_code = null): arr
             $cart_id = (int) $cart["id"];
 
             $sql = "SELECT ci.id, ci.quantity, pv.id AS variant_id,
-                           pv.quantity AS stock, p.is_active
+                           pv.quantity AS stock, p.is_active, category.status AS category_status
                     FROM cart_items ci
                     JOIN product_variants pv ON pv.id = ci.variant_id
                     JOIN products p ON p.id = pv.product_id
+                    JOIN categories category ON category.id = p.category_id
                     WHERE ci.cart_id = ?
                     FOR UPDATE";
 
@@ -587,6 +589,9 @@ private function calculateTotals(int $cart_id, ?string $coupon_code = null): arr
             }
 
             foreach ($items as $item) {
+                if (($item["category_status"] ?? "") !== "active") {
+                    throw new InvalidArgumentException("A product category in your cart is no longer available. Remove the unavailable item and try again.");
+                }
                 if (!(bool) $item["is_active"]) {
                     throw new InvalidArgumentException(
                         "Your cart contains an inactive product."
@@ -840,7 +845,8 @@ private function calculateTotals(int $cart_id, ?string $coupon_code = null): arr
         ?string $start_date = null,
         ?string $end_date = null,
         int $page = 1,
-        int $limit = 10
+        int $limit = 10,
+        ?string $status = null
     ): array {
         $limit  = max(1, min($limit, 100));
         $page   = max(1, $page);
@@ -850,18 +856,25 @@ private function calculateTotals(int $cart_id, ?string $coupon_code = null): arr
         $params = [];
 
         if ($username !== "") {
-            $where[] = "CONCAT(u.first_name, ' ', u.last_name) LIKE :username";
-            $params[":username"] = "%" . $username . "%";
+            $where[] = "(CONCAT(u.first_name, ' ', u.last_name) LIKE :name_search OR u.email LIKE :email_search OR CAST(c.id AS CHAR) LIKE :id_search)";
+            $params[":name_search"] = "%" . $username . "%";
+            $params[":email_search"] = "%" . $username . "%";
+            $params[":id_search"] = "%" . ltrim($username, "#") . "%";
+        }
+
+        if ($status !== null) {
+            $where[] = "c.status = :order_status";
+            $params[":order_status"] = $status;
         }
 
         if ($start_date !== null) {
-            $where[] = "c.created_at >= :start_date";
+            $where[] = "COALESCE(cd.placed_at, c.created_at) >= :start_date";
             $params[":start_date"] = $start_date;
         }
 
         if ($end_date !== null) {
             // < next day, so the whole end date is included
-            $where[] = "c.created_at < DATE_ADD(:end_date, INTERVAL 1 DAY)";
+            $where[] = "COALESCE(cd.placed_at, c.created_at) < DATE_ADD(:end_date, INTERVAL 1 DAY)";
             $params[":end_date"] = $end_date;
         }
 
@@ -877,12 +890,12 @@ private function calculateTotals(int $cart_id, ?string $coupon_code = null): arr
                 cd.delivery_fee,
                 cd.total,
                 cd.shipping_address,
-                c.created_at AS placed_at
+                COALESCE(cd.placed_at, c.created_at) AS placed_at
             FROM carts c
             INNER JOIN users u ON u.id = c.user_id
             INNER JOIN cart_details cd ON cd.cart_id = c.id
             WHERE " . implode(" AND ", $where) . "
-            ORDER BY c.created_at DESC, c.id DESC
+            ORDER BY COALESCE(cd.placed_at, c.created_at) DESC, c.id DESC
             LIMIT :limit OFFSET :offset
         ";
 

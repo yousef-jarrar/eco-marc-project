@@ -45,6 +45,11 @@
       
 
         async function getJson(url, options = {}) {
+            if ((options.method || "GET").toUpperCase() === "GET" && (String(url).startsWith(PRODUCTS_API) || String(url).startsWith(CATEGORIES_API))) {
+                const requestUrl = new URL(url);
+                requestUrl.searchParams.set("admin", "1");
+                url = requestUrl.href;
+            }
             const response = await EcoAuth.fetch(url, options);
             const responseText = await response.text();
 

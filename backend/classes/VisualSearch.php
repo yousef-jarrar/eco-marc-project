@@ -127,7 +127,7 @@ class VisualSearch {
 
     public function search(string $path): array {
         $queryVector = $this->embedFile($path);
-        $statement = $this->db->prepare('SELECT p.id, p.name, p.price, p.category_id, i.id AS image_id, i.image_url, e.embedding FROM product_embeddings e JOIN product_images i ON i.id = e.product_image_id JOIN products p ON p.id = i.product_id WHERE p.is_active = 1 AND e.model_name = ?');
+        $statement = $this->db->prepare('SELECT p.id, p.name, p.price, p.category_id, i.id AS image_id, i.image_url, e.embedding FROM product_embeddings e JOIN product_images i ON i.id = e.product_image_id JOIN products p ON p.id = i.product_id WHERE p.is_active = 1 AND EXISTS (SELECT 1 FROM categories category WHERE category.id=p.category_id AND category.status=\'active\') AND e.model_name = ?');
         $statement->execute([self::MODEL]);
         $products = [];
         while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {

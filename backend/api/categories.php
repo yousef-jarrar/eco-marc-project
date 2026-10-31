@@ -30,7 +30,7 @@ if ($method === 'DELETE') {
     header('Allow: GET, POST, PUT');
     respondCategory(405, [
         'success' => false,
-        'message' => 'Category hiding is managed by this browser. The database was not changed.'
+        'message' => 'Use the category status to deactivate a category. Deletion is not supported.'
     ]);
 }
 if (!in_array($method, ['GET', 'POST', 'PUT'], true)) {
@@ -48,14 +48,20 @@ try {
     $category = new Category($connection);
 
     if ($method === 'GET') {
+        $adminCatalog = ($_GET['admin'] ?? '') === '1';
+        if ($adminCatalog) requireAdmin();
         if (isset($_GET['id'])) {
             $id = filter_var($_GET['id'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
             if ($id === false) {
                 throw new InvalidArgumentException('Invalid category ID.');
             }
 
+            $visibleCategory = $category->getCategoriesById($id);
+            if (!$adminCatalog && (!$visibleCategory || $visibleCategory['status'] !== 'active')) {
+                respondCategory(404, ['success' => false, 'message' => 'Category not found.']);
+            }
             if (($_GET['action'] ?? '') === 'products') {
-                echo json_encode($category->allcategoriesProducts($id), JSON_UNESCAPED_UNICODE);
+                echo json_encode($adminCatalog ? $category->allcategoriesProducts($id) : (new Product($connection))->getProductsByCategory($id, false), JSON_UNESCAPED_UNICODE);
                 exit;
             }
 
@@ -67,7 +73,7 @@ try {
             exit;
         }
 
-        echo json_encode($category->getAllCategories(), JSON_UNESCAPED_UNICODE);
+        echo json_encode($category->getAllCategories($adminCatalog), JSON_UNESCAPED_UNICODE);
         exit;
     }
 

@@ -5,13 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Orders | LUMIÈRE</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.css" integrity="sha512-x9WwyMYBnlXMNQ6kQ/Lyzu1NqIhLQKL5Oq6xByfXuRj7s9CskyCbLv/1IjqzJmXwFXWr0ov6jBV7Qbc0hh9nHg==" crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="stylesheet" href="../assets/vendor/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/vendor/fontawesome.min.css">
     <link rel="stylesheet" href="../assets/css/index.css">
     <link rel="stylesheet" href="../assets/css/global.css">
     <link rel="stylesheet" href="../assets/css/admin.css?v=20261030-audit">
-    <link rel="stylesheet" href="../assets/css/order.css">
+    <link rel="stylesheet" href="../assets/css/order.css?v=20261031-orderux">
 
 <style>html.auth-checking body { visibility: hidden; }</style>
 <script src="../assets/js/auth.js?v=20261030-simplified-ai"></script>
@@ -19,7 +18,7 @@
 <link rel="stylesheet" href="../assets/css/sticky-header.css?v=20261029-sticky">
 </head>
 
-<body data-page="orders">
+<body class="orders-page" data-page="orders">
   <a class="sr-only" href="#main">Skip to content</a>
   <button class="sidebar-backdrop" id="sidebar-backdrop" aria-label="Close navigation" hidden></button>
   <aside class="admin-sidebar" id="admin-sidebar">
@@ -30,81 +29,27 @@
     <header class="admin-topbar"><span class="topbar-path">LUMIÈRE / Orders</span></header>
 
     <main class="admin-main" id="main">
-      <header class="page-heading">
-        <div>
-          <h1>Orders</h1>
-          <p class="muted">View and manage customer orders.</p>
-        </div>
-      </header>
-
-      <section class="panel" aria-label="Order filters" style="margin-bottom: 24px;">
-        <form id="order-filters" class="order-filters">
-          <div class="field">
-            <label for="username">Customer name</label>
-            <input type="text" id="username" name="username" placeholder="Search customers...">
-          </div>
-          <div class="field">
-            <label for="start-date">Start date</label>
-            <input type="date" id="start-date" name="start_date">
-          </div>
-          <div class="field">
-            <label for="end-date">End date</label>
-            <input type="date" id="end-date" name="end_date">
-          </div>
-          <div class="order-filter-actions">
-            <button type="submit" id="search-btn">Search</button>
-            <button type="button" id="reset-btn" class="secondary">Reset</button>
-          </div>
+      <header class="page-heading"><div><h1>Orders</h1><p class="muted">Keep every order moving, from confirmation to delivery.</p></div><button type="button" class="secondary" id="refresh-orders"><i class="fa-solid fa-rotate" aria-hidden="true"></i> Refresh</button></header>
+      <div class="order-status-tabs" role="group" aria-label="Filter orders by status"><button type="button" data-order-status="" aria-pressed="true">All orders</button><button type="button" data-order-status="pending" aria-pressed="false"><i class="fa-regular fa-clock" aria-hidden="true"></i> Pending</button><button type="button" data-order-status="shipped" aria-pressed="false"><i class="fa-solid fa-truck-fast" aria-hidden="true"></i> Shipped</button><button type="button" data-order-status="delivered" aria-pressed="false"><i class="fa-solid fa-check" aria-hidden="true"></i> Delivered</button></div>
+      <section class="panel order-filter-panel" aria-label="Order filters">
+        <form id="order-filters" class="order-filters" novalidate>
+          <div class="field order-search"><label for="username">Search orders</label><input type="search" id="username" name="username" placeholder="Order ID, customer name or email…"></div>
+          <div class="field"><label for="order-status">Status</label><select id="order-status"><option value="">All statuses</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="processing">Processing</option><option value="shipped">Shipped</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option></select></div>
+          <div class="field"><label for="start-date">Placed on or after</label><input type="date" id="start-date" name="start_date" aria-describedby="order-filter-error"></div>
+          <div class="field"><label for="end-date">Placed on or before</label><input type="date" id="end-date" name="end_date" aria-describedby="order-filter-error"></div>
+          <div class="order-filter-actions"><button type="submit" id="search-btn"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Apply filters</button><button type="button" id="reset-btn" class="secondary">Reset</button></div>
         </form>
+        <p id="order-filter-error" class="order-filter-error" role="alert" hidden></p><p id="order-filter-draft" class="order-filter-draft" hidden>Filters changed. Apply them to update the list.</p>
       </section>
-
-      <section class="panel" aria-label="Orders list">
-        <div class="panel-heading">
-          <h2>Order list</h2>
-          <span id="orders-count" class="muted tiny"></span>
-        </div>
-
-        <div id="loading-message" class="loading"><span class="spinner"></span></div>
-
-        <div id="error-message" class="error-banner" hidden>
-          <p id="error-text">Could not load orders.</p>
-          <button type="button" id="retry-button">Try again</button>
-        </div>
-
-        <div id="empty-message" class="empty-state" hidden>
-          <h3>No orders found</h3>
-          <p class="muted">Try changing the filters.</p>
-        </div>
-
-        <div id="orders-content" hidden>
-          <div class="table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>Order ID</th>
-                  <th>Customer</th>
-                  <th>Date</th>
-                  <th>Status</th>
-                  <th>Subtotal</th>
-                  <th>Discount</th>
-                  <th>Delivery</th>
-                  <th>Total</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="orders-table"></tbody>
-            </table>
-          </div>
-
-          <div class="order-pagination">
-            <span id="page-number" class="muted">Page 1</span>
-            <div class="order-filter-actions">
-              <button type="button" id="previous-btn" class="secondary" disabled> <i class="fa-solid fa-arrow-left"></i></button>
-              <button type="button" id="next-btn">  <i class="fa-solid fa-arrow-right"></i></button>
-            </div>
-          </div>
-        </div>
+      <section class="panel orders-list-panel" aria-label="Orders list" aria-busy="true">
+        <div class="panel-heading"><div><h2>Customer orders</h2><p id="active-order-filters" class="order-list-caption">All orders · All dates</p></div><span id="orders-count" class="muted tiny" role="status">Loading…</span></div>
+        <div id="loading-message" class="loading" role="status"><span class="spinner"></span><p>Loading customer orders…</p></div>
+        <div id="error-message" class="error-banner" role="alert" hidden><p id="error-text"></p><button type="button" id="retry-button" class="secondary">Retry connection</button></div>
+        <div id="empty-message" class="empty-state" hidden><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i><h3>No orders in this view</h3><p class="muted">Try another name, date range or status.</p><button type="button" class="secondary" id="empty-reset">Clear filters</button></div>
+        <div id="orders-content" hidden><div class="table-scroll"><table><thead><tr><th>Order</th><th>Customer</th><th>Placed</th><th>Status</th><th>Total</th><th>Details</th></tr></thead><tbody id="orders-table"></tbody></table></div></div>
+        <div class="order-pagination"><span id="page-number" role="status">Loading…</span><div class="order-pagination-controls"><label for="orders-limit">Per page</label><select id="orders-limit"><option value="10">10</option><option value="20">20</option><option value="50">50</option></select><button type="button" id="previous-btn" class="secondary" aria-label="Previous page" disabled><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button><button type="button" id="next-btn" class="secondary" aria-label="Next page" disabled><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button></div></div>
       </section>
+      <p class="orders-footer"><span><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Open an order to review its items, delivery information and progress.</span><span id="orders-updated" role="status"></span></p>
     </main>
   </div>
 
@@ -113,10 +58,10 @@
 <script src="../assets/js/admin-api.js?v=20261029-scriptfix"></script>
 <script src="../assets/js/alerts.js?v=20261029-scriptfix"></script>
 <script src="../assets/js/admin-layout.js?v=20261030-audit"></script>
-<script src="../assets/vendor/chart.umd.min.js"></script>
+
   
   
   
-  <script src="../assets/js/order.js"></script>
+  <script src="../assets/js/order.js?v=20261031-orderux"></script>
 </body>
 </html>

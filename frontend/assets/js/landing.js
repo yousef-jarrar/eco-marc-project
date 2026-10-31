@@ -91,7 +91,7 @@
     categoriesLoading = true;
     loading($('#landing-categories'), 'Loading collections…');
     try {
-      categories = rows(await getJSON('categories.php')).filter(item => item.is_active === undefined || Number(item.is_active) === 1);
+      categories = rows(await getJSON('categories.php')).filter(item => (item.status === undefined || item.status === 'active') && (item.is_active === undefined || Number(item.is_active) === 1));
       categoriesReady = true;
       drawCategories();
       updateLookLinks();

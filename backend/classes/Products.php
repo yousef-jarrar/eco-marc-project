@@ -26,7 +26,7 @@ class Product
         return $value;
     }
 
-    public function getProducts(?string $gender = null)
+    public function getProducts(?string $gender = null, bool $includeInactiveCategories = true)
     {
         $gender = self::validateGender($gender);
         $sql = "SELECT
@@ -37,7 +37,7 @@ class Product
                 FROM products p
                 LEFT JOIN categories c ON p.category_id = c.id
                 LEFT JOIN discounts d ON p.discount_id = d.id AND d.type='normal' AND " . DiscountRules::ACTIVE_SQL . "
-                WHERE p.is_active = 1" . ($gender !== null ? " AND (p.gender = ? OR p.gender = 'unisex')" : "") . " ORDER BY p.id DESC";
+                WHERE p.is_active = 1" . ($includeInactiveCategories ? "" : " AND c.status = 'active'") . ($gender !== null ? " AND (p.gender = ? OR p.gender = 'unisex')" : "") . " ORDER BY p.id DESC";
 
         $stmt = $this->connect->prepare($sql);
         $stmt->execute($gender === null ? [] : [$gender]);
@@ -53,7 +53,7 @@ class Product
     }
 
      
-    public function getProduct($id)
+    public function getProduct($id, bool $includeInactiveCategories = true)
     {
         $sql = "SELECT
                     p.*,
@@ -63,7 +63,7 @@ class Product
                 FROM products p
                 LEFT JOIN categories c ON p.category_id = c.id
                 LEFT JOIN discounts d ON p.discount_id = d.id AND d.type='normal' AND " . DiscountRules::ACTIVE_SQL . "
-                WHERE p.id = ?";
+                WHERE p.id = ?" . ($includeInactiveCategories ? "" : " AND p.is_active = 1 AND c.status = 'active'");
 
         $stmt = $this->connect->prepare($sql);
         $stmt->execute([$id]);
@@ -336,7 +336,7 @@ class Product
     }
 
      
-    public function getProductsByCategory($categoryId)
+    public function getProductsByCategory($categoryId, bool $includeInactiveCategories = true)
     {
         $stmt = $this->connect->prepare(
             "SELECT id
@@ -350,7 +350,7 @@ class Product
         $products = [];
 
         foreach ($rows as $row) {
-            $product = $this->getProduct($row["id"]);
+            $product = $this->getProduct($row["id"], $includeInactiveCategories);
 
             if ($product) {
                 $products[] = $product;
