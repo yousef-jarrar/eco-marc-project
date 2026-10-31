@@ -36,6 +36,21 @@
     if(settings.free_delivery_at!==null&&Number.isFinite(threshold)&&threshold>0)header.querySelector('.ph-announcement-text').textContent='Considered style. Everyday movement. · Complimentary delivery from '+threshold.toFixed(2)+' JOD';
   }).catch(()=>{});
   EcoAuth.ready.then(async session=>{
+    if(session.user?.role==='admin'){
+      const dashboard=new URL('frontend/admin/overveiw.html',root).href;
+      const desktop=document.createElement('a');
+      desktop.className='ph-admin-dashboard';
+      desktop.href=dashboard;
+      desktop.innerHTML='<i class="fa-solid fa-gauge-high" aria-hidden="true"></i><span>Admin dashboard</span>';
+      desktop.title='Back to admin dashboard';
+      header.querySelector('.ph-actions')?.prepend(desktop);
+      const mobile=document.createElement('a');
+      mobile.className='ph-mobile-link ph-admin-mobile';
+      mobile.href=dashboard;
+      mobile.innerHTML='<i class="fa-solid fa-gauge-high" aria-hidden="true"></i> Admin dashboard';
+      mobile.addEventListener('click',closeMenu);
+      nav.prepend(mobile);
+    }
     header.querySelectorAll('[data-ph-guest]').forEach(link=>link.hidden=!!session.user);
     header.querySelectorAll('[data-ph-user]').forEach(link=>link.hidden=!session.user);
     const account=header.querySelector('.ph-account');

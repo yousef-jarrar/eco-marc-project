@@ -9,15 +9,15 @@
   <link rel="stylesheet" href="../assets/vendor/fontawesome.min.css">
   <link rel="stylesheet" href="../assets/css/index.css">
   <link rel="stylesheet" href="../assets/css/global.css">
-  <link rel="stylesheet" href="../assets/css/admin.css?v=20261030-audit">
-  <link rel="stylesheet" href="../assets/css/customers.css">
+  <link rel="stylesheet" href="../assets/css/admin.css?v=20261031-sidebarlogo">
+  <link rel="stylesheet" href="../assets/css/customers.css?v=20261031-directory">
   <style>html.auth-checking body { visibility: hidden; }</style>
     
   <script src="../assets/js/auth.js?v=20261030-simplified-ai"></script>
 <link rel="icon" type="image/svg+xml" href="../../assets/lumiere-icon-light.svg">
 <link rel="stylesheet" href="../assets/css/sticky-header.css?v=20261029-sticky">
 </head>
-<body data-page="customers">
+<body class="customers-page" data-page="customers">
   <a class="sr-only" href="#main">Skip to content</a>
   <button class="sidebar-backdrop" id="sidebar-backdrop" aria-label="Close navigation" hidden></button>
   <aside class="admin-sidebar" id="admin-sidebar">
@@ -30,55 +30,13 @@
     </header>
 
     <main class="admin-main" id="main">
-      <div class="page-heading">
-        <div>
-          <h1>The people behind the pieces.</h1>
-          <p class="muted">Your customer directory, connected to order history.</p>
-        </div>
-      </div>
-
-      <div class="customer-search">
-        <label for="searchInput">Search customers</label>
-        <input type="search" id="searchInput" placeholder="Search name or email" autocomplete="off">
-      </div>
-
-      <section class="panel customer-table-panel" aria-label="Customer directory">
-        <div class="panel-heading">
-          <h2>Customer directory</h2>
-        </div>
-        <div class="table-scroll">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Customer</th>
-                <th>Joined</th>
-                <th>Orders</th>
-                <th>Total spent</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="customersTableBody" aria-live="polite">
-              <tr><td colspan="6">Loading customers…</td></tr>
-            </tbody>
-          </table>
-               </div>
-
-        <div class="pagination">
-          <span id="paginationInfo">Showing 0 customers</span>
-
-          <div class="pagination-buttons">
-            <button type="button" id="prevPageBtn" aria-label="Previous page" disabled>
-              <i class="fa-solid fa-arrow-left"></i>
-            </button>
-
-            <button type="button" id="nextPageBtn" aria-label="Next page" disabled>
-              <i class="fa-solid fa-arrow-right"></i>
-            </button>
-          </div>
-        </div>
-
-      </section>
+      <div class="page-heading"><div><h1>Customers</h1><p class="muted">Know your customers and keep their details up to date.</p></div><button type="button" class="secondary" id="refreshCustomersBtn"><i class="fa-solid fa-rotate" aria-hidden="true"></i> Refresh</button></div>
+      <section class="customer-summary" aria-label="Customer summary"><div><i class="fa-solid fa-users" aria-hidden="true"></i><span><strong id="customerTotal">—</strong> Active customers</span></div><div><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i><span><strong id="customersWithOrders">—</strong> With orders</span></div><div><i class="fa-solid fa-phone" aria-hidden="true"></i><span><strong id="customersMissingPhone">—</strong> Missing phone</span></div></section>
+      <div class="customer-views" role="group" aria-label="Filter by order history"><button type="button" data-customer-view="" aria-pressed="true">All customers</button><button type="button" data-customer-view="with-orders" aria-pressed="false"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i> With orders</button><button type="button" data-customer-view="no-orders" aria-pressed="false"><i class="fa-regular fa-user" aria-hidden="true"></i> No orders yet</button></div>
+      <div class="customer-toolbar"><div class="customer-search"><label for="searchInput">Search customers</label><input type="search" id="searchInput" placeholder="Name, email, phone or customer ID…" autocomplete="off"></div><div><label for="customerContactFilter">Contact details</label><select id="customerContactFilter"><option value="">All customers</option><option value="phone">Missing phone</option><option value="address">Missing address</option></select></div><div><label for="customerSort">Sort by</label><select id="customerSort"><option value="newest">Newest first</option><option value="name">Name A–Z</option><option value="orders">Most orders</option><option value="spend">Highest delivered spend</option></select></div><button type="button" class="secondary" id="resetCustomerFilters">Reset</button></div>
+      <div id="customersError" class="error-banner" role="alert" hidden><strong>Customers could not load.</strong><p id="customersErrorText"></p><button type="button" class="secondary" id="retryCustomersBtn">Retry connection</button></div>
+      <section class="panel customer-table-panel" aria-label="Customer directory" aria-busy="true"><div class="panel-heading"><div><h2>Customer directory</h2><p>Open a profile to see its contact details and order history.</p></div><span id="customerResultCount" role="status">Loading…</span></div><div class="table-scroll"><table class="data-table"><thead><tr><th>Customer</th><th>Contact</th><th>Orders</th><th>Delivered spend</th><th>Joined</th><th>Actions</th></tr></thead><tbody id="customersTableBody" aria-live="polite"><tr><td colspan="6" class="empty-state"><span class="spinner"></span><p>Loading customer directory…</p></td></tr></tbody></table></div><div class="pagination"><span id="paginationInfo" role="status">Loading customers…</span><div class="customer-pagination-controls"><label for="customerPageSize">Per page</label><select id="customerPageSize"><option value="10">10</option><option value="20">20</option><option value="50">50</option></select><div class="pagination-buttons"><button type="button" id="prevPageBtn" aria-label="Previous page" disabled><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button><button type="button" id="nextPageBtn" aria-label="Next page" disabled><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button></div></div></div></section>
+      <div class="customer-directory-note"><span>Orders include pending through delivered purchases. Spend includes delivered orders only.</span><span id="customersUpdated" role="status"></span></div>
     </main>
   </div>
 
@@ -89,7 +47,7 @@
   <script src="../assets/vendor/sweetalert2.all.min.js"></script>
   <script src="../assets/js/admin-api.js?v=20261029-scriptfix"></script>
   <script src="../assets/js/alerts.js?v=20261029-scriptfix"></script>
-<script src="../assets/js/admin-layout.js?v=20261030-audit"></script>
-  <script src="../assets/js/Customer.js?v=20261029-mergefix2"></script>
+<script src="../assets/js/admin-layout.js?v=20261031-sidebarlogo"></script>
+  <script src="../assets/js/Customer.js?v=20261031-directory"></script>
 </body>
 </html>

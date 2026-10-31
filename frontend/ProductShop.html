@@ -6,9 +6,10 @@
   <link rel="stylesheet" href="assets/css/fonts.css"><link rel="stylesheet" href="assets/css/index.css">
   <link rel="stylesheet" href="assets/css/shop.css"><link rel="stylesheet" href="assets/vendor/fontawesome.min.css">
   <script src="assets/js/auth.js?v=20261030-simplified-ai"></script>
-<link rel="stylesheet" href="assets/css/public-header.css?v=20261030-audit">
+<link rel="stylesheet" href="assets/css/public-header.css?v=20261031-adminlink">
 <link rel="stylesheet" href="assets/css/product-cards.css?v=20261030-cards">
 <link rel="stylesheet" href="assets/css/product-suggestions.css?v=20261030-suggestions">
+<link rel="stylesheet" href="assets/css/product-reviews.css?v=20261031-compactsummary">
 <script src="assets/js/product-cards.js?v=20261030-cards"></script>
 <link rel="stylesheet" href="assets/css/color-select.css?v=20261031-colors">
 <script src="assets/js/color-select.js?v=20261031-colors"></script>
@@ -43,6 +44,14 @@
 </header>
   <main class="detail-container"><a class="back-to-shop" href="shop.html"><i class="fa-solid fa-arrow-left"></i> Back to the collection</a>
     <p id="details-status" class="details-status" role="status">Loading product...</p><section id="product-details" class="product-details" hidden></section>
+    <section id="product-reviews" class="product-reviews" aria-labelledby="product-reviews-title" hidden>
+      <div class="product-reviews-heading"><div><h2 id="product-reviews-title">From our customers.</h2><p>Ratings and experiences from the community.</p></div><button type="button" id="review-write">Write a review <i class="fa-regular fa-pen-to-square" aria-hidden="true"></i></button></div>
+      <p id="review-own-notice" class="review-own-notice" role="status" hidden></p>
+      <details id="review-editor" class="review-editor" hidden><summary>Your review <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary><form id="product-review-form" novalidate><fieldset class="review-rating-field"><legend>Your rating</legend><div class="review-rating-inputs"><label data-review-star="1"><input type="radio" name="product_rating" value="1" aria-label="1 star" required><i class="fa-solid fa-star" aria-hidden="true"></i></label><label data-review-star="2"><input type="radio" name="product_rating" value="2" aria-label="2 stars" required><i class="fa-solid fa-star" aria-hidden="true"></i></label><label data-review-star="3"><input type="radio" name="product_rating" value="3" aria-label="3 stars" required><i class="fa-solid fa-star" aria-hidden="true"></i></label><label data-review-star="4"><input type="radio" name="product_rating" value="4" aria-label="4 stars" required><i class="fa-solid fa-star" aria-hidden="true"></i></label><label data-review-star="5"><input type="radio" name="product_rating" value="5" aria-label="5 stars" required><i class="fa-solid fa-star" aria-hidden="true"></i></label><span id="review-rating-label">Choose your rating</span></div></fieldset><label for="review-comment">Your experience</label><textarea id="review-comment" rows="5" maxlength="2000" placeholder="Tell us about the fit, quality or how you use this product…" required dir="auto" aria-describedby="review-comment-count review-form-error"></textarea><div class="review-editor-meta"><span>Reviews are checked by our team before publication.</span><span id="review-comment-count">0 / 2000</span></div><p id="review-form-error" role="alert" hidden></p><div class="review-form-actions"><button type="button" id="review-cancel">Cancel</button><button type="submit" id="review-submit">Submit review</button></div></form></details>
+      <div id="reviews-error" class="product-reviews-error" role="alert" hidden><p id="reviews-error-text"></p><button type="button" id="reviews-retry">Try again</button></div>
+      <div class="product-reviews-layout"><aside class="product-rating-summary" aria-label="Product rating summary"><div class="product-rating-overview"><strong id="reviews-average">—</strong><div id="reviews-summary-stars" class="public-review-stars"></div><p id="reviews-total">Loading reviews…</p></div><div id="reviews-distribution" class="reviews-distribution"></div></aside><div class="product-reviews-content"><button type="button" id="reviews-toggle" class="reviews-toggle" aria-expanded="false" aria-controls="reviews-comments-panel" disabled>View comments <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button><div id="reviews-comments-panel" hidden><div class="public-reviews-toolbar"><span id="reviews-result-count" role="status">Loading…</span><label for="reviews-sort" class="review-sr-only">Sort reviews</label><select id="reviews-sort"><option value="newest">Newest first</option><option value="highest">Highest rating</option><option value="lowest">Lowest rating</option></select><button type="button" id="reviews-clear-rating" hidden>Show all ratings</button></div><div id="public-reviews-list" aria-live="polite" aria-busy="false"></div><div class="public-reviews-pagination"><span id="reviews-page-label"></span><div><button type="button" id="reviews-prev" aria-label="Previous reviews" disabled><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button><button type="button" id="reviews-next" aria-label="Next reviews" disabled><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button></div></div></div></div>
+      </div>
+    </section>
     <section class="product-suggestions" id="product-suggestions" aria-labelledby="suggestions-title" hidden>
       <div class="suggestions-heading">
         <div><h2 id="suggestions-title">You may also like.</h2><p>A few more pieces to make your own.</p></div>
@@ -52,7 +61,7 @@
     </section>
   </main>
   <footer class="shop-footer"><span>LUMIÈRE</span><a href="shop.html">Continue shopping</a></footer>
-  <script src="assets/vendor/sweetalert2.all.min.js"></script><script src="assets/js/alerts.js"></script><script src="assets/js/store-common.js?v=20261030-audit"></script><script src="assets/js/product-details.js?v=20261031-colors"></script>
-<script src="assets/js/public-header.js?v=20261030-gender"></script>
+  <script src="assets/vendor/sweetalert2.all.min.js"></script><script src="assets/js/alerts.js"></script><script src="assets/js/store-common.js?v=20261030-audit"></script><script src="assets/js/product-reviews.js?v=20261031-toggle"></script><script src="assets/js/product-details.js?v=20261031-reviews"></script>
+<script src="assets/js/public-header.js?v=20261031-adminlink"></script>
 </body></html>
 

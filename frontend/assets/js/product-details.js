@@ -161,5 +161,6 @@ C.notify("Product added to your cart.", "success");section.querySelector("#detai
     images = C.getImages(product); if (!images.length) images = [""];
     variants = C.getVariants(product); status.textContent = ""; renderProduct();
     loadSuggestions();
+    ProductReviews.init(productId);
   } catch (error) { status.textContent = error.message; status.classList.add("status-error"); }
 })();
