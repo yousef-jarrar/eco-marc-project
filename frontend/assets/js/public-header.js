@@ -39,32 +39,34 @@
     const banner = document.createElement("section");
     banner.className = "cookie-banner";
 
-    banner.innerHTML = `
-      <div class="cookie-content">
-        <div class="cookie-text">
-          <h3>We Value Your Privacy</h3>
+ banner.innerHTML = `
+  <div class="cookie-icon">
+    <i class="fa-solid fa-cookie-bite"></i>
+  </div>
 
-          <p>
-            We use cookies to improve your browsing experience,
-            analyze website traffic, and personalize your experience.
-            You can choose which cookies to accept.
-          </p>
+  <div class="cookie-content">
+    <div class="cookie-text">
+      <h3>We Value Your Privacy</h3>
 
-          <a href="#" class="cookie-policy">Cookie Policy</a>
-        </div>
+      <p>
+        We use cookies to improve your browsing experience,
+        personalize content, and understand how our website is used.
+      </p>
 
-        <div class="cookie-actions">
-          <button type="button" class="cookie-accept">
-            Accept All Cookies
-          </button>
+      <a href="#" class="cookie-policy">Cookie Policy</a>
+    </div>
 
-          <button type="button" class="cookie-reject">
-            Reject Optional
-          </button>
-        </div>
-      </div>
-    `;
+    <div class="cookie-actions">
+      <button type="button" class="cookie-accept">
+        Accept All Cookies
+      </button>
 
+      <button type="button" class="cookie-reject">
+        Reject Optional
+      </button>
+    </div>
+  </div>
+`;
     document.body.appendChild(banner);
 
     function saveConsent(analytics, marketing) {
@@ -79,7 +81,7 @@
 
       banner.classList.add("cookie-hiding");
 
-      setTimeout(() => banner.remove(), 250);
+      setTimeout(() => banner.remove(), 300);
     }
 
     banner.querySelector(".cookie-accept").addEventListener("click", () => {
