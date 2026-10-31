@@ -7,7 +7,8 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    let allCustomers = [];
+    let currentPage = 1;
+const pageSize = 10;
     let actionInProgress = false;
     const hiddenCustomersStorageKey = "eco-marc-hidden-customers";
     const hiddenCustomerIds = new Set(
@@ -16,22 +17,38 @@ document.addEventListener("DOMContentLoaded", () => {
             .filter(id => /^[1-9]\d*$/.test(id))
     );
 
-    function renderCustomers(customers) {
-        tableBody.replaceChildren();
+   function renderCustomers(customers) {
+    tableBody.replaceChildren();
 
-        if (customers.length === 0) {
-            const row = document.createElement("tr");
-            const cell = document.createElement("td");
-            cell.colSpan = 6;
-            cell.textContent = allCustomers.length === 0
-                ? "No customers found."
-                : "No customers match your search.";
-            row.appendChild(cell);
-            tableBody.appendChild(row);
-            return;
-        }
+    const totalPages = Math.max(
+        1,
+        Math.ceil(customers.length / pageSize)
+    );
 
-        customers.forEach(customer => {
+    if (currentPage > totalPages) {
+        currentPage = totalPages;
+    }
+
+    const start = (currentPage - 1) * pageSize;
+
+    const pageCustomers = customers.slice(
+        start,
+        start + pageSize
+    );
+
+    if (pageCustomers.length === 0) {
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+
+        cell.colSpan = 6;
+        cell.textContent = allCustomers.length === 0
+            ? "No customers found."
+            : "No customers match your search.";
+
+        row.appendChild(cell);
+        tableBody.appendChild(row);
+    } else {
+        pageCustomers.forEach(customer => {
             const row = document.createElement("tr");
             const customerCell = document.createElement("td");
             const name = document.createElement("div");
@@ -48,67 +65,114 @@ document.addEventListener("DOMContentLoaded", () => {
             name.className = "customer-name";
             name.textContent =
                 `${customer.first_name || ""} ${customer.last_name || ""}`.trim() || "—";
+
             email.textContent = customer.email || "—";
             email.className = "customer-email";
+
             customerCell.appendChild(name);
             customerCell.appendChild(email);
 
             joined.textContent = customer.created_at
                 ? new Date(customer.created_at).toLocaleDateString()
                 : "—";
+
             orders.textContent = String(customer.orders ?? 0);
-            spent.textContent = `JOD ${Number(customer.total_spent ?? 0).toFixed(2)}`;
+
+            spent.textContent =
+                `JOD ${Number(customer.total_spent ?? 0).toFixed(2)}`;
 
             const status = document.createElement("span");
             status.className = "status-badge";
-            status.textContent = Number(customer.is_active) === 1 ? "Active" : "Inactive";
+            status.textContent =
+                Number(customer.is_active) === 1 ? "Active" : "Inactive";
+
             statusCell.appendChild(status);
 
             viewLink.href =
                 `Customer-details.html?id=${encodeURIComponent(customer.id)}`;
-            viewLink.textContent = "View";
+
+            viewLink.innerHTML= ' <i class="fa-regular fa-eye"></i>';
             viewLink.className = "action-btn view-btn";
 
             editButton.type = "button";
             editButton.className = "action-btn edit-btn";
-            editButton.textContent = "Edit";
+            editButton.innerHTML = '<i class="fa-solid fa-pen"></i>';
             editButton.dataset.action = "edit";
             editButton.dataset.customerId = String(customer.id);
-            editButton.setAttribute("aria-label", `Edit ${name.textContent}`);
 
             deleteButton.type = "button";
             deleteButton.className = "action-btn delete-btn";
-            deleteButton.textContent = "Delete";
+            deleteButton.innerHTML = '<i class="fa-solid fa-trash"></i>';
             deleteButton.dataset.action = "delete";
             deleteButton.dataset.customerId = String(customer.id);
-            deleteButton.setAttribute("aria-label", `Delete ${name.textContent}`);
 
             actions.className = "customer-actions";
             actions.append(viewLink, editButton, deleteButton);
 
-            row.append(customerCell, joined, orders, spent, statusCell, actions);
+            row.append(
+                customerCell,
+                joined,
+                orders,
+                spent,
+                statusCell,
+                actions
+            );
+
             tableBody.appendChild(row);
         });
     }
 
-    function filterCustomers() {
-        const query = searchInput.value.trim().toLocaleLowerCase();
-        const filtered = allCustomers.filter(customer => {
-            if (hiddenCustomerIds.has(String(customer.id))) return false;
+    const firstItem = customers.length ? start + 1 : 0;
 
-            const searchable = [
-                customer.first_name,
-                customer.last_name,
-                customer.email
-            ].filter(Boolean).join(" ").toLocaleLowerCase();
+    const lastItem = Math.min(
+        start + pageSize,
+        customers.length
+    );
 
-            return searchable.includes(query);
-        });
+    document.getElementById("paginationInfo").textContent =
+        `Showing ${firstItem}-${lastItem} of ${customers.length} customers`;
 
-        renderCustomers(filtered);
+    document.getElementById("prevPageBtn").disabled =
+        currentPage <= 1;
+
+    document.getElementById("nextPageBtn").disabled =
+        currentPage >= totalPages;
+}
+
+  function filterCustomers() {
+    const query = searchInput.value.trim().toLocaleLowerCase();
+
+    const filtered = allCustomers.filter(customer => {
+        if (hiddenCustomerIds.has(String(customer.id))) return false;
+
+        const searchable = [
+            customer.first_name,
+            customer.last_name,
+            customer.email
+        ].filter(Boolean).join(" ").toLocaleLowerCase();
+
+        return searchable.includes(query);
+    });
+
+    renderCustomers(filtered);
+}
+
+    searchInput.addEventListener("input", () => {
+    currentPage = 1;
+    filterCustomers();
+});
+    document.getElementById("prevPageBtn").addEventListener("click", () => {
+    if (currentPage > 1) {
+        currentPage--;
+        filterCustomers();
     }
+});
 
-    searchInput.addEventListener("input", filterCustomers);
+document.getElementById("nextPageBtn").addEventListener("click", () => {
+    currentPage++;
+
+    filterCustomers();
+});
 
     async function loadCustomers() {
         try {

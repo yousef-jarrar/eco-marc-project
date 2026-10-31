@@ -84,3 +84,23 @@
         flex: 1;
     }
 }
+
+
+.view-order-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 32px;
+    padding: 7px 10px;
+    border: 1px solid #dfe3df;
+    border-radius: 6px;
+    background: #fff;
+    color: #487cb7;
+    font-size: 12px;
+    line-height: 1.2;
+    cursor: pointer;
+}
+
+.view-order-btn:hover{background:  #398ded62;
+color: black;}
+.view-order-btn{color: #1b5cab;}
