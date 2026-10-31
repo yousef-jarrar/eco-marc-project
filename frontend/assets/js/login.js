@@ -48,8 +48,6 @@ EcoAuth.ready.then(function (session) {
     if (!session.user) { location.replace(EcoAuth.loginUrl); return; }
     document.getElementById("account-name").textContent = "Hello, " + session.user.first_name;
     document.getElementById("account-email").textContent = session.user.email;
-    document.getElementById("admin-link").hidden = session.user.role !== "admin";
-    document.getElementById("account-logout").addEventListener("click", EcoAuth.logout);
     setupGoogle(session, true);
   }
 }).catch(function () {

@@ -1,7 +1,6 @@
 const profileForm = document.getElementById("personal-form");
 const addressForm = document.getElementById("address-form");
 const passwordForm = document.getElementById("password-form");
-const profileLogout = document.getElementById("profile-logout");
 const profileApi = new URL("../../backend/api/profile.php", location.href).href;
 
 function setProfileStatus(id, message, isError = false) {
@@ -79,7 +78,6 @@ EcoAuth.ready.then(function (session) {
   document.documentElement.classList.remove("auth-checking");
 });
 
-profileLogout.addEventListener("click", EcoAuth.logout);
 
 profileForm.addEventListener("submit", function (event) {
   event.preventDefault();
