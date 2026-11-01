@@ -173,6 +173,7 @@ function addStockButton(container, productId, productName, stock) {
 }
 
 function showAnswerDetails(article, result) {
+  AdminAnswerView.renderSummary(article, result);
   if (result.period) {
     const caption = document.createElement("div");
     caption.className = "answer-period";
@@ -233,6 +234,7 @@ function showAnswerDetails(article, result) {
       item.appendChild(badge);
       addStockButton(item, row.product_id, row.name, stock);
     }
+    AdminAnswerView.enhanceRecord(item, row, cards.type);
     panel.appendChild(item);
   }
   article.appendChild(panel);
@@ -278,7 +280,7 @@ async function sendQuestion(question) {
       }
     });
      
-    answerText.textContent = result.answer;
+    AdminAnswerView.renderText(answerText, result.answer);
     showAnswerDetails(answerArticle, result);
     addAnswerTools(answerArticle, result.answer);
     conversation.push({ role: "user", content: question });

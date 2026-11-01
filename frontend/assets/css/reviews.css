@@ -9,7 +9,7 @@
 .reviews-page .rating-breakdown {display:grid;gap:3px;max-width:520px;}
 .reviews-page .rating-breakdown-row {display:grid;grid-template-columns:34px 1fr 35px;gap:12px;align-items:center;background:transparent;color:var(--color-text);padding:5px 7px;border:1px solid transparent;border-radius:4px;font-size:12px;min-height:30px;width:100%;}
 .reviews-page .rating-breakdown-row>span:last-child {text-align:right;font-variant-numeric:tabular-nums;color:var(--color-text-secondary);}
-.reviews-page .rating-breakdown-row i {font-size:10px;color:#8b6b41;}
+.reviews-page .rating-breakdown-row i {font-size:10px;color:#4a6682;}
 .reviews-page .rating-breakdown-row:hover,.reviews-page .rating-breakdown-row[aria-pressed="true"] {background:var(--color-accent-light);border-color:var(--color-accent);}
 .reviews-page .rating-track {height:7px;background:var(--color-surface-alt);border-radius:5px;overflow:hidden;}
 .reviews-page .rating-track>span {display:block;height:100%;background:var(--color-accent);border-radius:inherit;}
@@ -19,7 +19,7 @@
 .reviews-page .review-guide .secondary {min-height:40px;font-size:12px;}
 .reviews-page .review-views {display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
 .reviews-page .review-views button {display:flex;align-items:center;gap:8px;background:var(--color-background);color:var(--color-text-secondary);border:var(--border-default);border-radius:5px;font-size:12px;min-height:42px;padding:9px 13px;}
-.reviews-page .review-views button[aria-pressed="true"] {background:var(--color-primary);color:white;border-color:var(--color-primary);}
+.reviews-page .review-views button[aria-pressed="true"] {background:var(--color-primary);color:var(--color-text);border-color:var(--color-primary);}
 .reviews-page .review-views button>span {background:var(--color-surface-alt);color:var(--color-text);padding:2px 7px;border-radius:4px;font-size:11px;font-variant-numeric:tabular-nums;}
 .reviews-page .review-views button[aria-pressed="true"]>span {background:#ffffff24;color:white;}
 .reviews-page .reviews-toolbar {display:flex;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-bottom:20px;}
@@ -48,16 +48,16 @@
 .reviews-page .review-comment {white-space:pre-wrap;overflow-wrap:anywhere;margin-top:10px;font-size:13px;line-height:1.8;}
 .reviews-page .review-comment.is-collapsed {display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;}
 .reviews-page .review-read-more {display:block;color:var(--color-text);background:transparent;border:0;padding:8px 0;font-size:11px;text-decoration:underline;text-underline-offset:3px;}
-.reviews-page .review-stars {display:flex;gap:3px;color:#8b6b41;font-size:11px;white-space:nowrap;}
+.reviews-page .review-stars {display:flex;gap:3px;color:#4a6682;font-size:11px;white-space:nowrap;}
 .reviews-page .review-stars .fa-regular {color:var(--color-text-muted);}
 .reviews-page .review-date {font-size:11px;color:var(--color-text-secondary);line-height:1.7;}
 .reviews-page .status {font-size:10px;padding:5px 8px;border-radius:4px;white-space:nowrap;}
 .reviews-page .status.approved {color:var(--color-success);background:var(--color-success-light);}
-.reviews-page .status.pending {background:#fff7e8;color:#795316;}
+.reviews-page .status.pending {background:#f1f3f6;color:#795316;}
 .reviews-page .status.hidden {background:var(--color-surface-alt);color:var(--color-text-secondary);}
 .reviews-page .review-actions {display:grid;grid-template-columns:1fr 1fr;gap:6px;}
 .reviews-page .review-actions button {display:flex;align-items:center;justify-content:center;gap:5px;padding:8px 6px;min-height:36px;font-size:10px;border-radius:4px;}
-.reviews-page .review-actions button[data-action="approved"]:not(:disabled) {background:var(--color-primary);border-color:var(--color-primary);color:white;}
+.reviews-page .review-actions button[data-action="approved"]:not(:disabled) {background:var(--color-primary);border-color:var(--color-primary);color:var(--color-text);}
 .reviews-page .review-actions .delete-review {color:var(--color-danger);}
 .reviews-page button:disabled {cursor:default;opacity:.45;}
 .reviews-page .pagination-footer {display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 24px;font-size:12px;}

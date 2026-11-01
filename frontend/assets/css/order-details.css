@@ -11,7 +11,7 @@
 .od-heading-total strong { font: 600 23px/1.4 var(--font-heading); letter-spacing: -.03em; }
 .od-status { display: inline-flex; align-items: center; gap: 7px; padding: 5px 10px; background: var(--color-surface-alt); color: var(--color-text-secondary); font-size: 11px; font-weight: 600; text-transform: capitalize; }
 .od-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-.od-status.pending,.od-status.confirmed { background: var(--color-warning-light); color: #805c2f; }
+.od-status.pending,.od-status.confirmed { background: var(--color-warning-light); color: #2d455c; }
 .od-status.processing,.od-status.shipped { background: var(--color-info-light); color: var(--color-info); }
 .od-status.delivered,.od-status.completed { background: var(--color-success-light); color: var(--color-success); }
 .od-status.cancelled { background: var(--color-danger-light); color: var(--color-danger); }

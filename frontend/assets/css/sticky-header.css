@@ -8,7 +8,7 @@ html { scroll-padding-top: 110px; }
   z-index: 30;
   background: #fff;
 }
-.search-header { background: #f7f7f5; }
+.search-header { background: #f4f6f8; }
 .page > .top-bar {
   position: sticky;
   top: 0;
