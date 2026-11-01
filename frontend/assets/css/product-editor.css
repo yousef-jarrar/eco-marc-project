@@ -1,5 +1,5 @@
 body.products-page.product-editor-open {overflow:hidden; }
-body.products-page #productModal.modal {padding:24px;background:#e2ebf485; }
+body.products-page #productModal.modal {padding:24px;background:rgba(var(--rgb-accent-soft), 0.522); }
 .products-page #productModal .modal-content {max-width:980px;overflow:visible;border-radius:12px;background:var(--color-background); }
 .products-page #productModal .modal-header {position:sticky;top:-24px;z-index:4;padding:22px 28px;background:var(--color-background);border-bottom:1px solid var(--color-border);border-radius:12px 12px 0 0; }
 .products-page #productModal .modal-header h2 {color:var(--color-text);font:600 22px/1.3 var(--font-heading);margin:0 0 4px; }
@@ -45,7 +45,7 @@ body.products-page #productModal.modal {padding:24px;background:#e2ebf485; }
 .products-page #productModal .form-actions {position:sticky;bottom:-24px;z-index:3;padding:18px 28px;margin:0;display:flex;align-items:center;gap:10px;background:var(--color-background);border-top:1px solid var(--color-border);border-radius:0 0 12px 12px; }
 .products-page #productModal .editor-save-note {margin-right:auto;color:var(--color-text-secondary);font-size:11px; }
 .products-page #productModal .editor-save-note i {margin-right:6px; }
-body.products-page #productModal .primary-btn {background:var(--color-primary);border:1px solid var(--color-primary);color:var(--color-text);border-radius:5px; }
+body.products-page #productModal .primary-btn {background:var(--color-primary);border:1px solid var(--color-primary);color:var(--color-text-inverse);border-radius:5px; }
 body.products-page #productModal .secondary-btn {background:var(--color-background);border:1px solid var(--color-border-strong);color:var(--color-text);border-radius:5px; }
 .products-page #productModal :focus-visible {outline:var(--focus-ring);outline-offset:var(--focus-offset); }
 @media(max-width:700px) {

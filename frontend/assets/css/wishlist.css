@@ -1,9 +1,9 @@
 :root {
-    --wishlist-ink: #2d455c;
-    --wishlist-gold: #587796;
-    --wishlist-paper: #f4f6f8;
-    --wishlist-line: #e5e5e5;
-    --wishlist-muted: #777;
+    --wishlist-ink: var(--color-text);
+    --wishlist-gold: var(--color-text-muted);
+    --wishlist-paper: var(--color-bg);
+    --wishlist-line: var(--color-accent-soft);
+    --wishlist-muted: var(--color-text-muted);
 }
 
 .wishlist-container,
@@ -97,7 +97,7 @@
     width: 100%;
     aspect-ratio: 4 / 5;
     overflow: hidden;
-    background: #e8ecf1;
+    background: var(--color-accent-soft);
 }
 
 .wishlist-image img {
@@ -117,7 +117,7 @@
     top: 12px;
     left: 12px;
     padding: 6px 9px;
-    background: white;
+    background: var(--color-surface);
     color: var(--wishlist-ink);
     font-size: 10px;
     font-weight: 500;
@@ -134,15 +134,15 @@
     align-items: center;
     border: none;
     border-radius: 50%;
-    background: white;
-    color: #d14b58;
+    background: var(--color-surface);
+    color: var(--color-error);
     font-size: 16px;
     cursor: pointer;
     transition: background 0.3s ease;
 }
 
 .wishlist-heart:hover {
-    background: #f9e9eb;
+    background: var(--color-error-light);
 }
 
 .wishlist-heart:disabled {
@@ -178,7 +178,7 @@
     width: 13px;
     height: 13px;
     border-radius: 50%;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border);
 }
 
 .wishlist-empty {
@@ -203,7 +203,7 @@
     margin-top: 15px;
     padding: 12px 25px;
     background: var(--wishlist-ink);
-    color: white;
+    color: var(--color-surface);
     text-decoration: none;
     font-size: 13px;
 }

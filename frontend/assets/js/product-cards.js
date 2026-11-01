@@ -1,7 +1,7 @@
 (function(){
   if(window.ProductCards)return;
   const root=new URL('../../../',document.currentScript.src);
-  if(![...document.querySelectorAll('link[rel=stylesheet]')].some(link=>link.href.includes('/product-cards.css'))){const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('frontend/assets/css/product-cards.css?v=20261030-cards',root);document.head.append(css);}
+  if(![...document.querySelectorAll('link[rel=stylesheet]')].some(link=>link.href.includes('/product-cards.css'))){const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('frontend/assets/css/product-cards.css?v=20261101-terracotta',root);document.head.append(css);}
   const registry=new Map();const ratings=new Map();const saved=new Set();let revision=0;
   function node(tag,className,text){const el=document.createElement(tag);if(className)el.className=className;if(text!==undefined)el.textContent=text;return el;}
   function icon(name){const el=node('i','fa-solid fa-'+name);el.setAttribute('aria-hidden','true');return el;}

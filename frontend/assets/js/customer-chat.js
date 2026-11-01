@@ -8,7 +8,7 @@
   function iconLabel(element,name,text) { element.replaceChildren(icon(name),document.createTextNode(text)); }
   const css = document.createElement('link');
   css.rel = 'stylesheet';
-  css.href = new URL('frontend/assets/css/customer-chat.css?v=20261030-simplified-ai', projectRoot);
+  css.href = new URL('frontend/assets/css/customer-chat.css?v=20261101-comparison-images', projectRoot);
   document.head.append(css);
   const launcher = document.createElement('button');
   launcher.id = 'customer-chat-launcher';
@@ -215,7 +215,29 @@
     const table = document.createElement('table');
     const caption = document.createElement('caption'); caption.textContent = arabic ? 'مقارنة جنباً إلى جنب' : 'Side by side'; table.append(caption);
     const head = document.createElement('thead'); const row = document.createElement('tr');
-    [arabic ? 'التفصيل' : 'Detail', ...products.map(p => p.name)].forEach(text => { const th = document.createElement('th'); th.scope = 'col'; th.textContent = text; row.append(th); }); head.append(row); table.append(head);
+    const detailHeading = document.createElement('th'); detailHeading.scope = 'col'; detailHeading.textContent = arabic ? 'التفصيل' : 'Detail'; row.append(detailHeading);
+    products.forEach(product => {
+      const th = document.createElement('th'); th.scope = 'col';
+      const link = document.createElement('a'); link.className = 'chat-comparison-product';
+      const productUrl = new URL('frontend/ProductShop.html', projectRoot); productUrl.searchParams.set('id', String(product.id)); link.href = productUrl.href;
+      const photo = document.createElement('span'); photo.className = 'chat-comparison-photo';
+      const fallback = document.createElement('span'); fallback.className = 'chat-comparison-fallback'; fallback.append(icon('image'));
+      const fallbackLabel = document.createElement('span'); fallbackLabel.textContent = arabic ? 'الصورة غير متوفرة' : 'Image unavailable'; fallback.append(fallbackLabel);
+      const image = document.createElement('img'); image.alt = product.name || (arabic ? 'المنتج' : 'Product'); image.width = 120; image.height = 150; image.loading = 'lazy'; image.decoding = 'async';
+      const source = product.image_url || product.images?.[0]?.image_url || '';
+      let imageUrl;
+      try {
+        const base = /^(frontend|backend|assets)\//.test(source) ? projectRoot : document.baseURI;
+        const url = new URL(source, base);
+        if (source && ['http:', 'https:'].includes(url.protocol)) imageUrl = url.href;
+      } catch {}
+      image.addEventListener('error', () => { image.hidden = true; fallback.hidden = false; });
+      if (imageUrl) { fallback.hidden = true; image.src = imageUrl; } else image.hidden = true;
+      photo.append(image, fallback);
+      const name = document.createElement('span'); name.textContent = product.name;
+      link.append(photo, name); th.append(link); row.append(th);
+    });
+    head.append(row); table.append(head);
     const body = document.createElement('tbody');
     const money = value => new Intl.NumberFormat('en-JO',{style:'currency',currency:'JOD'}).format(value);
     const rows = [

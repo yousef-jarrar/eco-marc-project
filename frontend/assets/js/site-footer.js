@@ -53,5 +53,5 @@ if (footer) {
 
 footer?.querySelector('[data-footer-top]')?.addEventListener('click',event=>{event.preventDefault();window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'});});
 const customerChatScript = document.createElement("script");
-customerChatScript.src = new URL("frontend/assets/js/customer-chat.js?v=20261030-simplified-ai", footerRoot).href;
+customerChatScript.src = new URL("frontend/assets/js/customer-chat.js?v=20261101-comparison-images", footerRoot).href;
 document.body.append(customerChatScript);

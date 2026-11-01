@@ -1,7 +1,7 @@
 (function(){
   const scriptUrl=document.currentScript.src;
   const root=new URL('../../../',scriptUrl);
-  
+
   // ================= COOKIE CONSENT =================
 
   function getCookie(name) {
@@ -171,10 +171,10 @@
   }
   let footer=document.getElementById('site-footer');
   if(!footer){footer=document.createElement('footer');footer.id='site-footer';footer.className='site-footer';footer.setAttribute('aria-label','Site footer');document.body.append(footer);document.querySelector('.store-footer')?.remove();}
-  if(!document.querySelector('link[href*="site-footer.css"]')){const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('frontend/assets/css/site-footer.css?v=20261030-audit',root);document.head.append(css);}
+  if(!document.querySelector('link[href*="site-footer.css"]')){const css=document.createElement('link');css.rel='stylesheet';css.href=new URL('frontend/assets/css/site-footer.css?v=20261101-terracotta',root);document.head.append(css);}
   const main=document.querySelector('main');
   if(main&&!document.querySelector('a[href="#'+(main.id||'main')+'"]')){if(!main.id)main.id='main';const skip=document.createElement('a');skip.className='ph-skip';skip.href='#'+main.id;skip.textContent='Skip to content';document.body.prepend(skip);}
-  load("frontend/assets/js/product-cards.js?v=20261030-cards").then(()=>(footer?load('frontend/assets/js/site-footer.js?v=20261030-audit'):Promise.resolve()))
-    .then(()=>load('frontend/assets/js/customer-chat.js?v=20261030-simplified-ai')).catch(()=>{});
-    
+  load("frontend/assets/js/product-cards.js?v=20261101-terracotta").then(()=>(footer?load('frontend/assets/js/site-footer.js?v=20261101-orderupdates'):Promise.resolve()))
+    .then(()=>load('frontend/assets/js/customer-chat.js?v=20261101-comparison-images')).catch(()=>{});
+
 })();

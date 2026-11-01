@@ -1,9 +1,9 @@
 document.body.classList.add('admin-notifications');
 const adminNoticeStyles = document.createElement('link');
 adminNoticeStyles.rel = 'stylesheet';
-adminNoticeStyles.href = new URL('../css/admin-notifications.css?v=20261031-notices', document.currentScript.src).href;
+adminNoticeStyles.href = new URL('../css/admin-notifications.css?v=20261101-terracotta', document.currentScript.src).href;
 document.head.append(adminNoticeStyles);
- 
+
 function escapeHTML(value) {
   if (value === null || value === undefined) {
     return "";
@@ -50,8 +50,8 @@ function displayDate(value) {
   });
 }
 
- 
- 
+
+
 const adminPages = [
   { name: "Overview", page: "overview", file: "overveiw.html", icon: "chart-pie", available: true },
   { name: "Categories", page: "categories", file: "categories.html", icon: "layer-group", available: true },
@@ -93,8 +93,8 @@ function loadAdminMenu() {
   const content = document.getElementById("sidebar-content");
   content.innerHTML = `
     <a class="wordmark" href="ai-assistant.html" aria-label="LUMIÈRE administration">
-      <strong class="wordmark-full"> <span><img src="../../assets/lumiere-icon-dark.svg?v=20261101-navygold" alt="LUMIÈRE" width="35"></span>LUMIÈRE</strong>
-      <strong class="wordmark-small"><img src="../../assets/lumiere-icon-dark.svg?v=20261101-navygold" alt="LUMIÈRE" width="35" height="35"></strong>
+      <strong class="wordmark-full"> <span><img src="../../assets/lumiere-icon-dark.svg?v=20261101-terracotta" alt="LUMIÈRE" width="35"></span>LUMIÈRE</strong>
+      <strong class="wordmark-small"><img src="../../assets/lumiere-icon-dark.svg?v=20261101-terracotta" alt="LUMIÈRE" width="35" height="35"></strong>
     </a>
     <p class="nav-caption">Store management</p>
     <nav id="admin-navigation" aria-label="Admin navigation"></nav>
@@ -255,7 +255,7 @@ loadAdminTopbar();
 try {
   if (localStorage.getItem("eco-marc-sidebar-collapsed") === "1") document.body.classList.add("sidebar-is-collapsed");
 } catch (error) {
-   
+
 }
 updateCollapsedMenu();
 
@@ -302,7 +302,7 @@ document.addEventListener("keydown", function (event) {
   }
 });
 
- 
+
 document.getElementById("admin-logout").addEventListener("click", EcoAuth.logout);
 EcoAuth.ready.then(function (session) {
   if (!session.user) return;
