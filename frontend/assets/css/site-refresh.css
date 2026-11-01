@@ -350,3 +350,27 @@ header.public-header :is(a,button):focus-visible {outline-color:var(--color-prim
 }
 @supports not (backdrop-filter:blur(1px)) {header.public-header {background:var(--color-surface);}}
 @media(prefers-reduced-transparency:reduce) {header.public-header {background:var(--color-surface);backdrop-filter:none;-webkit-backdrop-filter:none;}}
+/* ===== BRAND COLOR v2: soft beige header + warm sidebar =====
+   لإلغاء التعديل: احذف هاد البلوك كله ===== */
+
+/* ---------- هيدر الزبون ---------- */
+header.public-header,
+header.public-header .ph-main {background:var(--color-accent-soft);border-bottom:3px solid var(--color-primary);}
+
+header.public-header .ph-logo {color:var(--color-primary);}
+
+header.public-header .ph-nav>a:hover,
+header.public-header .ph-nav>a.is-active {background:rgba(255,255,255,.75);color:var(--color-primary);}
+header.public-header .ph-nav>a::after {background:var(--color-primary);}
+
+header.public-header .ph-icon:hover {background:rgba(255,255,255,.75);color:var(--color-primary);}
+header.public-header .ph-badge {background:var(--color-primary);color:#fff;}
+
+/* القائمة المنسدلة بالموبايل */
+@media(max-width:1100px){
+  header.public-header .ph-nav>a:hover,
+  header.public-header .ph-nav>a.is-active {background:var(--color-accent-soft);}
+}
+
+/* ---------- شريط الإعلان فوق الهيدر ---------- */
+header.public-header .ph-announcement {background:#A44B38;color:#fff;border-bottom:1px solid var(--color-border);}
