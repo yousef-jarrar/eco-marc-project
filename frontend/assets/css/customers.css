@@ -1,4 +1,4 @@
- 
+
 .customer-search {max-width:380px;margin-bottom:24px;
 }
 
@@ -20,7 +20,7 @@
 .customer-actions {display:flex;align-items:center;gap:6px;
 }
 
-.customer-actions .action-btn {display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:7px 11px;border:1px solid var(--color-border-strong);background:white;color:var(--color-text);font-size:11px;
+.customer-actions .action-btn {display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:7px 11px;border:1px solid var(--color-border-strong);background:var(--color-surface);color:var(--color-text);font-size:11px;
 }
 
 .customer-actions a.action-btn:hover {background:var(--color-surface-alt);
@@ -39,7 +39,7 @@
 }
 
 .customer-alert-form input,
-.customer-alert-form textarea {width:100%;min-height:40px;padding:9px 11px;border:1px solid var(--color-border-strong);border-radius:var(--radius-sm);background:#fff;color:var(--color-text);font:inherit;
+.customer-alert-form textarea {width:100%;min-height:40px;padding:9px 11px;border:1px solid var(--color-border-strong);border-radius:var(--radius-sm);background:var(--color-surface);color:var(--color-text);font:inherit;
 }
 
 .customer-alert-form textarea {resize:vertical;
@@ -93,7 +93,7 @@
 .customer-table-panel .pagination-buttons {display:flex;gap:8px;
 }
 
-.customer-table-panel .pagination-buttons button {min-height:38px;padding:8px 14px;border:1px solid #dfe3e8;border-radius:7px;background:#fff;color:var(--color-text);cursor:pointer;
+.customer-table-panel .pagination-buttons button {min-height:38px;padding:8px 14px;border:1px solid var(--color-accent-soft);border-radius:7px;background:var(--color-surface);color:var(--color-text);cursor:pointer;
 }
 
 .customer-table-panel .pagination-buttons button:hover:not(:disabled) {background:var(--color-surface-alt);
@@ -109,7 +109,7 @@
 .customer-summary strong {font-size:19px;font-weight:500;margin-right:5px;color:var(--color-text);font-variant-numeric:tabular-nums;}
 .customer-views {display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;}
 .customer-views button {display:flex;align-items:center;gap:8px;min-height:42px;padding:9px 13px;border:var(--border-default);border-radius:5px;background:var(--color-background);color:var(--color-text-secondary);font-size:12px;}
-.customer-views button[aria-pressed="true"] {color:var(--color-text);background:var(--color-primary);border-color:var(--color-primary);}
+.customer-views button[aria-pressed="true"] {color:var(--color-text-inverse);background:var(--color-primary);border-color:var(--color-primary);}
 .customer-toolbar {display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:22px;}
 .customer-toolbar>div {width:185px;min-width:0;}
 .customers-page .customer-toolbar .customer-search {flex:1;min-width:220px;max-width:none;margin:0;}
@@ -168,7 +168,7 @@ body.admin-notifications .customer-editor-dialog .swal2-html-container {padding:
 .customer-editor-full {grid-column:1/-1;}
 .customer-profile-editor label {display:block;margin-bottom:7px;font-size:12px;font-weight:500;color:var(--color-text);}
 .customer-profile-editor label span {font-size:10px;color:var(--color-text-secondary);font-weight:400;margin-left:7px;}
-.customer-profile-editor input,.customer-profile-editor textarea {display:block;width:100%;min-height:44px;padding:11px 12px;border:1px solid var(--color-input-border);background:white;color:var(--color-text);font:inherit;font-size:13px;box-sizing:border-box;border-radius:4px;}
+.customer-profile-editor input,.customer-profile-editor textarea {display:block;width:100%;min-height:44px;padding:11px 12px;border:1px solid var(--color-input-border);background:var(--color-surface);color:var(--color-text);font:inherit;font-size:13px;box-sizing:border-box;border-radius:4px;}
 .customer-profile-editor textarea {resize:vertical;min-height:90px;line-height:1.8;}
 .customer-profile-editor small {display:block;font-size:10px;color:var(--color-text-secondary);line-height:1.8;margin-top:6px;}
 .customers-page.admin-notifications .swal2-popup.customer-editor-dialog .customer-profile-editor :is(input,textarea):focus {outline:none;box-shadow:none;border-color:var(--color-accent-hover);}

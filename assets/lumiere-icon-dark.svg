@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title">
-  <title id="title">LUMIÈRE monogram — navy background version</title>
+  <title id="title">LUMIÈRE monogram — monogram</title>
   <rect width="128" height="128" rx="18" fill="none"/>
   <g transform="translate(10 5)">
-    <path d="M29 18 C29 13 25 11 17 11 H8 V8 H65 V11 H58 C49 11 46 15 46 23 V87 C46 95 50 99 60 99 H75 C89 99 98 92 106 78 L109 80 L96 108 H8 V105 H17 C26 105 29 101 29 92 Z" fill="#FFFFFF"/>
-    <path d="M5 65 C24 42 39 47 57 61 C75 75 88 87 109 62 C101 81 84 91 65 79 C43 65 27 49 5 65 Z" fill="#C99553"/>
-    <path d="M94 18 L98 29 L109 33 L98 37 L94 48 L90 37 L79 33 L90 29 Z" fill="#C99553"/>
+    <path d="M29 18 C29 13 25 11 17 11 H8 V8 H65 V11 H58 C49 11 46 15 46 23 V87 C46 95 50 99 60 99 H75 C89 99 98 92 106 78 L109 80 L96 108 H8 V105 H17 C26 105 29 101 29 92 Z" fill="#222222"/>
+    <path d="M5 65 C24 42 39 47 57 61 C75 75 88 87 109 62 C101 81 84 91 65 79 C43 65 27 49 5 65 Z" fill="#A44B38"/>
+    <path d="M94 18 L98 29 L109 33 L98 37 L94 48 L90 37 L79 33 L90 29 Z" fill="#A44B38"/>
   </g>
 </svg>

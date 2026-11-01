@@ -1,13 +1,13 @@
- 
+
 const Alerts = {
-  successIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="1em" height="1em" aria-hidden="true" focusable="false" style="display:block"><path d="m8 16 5.5 5.5L24 11" fill="none" stroke="var(--color-success, #237a56)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  successIcon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="1em" height="1em" aria-hidden="true" focusable="false" style="display:block"><path d="m8 16 5.5 5.5L24 11" fill="none" stroke="var(--color-success)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   show: function (title, text = "", icon = "info", options = {}) {
     return Swal.fire({
       title: title,
       text: text,
       icon: icon,
       ...(icon === "success" ? { iconHtml: this.successIcon } : {}),
-      confirmButtonColor: "#dce7f1",
+      confirmButtonColor: getComputedStyle(document.documentElement).getPropertyValue("--color-primary").trim(),
       ...options
     });
   },
@@ -19,7 +19,7 @@ const Alerts = {
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Confirm",
-      confirmButtonColor: "#dce7f1"
+      confirmButtonColor: getComputedStyle(document.documentElement).getPropertyValue("--color-primary").trim()
     });
   },
 
@@ -45,7 +45,7 @@ const Alerts = {
     });
   },
 
-   
+
   form: function (title, html, save, options = {}) {
     return Swal.fire({
       title: title,
@@ -53,7 +53,7 @@ const Alerts = {
       showCancelButton: true,
       confirmButtonText: "Save",
       cancelButtonText: "Cancel",
-      confirmButtonColor: "#dce7f1",
+      confirmButtonColor: getComputedStyle(document.documentElement).getPropertyValue("--color-primary").trim(),
       focusConfirm: false,
       showLoaderOnConfirm: true,
       allowOutsideClick: function () { return !Swal.isLoading(); },

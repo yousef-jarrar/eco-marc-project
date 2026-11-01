@@ -26,7 +26,13 @@ let overviewRevenueChart = null;
 let overviewOrderStatusChart = null;
 let overviewCategoryRevenueChart = null;
 let recentOverviewOrders = [];
-const overviewChartColors = ["#25476A", "#C99553", "#6685A5", "#A7BBCE", "#8E9EAE", "#D4DFE8", "#4F6D88", "#B9C9D8"];
+const overviewTheme = getComputedStyle(document.documentElement);
+const overviewColor = name => overviewTheme.getPropertyValue(name).trim();
+const overviewChartColors = Array.from({length:8}, (_, index) => overviewColor("--chart-" + (index + 1)));
+if (window.Chart) {
+  Chart.defaults.color = overviewColor("--color-text-muted");
+  Chart.defaults.borderColor = overviewColor("--color-border");
+}
 
 function overviewToday() {
   const parts = new Intl.DateTimeFormat("en", {
@@ -101,8 +107,8 @@ function renderOverviewChart(rows) {
       datasets: [{
         label: "Revenue (JOD)",
         data: rows.map(function (row) { return number(row.revenue); }),
-        borderColor: "#25476A",
-        backgroundColor: "#6685A518",
+        borderColor: overviewColor("--color-primary"),
+        backgroundColor: "rgba(" + overviewColor("--rgb-primary") + ", .09)",
         borderWidth: 2,
         fill: true,
         tension: 0.25
@@ -114,7 +120,7 @@ function renderOverviewChart(rows) {
       maintainAspectRatio: false,
       plugins: { legend: { display: false } },
       scales: {
-        y: { beginAtZero: true, grid: { color: "#eeeeee" } },
+        y: { beginAtZero: true, grid: { color: overviewColor("--color-border") } },
         x: { grid: { display: false }, ticks: { maxTicksLimit: 12 } }
       }
     }
@@ -218,7 +224,7 @@ function renderCategoryRevenue(rows) {
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
-          y: { beginAtZero: true, grid: { color: "#eeeeee" } },
+          y: { beginAtZero: true, grid: { color: overviewColor("--color-border") } },
           x: { grid: { display: false }, ticks: { maxRotation: 35, minRotation: 25 } }
         }
       }

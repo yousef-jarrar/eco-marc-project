@@ -28,6 +28,7 @@ let cartItems = [];
 let cartTotals = null;
 let submitting = false;
 let checkoutPhoneRequired = true;
+let savedDeliveryAddress = "";
 
 const currentYear = document.getElementById("current-year");
 if (currentYear) currentYear.textContent = new Date().getFullYear();
@@ -268,14 +269,42 @@ function prefillForm(profile) {
     phoneInput.disabled = !checkoutPhoneRequired;
     document.getElementById("checkout-phone-field").hidden = !checkoutPhoneRequired;
 
-    fillIfEmpty("address", profile.address);
+    const hadSavedAddress = Boolean(savedDeliveryAddress);
+    savedDeliveryAddress = typeof profile.address === "string" ? profile.address.trim() : "";
+    document.getElementById("saved-address-options").hidden = !savedDeliveryAddress;
+    document.getElementById("saved-address-text").textContent = savedDeliveryAddress;
+    const hasDraft = ["address", "city", "district"].some(id => value(id));
+    if (!hadSavedAddress && savedDeliveryAddress && !hasDraft) {
+        document.getElementById("use-saved-address").checked = true;
+    }
+    updateAddressMode();
 }
 
 function value(id) {
     return document.getElementById(id)?.value.trim() || "";
 }
 
+function usingSavedAddress() {
+    return Boolean(savedDeliveryAddress && document.getElementById("use-saved-address").checked);
+}
+
+function updateAddressMode() {
+    const saved = usingSavedAddress();
+    document.getElementById("manual-address-fields").hidden = saved;
+    ["address", "city", "district"].forEach(id => {
+        const input = document.getElementById(id);
+        input.disabled = saved;
+        input.required = !saved && id !== "district";
+    });
+    updateAddressPreview();
+}
+
+document.querySelectorAll('input[name="delivery_address"]').forEach(input => {
+    input.addEventListener("change", updateAddressMode);
+});
+
 function buildShippingAddress() {
+    if (usingSavedAddress()) return savedDeliveryAddress;
     const lines = [
         value("address"),
         [value("district"), value("city")].filter(Boolean).join(", ")
@@ -304,7 +333,7 @@ function saveCoupon(code) {
 function setCouponMessage(text, good = false) {
     if (!couponMessage) return;
     couponMessage.textContent = text;
-    couponMessage.style.color = good ? "#2e7d32" : text ? "#c62828" : "";
+    couponMessage.style.color = good ? "var(--color-success)" : text ? "var(--color-error)" : "";
 }
 
 // Type a code + Apply = discount. Empty box + Apply = remove the coupon.
@@ -410,7 +439,7 @@ function validateForm() {
 
     let valid = true;
 
-    const requiredIds = ["address", "city"];
+    const requiredIds = usingSavedAddress() ? [] : ["address", "city"];
     if (checkoutPhoneRequired) requiredIds.unshift("phone");
 
     form.querySelectorAll(".form-field").forEach(field => {
@@ -504,6 +533,7 @@ if (form) {
         const buttonLabel = placeOrderButton.querySelector(".button-label");
         if (buttonLabel) buttonLabel.textContent = "Placing order...";
 
+        const placingStarted = performance.now();
         try {
             const result = await apiRequest(endpoint("checkout"), {
                 method: "POST",
@@ -526,6 +556,8 @@ if (form) {
 
             if (buttonLabel) buttonLabel.textContent = "Order placed";
 
+            const remaining = 2500 - (performance.now() - placingStarted);
+            if (remaining > 0) await new Promise(resolve => setTimeout(resolve, remaining));
             const orderId = order.cart_id ?? order.order_id ?? "";
             window.location.href =
                 `Order-success.html${orderId ? `?order=${encodeURIComponent(orderId)}` : ""}`;

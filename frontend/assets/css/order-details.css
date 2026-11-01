@@ -11,13 +11,13 @@
 .od-heading-total strong { font: 600 23px/1.4 var(--font-heading); letter-spacing: -.03em; }
 .od-status { display: inline-flex; align-items: center; gap: 7px; padding: 5px 10px; background: var(--color-surface-alt); color: var(--color-text-secondary); font-size: 11px; font-weight: 600; text-transform: capitalize; }
 .od-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-.od-status.pending,.od-status.confirmed { background: var(--color-warning-light); color: #2d455c; }
+.od-status.pending,.od-status.confirmed { background: var(--color-warning-light); color: var(--color-text); }
 .od-status.processing,.od-status.shipped { background: var(--color-info-light); color: var(--color-info); }
 .od-status.delivered,.od-status.completed { background: var(--color-success-light); color: var(--color-success); }
 .od-status.cancelled { background: var(--color-danger-light); color: var(--color-danger); }
 .od-layout { display: grid; grid-template-columns: minmax(0,1fr) 300px; gap: 22px; align-items: start; }
 .od-main,.od-side { display: grid; gap: 22px; min-width: 0; }
-.od-panel { min-width: 0; background: white; border: var(--border-default); }
+.od-panel { min-width: 0; background: var(--color-surface); border: var(--border-default); }
 .od-panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 22px 24px; border-bottom: var(--border-default); }
 .od-panel-heading h2 { display: flex; align-items: center; gap: 10px; font-size: 15px; letter-spacing: -.02em; }
 .od-panel-heading h2 i { color: var(--color-accent-hover); font-size: 14px; }
@@ -49,7 +49,7 @@
 .od-address p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; line-height: 1.8; }
 .od-panel-body { padding: 22px 24px; }
 .od-panel-body label { display: block; margin-bottom: 8px; color: var(--color-text-secondary); font-size: 11px; }
-.od-panel-body select { width: 100%; min-height: 44px; background: white; color: var(--color-text); font-size: 12px; }
+.od-panel-body select { width: 100%; min-height: 44px; background: var(--color-surface); color: var(--color-text); font-size: 12px; }
 .od-panel-body button { width: 100%; margin-top: 14px; font-size: 12px; }
 .status-message { margin: 12px 0 0; color: var(--color-text-secondary); font-size: 11px; line-height: 1.7; }
 .status-message:empty { display: none; }
@@ -61,7 +61,7 @@
 .od-totals dd { margin: 0; font-variant-numeric: tabular-nums; }
 .od-totals .od-grand-total { border-top: var(--border-default); padding-top: 18px; margin: 18px 0 0; font-size: 16px; font-weight: 600; }
 .od-grand-total dt { color: var(--color-text); font-weight: 600; }
-.od-state { background: white; border: var(--border-default); padding: 65px 24px; text-align: center; }
+.od-state { background: var(--color-surface); border: var(--border-default); padding: 65px 24px; text-align: center; }
 .od-state h1 { font-size: 23px; margin-top: 20px; }
 .od-state p { color: var(--color-text-secondary); font-size: 13px; }
 .od-state-icon { font-size: 25px; color: var(--color-accent-hover); }

@@ -4,7 +4,7 @@
 .orders-page #refresh-orders {font-size:12px;border-radius:4px;}
 .order-status-tabs {display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
 .order-status-tabs button {background:var(--color-background);color:var(--color-text-secondary);border:var(--border-default);border-radius:5px;padding:9px 14px;font-size:12px;min-height:42px;}
-.order-status-tabs button[aria-pressed="true"] {background:var(--color-primary);color:var(--color-text);border-color:var(--color-primary);}
+.order-status-tabs button[aria-pressed="true"] {background:var(--color-primary);color:var(--color-text-inverse);border-color:var(--color-primary);}
 .orders-page .order-filter-panel {padding:22px 24px;border-radius:6px;margin-bottom:24px;}
 .order-filters {display:grid;grid-template-columns:minmax(180px,1.7fr) minmax(120px,1fr) minmax(130px,1fr) minmax(130px,1fr) auto;gap:13px;align-items:end;}
 .order-filters .field {min-width:0;}
@@ -13,7 +13,7 @@
 .order-filter-actions {display:flex;gap:7px;}
 .order-filter-actions button {font-size:11px;min-height:44px;padding:10px 12px;border-radius:4px;white-space:nowrap;}
 .order-filter-error {font-size:12px;line-height:1.8;color:var(--color-danger);margin:14px 0 0;}
-.order-filter-draft {font-size:11px;line-height:1.8;color:#2d455c;background:var(--color-accent-light);padding:10px 12px;border-radius:4px;margin:14px 0 0;}
+.order-filter-draft {font-size:11px;line-height:1.8;color:var(--color-text);background:var(--color-accent-light);padding:10px 12px;border-radius:4px;margin:14px 0 0;}
 .orders-page .orders-list-panel {padding:0;border-radius:7px;overflow:hidden;}
 .orders-page .orders-list-panel .panel-heading {padding:22px 24px;margin:0;gap:16px;}
 .orders-page .orders-list-panel h2 {font-size:18px;}
@@ -32,10 +32,10 @@
 .order-date {font-size:11px;}
 .order-time {display:block;font-size:10px;color:var(--color-text-secondary);margin-top:7px;}
 .order-status {display:inline-flex;align-items:center;gap:6px;border-radius:4px;padding:5px 8px;font-size:10px;line-height:1.6;white-space:nowrap;}
-.order-status.pending {color:#2d455c;background:#f1f3f6;}
+.order-status.pending {color:var(--color-text);background:var(--color-bg);}
 .order-status.confirmed {color:var(--color-info);background:var(--color-info-light);}
-.order-status.processing {color:#2d455c;background:var(--color-accent-light);}
-.order-status.shipped {color:#2d455c;background:var(--color-info-light);}
+.order-status.processing {color:var(--color-text);background:var(--color-accent-light);}
+.order-status.shipped {color:var(--color-text);background:var(--color-info-light);}
 .order-status.delivered {color:var(--color-success);background:var(--color-success-light);}
 .order-status.cancelled {color:var(--color-danger);background:var(--color-danger-light);}
 .order-status.unknown {background:var(--color-surface-alt);color:var(--color-text-secondary);}
