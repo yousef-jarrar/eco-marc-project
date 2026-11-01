@@ -9,14 +9,14 @@
 .site-footer h2 { font: 500 13px var(--font-body); letter-spacing: 0; color: #fff; margin: 8px 0 22px; }
 .site-footer nav a { display: block; width: fit-content; color: #b4b4b4; font-size: 12px; margin: 12px 0; text-decoration: none; }
 .site-footer a:hover { color: #fff; text-decoration: underline; text-underline-offset: 4px; }
-.site-footer details { border-bottom: 1px solid #393939; padding: 0 0 14px; margin: 0 0 14px; }
+.site-footer details { border-bottom: 1px solid #aebfd0; padding: 0 0 14px; margin: 0 0 14px; }
 .site-footer summary { cursor: pointer; color: #b4b4b4; font-size: 12px; }
 .site-footer details[open] summary { color: #fff; }
 .site-footer details p { font-size: 12px; line-height: 1.8; margin: 14px 0 10px; color: #b4b4b4; max-width: 320px; }
 .site-footer details a { color: #ddd; font-size: 12px; text-underline-offset: 4px; }
-.site-footer-bottom { display: flex; justify-content: space-between; align-items: center; gap: 24px; max-width: 1440px; border-top: 1px solid #393939; padding-top: 24px; margin: 48px auto 0; font-size: 11px; color: #aaa; }
+.site-footer-bottom { display: flex; justify-content: space-between; align-items: center; gap: 24px; max-width: 1440px; border-top: 1px solid #aebfd0; padding-top: 24px; margin: 48px auto 0; font-size: 11px; color: #aaa; }
 .site-footer-bottom a { color: #aaa; text-decoration: none; white-space: nowrap; }
-.site-footer :focus-visible { outline-color: #d3b184; }
+.site-footer :focus-visible { outline-color: #506e8b; }
 @media (max-width: 900px) {
   .site-footer-grid { grid-template-columns: 1.4fr 1fr 1.4fr; gap: 32px; }
   .site-footer-bottom { flex-wrap: wrap; gap: 16px 24px; }

@@ -1,7 +1,7 @@
 :root {
-    --wishlist-ink: #171717;
-    --wishlist-gold: #b89569;
-    --wishlist-paper: #f7f7f5;
+    --wishlist-ink: #2d455c;
+    --wishlist-gold: #587796;
+    --wishlist-paper: #f4f6f8;
     --wishlist-line: #e5e5e5;
     --wishlist-muted: #777;
 }
@@ -97,7 +97,7 @@
     width: 100%;
     aspect-ratio: 4 / 5;
     overflow: hidden;
-    background: #efefea;
+    background: #e8ecf1;
 }
 
 .wishlist-image img {

@@ -93,8 +93,8 @@ function loadAdminMenu() {
   const content = document.getElementById("sidebar-content");
   content.innerHTML = `
     <a class="wordmark" href="ai-assistant.html" aria-label="LUMIÈRE administration">
-      <strong class="wordmark-full"> <span><img src="../../assets/lumiere-icon-light.svg" alt="LUMIÈRE" width="35"></span>LUMIÈRE</strong>
-      <strong class="wordmark-small"><img src="../../assets/lumiere-icon-light.svg" alt="LUMIÈRE" width="35" height="35"></strong>
+      <strong class="wordmark-full"> <span><img src="../../assets/lumiere-icon-dark.svg?v=20261101-navygold" alt="LUMIÈRE" width="35"></span>LUMIÈRE</strong>
+      <strong class="wordmark-small"><img src="../../assets/lumiere-icon-dark.svg?v=20261101-navygold" alt="LUMIÈRE" width="35" height="35"></strong>
     </a>
     <p class="nav-caption">Store management</p>
     <nav id="admin-navigation" aria-label="Admin navigation"></nav>

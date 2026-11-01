@@ -144,7 +144,7 @@
 .products-page .table-wrapper thead th {
     padding: 16px 14px;
     background: #f7f8f6;
-    color: #4b514c;
+    color: #2d455c;
     font-size: 12px;
     font-weight: 700;
     text-align: left;
@@ -165,7 +165,7 @@
 }
 
 .products-page .table-wrapper tbody tr:hover {
-    background: #fcfcfa;
+    background: #fafbfc;
 }
 
 
@@ -189,8 +189,8 @@
     object-fit: contain;
     object-position: center;
     padding: 4px;
-    background: #f5f5f1;
-    border: 1px solid #ecece6;
+    background: #f0f3f6;
+    border: 1px solid #e4e9ee;
     border-radius: 8px;
 }
 
@@ -234,7 +234,7 @@
     border: 1px solid #dfe3df;
     border-radius: 6px;
     background: #fff;
-    color: #303630;
+    color: #2d455c;
     font-size: 12px;
     line-height: 1.2;
     cursor: pointer;
@@ -555,7 +555,7 @@ body.products-page #productModal.modal.open {
     overflow: hidden;
     border: 1px solid #e1e5df;
     border-radius: 9px;
-    background: #f5f5f1;
+    background: #f0f3f6;
 }
 
 .products-page #imagePreview .preview-item img {
@@ -794,7 +794,7 @@ body.products-page #productModal.modal {
 
  
 .products-page #productModal .form-group label {
-    color: #303630;
+    color: #2d455c;
     font-size: 13px;
     font-weight: 600;
 }

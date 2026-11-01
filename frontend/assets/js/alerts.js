@@ -7,7 +7,7 @@ const Alerts = {
       text: text,
       icon: icon,
       ...(icon === "success" ? { iconHtml: this.successIcon } : {}),
-      confirmButtonColor: "#171717",
+      confirmButtonColor: "#dce7f1",
       ...options
     });
   },
@@ -19,7 +19,7 @@ const Alerts = {
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Confirm",
-      confirmButtonColor: "#171717"
+      confirmButtonColor: "#dce7f1"
     });
   },
 
@@ -53,7 +53,7 @@ const Alerts = {
       showCancelButton: true,
       confirmButtonText: "Save",
       cancelButtonText: "Cancel",
-      confirmButtonColor: "#171717",
+      confirmButtonColor: "#dce7f1",
       focusConfirm: false,
       showLoaderOnConfirm: true,
       allowOutsideClick: function () { return !Swal.isLoading(); },

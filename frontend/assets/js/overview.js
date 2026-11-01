@@ -26,7 +26,7 @@ let overviewRevenueChart = null;
 let overviewOrderStatusChart = null;
 let overviewCategoryRevenueChart = null;
 let recentOverviewOrders = [];
-const overviewChartColors = ["#b89569", "#171717", "#788f84", "#b8c8bf", "#d9c8b0", "#a6b8c7", "#c89d71", "#859b91"];
+const overviewChartColors = ["#25476A", "#C99553", "#6685A5", "#A7BBCE", "#8E9EAE", "#D4DFE8", "#4F6D88", "#B9C9D8"];
 
 function overviewToday() {
   const parts = new Intl.DateTimeFormat("en", {
@@ -101,14 +101,15 @@ function renderOverviewChart(rows) {
       datasets: [{
         label: "Revenue (JOD)",
         data: rows.map(function (row) { return number(row.revenue); }),
-        borderColor: "#b89569",
-        backgroundColor: "#b8956920",
+        borderColor: "#25476A",
+        backgroundColor: "#6685A518",
         borderWidth: 2,
         fill: true,
         tension: 0.25
       }]
     },
     options: {
+      animation: matchMedia("(prefers-reduced-motion: reduce)").matches ? false : {duration: 650},
       responsive: true,
       maintainAspectRatio: false,
       plugins: { legend: { display: false } },
@@ -162,6 +163,7 @@ function renderOrderStatusChart(rows) {
       }]
     },
     options: {
+      animation: matchMedia("(prefers-reduced-motion: reduce)").matches ? false : {duration: 650},
       responsive: true,
       maintainAspectRatio: false,
       cutout: "43%",
@@ -211,7 +213,8 @@ function renderCategoryRevenue(rows) {
         }]
       },
       options: {
-        responsive: true,
+        animation: matchMedia("(prefers-reduced-motion: reduce)").matches ? false : {duration: 650},
+      responsive: true,
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
@@ -520,7 +523,7 @@ async function loadOverview() {
 
 function setDefaultOverviewPeriod() {
   const today = overviewToday();
-  overviewFrom.value = today.slice(0, 7) + "-01";
+  overviewFrom.value = overviewShiftDate(today, -29);
   overviewTo.value = today;
   overviewFrom.max = today;
   overviewTo.max = today;
@@ -554,7 +557,7 @@ function overviewRange(key) {
   const from=key==='today'?today:key==='week'?overviewShiftDate(today,-6):key==='month'?overviewShiftDate(today,-29):today.slice(0,7)+'-01';
   return {from,to:today};
 }
-let overviewPreferredPreset = 'current';
+let overviewPreferredPreset = 'month';
 function updateOverviewPresets() {
   const buttons=[...document.querySelectorAll('[data-overview-range]')];
   const matches=buttons.filter(button=>{const range=overviewRange(button.dataset.overviewRange);return overviewFrom.value===range.from&&overviewTo.value===range.to;});

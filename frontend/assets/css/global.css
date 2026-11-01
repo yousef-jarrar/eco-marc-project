@@ -54,7 +54,7 @@ button,.button {
   padding: 11px 18px;
   border: 1px solid var(--color-primary);
   background: var(--color-primary);
-  color: white;
+  color: var(--color-text);
   cursor: pointer;
   transition: background-color var(--duration-fast);
 }
@@ -155,7 +155,7 @@ label {
   padding: 4px 9px;
   border-radius: 3px;
   background: var(--color-accent-light);
-  color: #806035;
+  color: #2d455c;
 }
 
 .status.approved,.status.ready {
